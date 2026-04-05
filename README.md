@@ -18,4 +18,8 @@ LockER adalah sistem informasi berbasis web yang dirancang untuk menghubungkan p
 5. Carrer Expo
 
 ## Tech Stack
+<<<<<<< HEAD
 HTML, CSS, Laravel, PHP, MySql
+=======
+HTML, CSS, Laravel, PHP, MySql
+>>>>>>> 42c905bd55c86de836689f04d155c7a04002d7ff
