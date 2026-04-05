@@ -7,7 +7,7 @@ LockER adalah sistem informasi berbasis web yang dirancang untuk menghubungkan p
 
 | Rafy Dhia Najmi Ilham | L0124140 | Project Manager |
 | Rizky Rafif Putra Pratama | L0124255 | Developer |
-| Rahmat Daniel | L0124141 | Developer |
+| Rahmad Daniel | L0124141 | Developer |
 | Laila Khoirunnisa | L0122087 | Quality Assurance |
 
 ## Fitur Utama
