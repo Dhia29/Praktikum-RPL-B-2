@@ -9,6 +9,7 @@ LockER adalah sistem informasi berbasis web yang dirancang untuk menghubungkan p
 | Rizky Rafif Putra Pratama | L0124255 | Developer |
 | Rahmat Daniel | L0124141 | Developer |
 | Laila Khoirunnisa | L0122087 | Quality Assurance |
+| 1amrzy | L0123456 | Developer |
 
 ## Fitur Utama
 1. Registrasi & Login 
