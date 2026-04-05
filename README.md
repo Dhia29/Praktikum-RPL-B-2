@@ -1,3 +1,10 @@
+<<< feature/add-lailanisa
+# Final-Project-RPL-
+Final Project RPL Kelompok 2 Kelas B Mata Kuliah RPL
+
+## Anggota Tim
+- Laila Khoirunnisa (L0122087)
+=======
 # LockER
 
 LockER adalah sistem informasi berbasis web yang dirancang untuk menghubungkan perusahaan dengan pencari kerja secara langsung. Platform ini mengusung konsep *career expo digital*, sehingga proses rekrutmen menjadi lebih cepat, efisien, dan transparan.
@@ -20,3 +27,4 @@ LockER adalah sistem informasi berbasis web yang dirancang untuk menghubungkan p
 
 ## Tech Stack
 HTML, CSS, Laravel, PHP, MySql
+
