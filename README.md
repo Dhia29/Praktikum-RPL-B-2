@@ -24,3 +24,62 @@ LockER adalah sistem informasi berbasis web yang dirancang untuk menghubungkan p
 ## Tech Stack
 HTML, CSS, Laravel, PHP, MySql
 
+## Panduan Instalasi (Untuk Developer Baru)
+
+Berikut adalah langkah-langkah untuk mengatur dan menjalankan proyek ini di lingkungan lokal (localhost):
+
+1. **Clone Repository & Masuk ke Direktori Proyek**
+   ```bash
+   git clone <url-repo-ini>
+   cd Praktikum-RPL-B-2/src/locker_project
+   ```
+
+2. **Install Dependencies**
+   Pastikan PHP, Composer, dan Node.js sudah terinstal.
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Konfigurasi Environment (.env)**
+   Salin file konfigurasi dan sesuaikan pengaturannya.
+   ```bash
+   cp .env.example .env
+   ```
+   Buka file `.env` dan atur koneksi database menjadi MySQL (ubah sesuai konfigurasi database komputermu):
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=locker_project
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+4. **Generate Application Key**
+   ```bash
+   php artisan key:generate
+   ```
+
+5. **Buat Database & Jalankan Migrasi**
+   - Pastikan MySQL (melalui XAMPP, Herd, dll.) sudah berjalan.
+   - Buat database kosong bernama `locker_project`.
+   - Jalankan perintah berikut untuk membuat struktur tabel:
+   ```bash
+   php artisan migrate
+   ```
+
+6. **Jalankan Server Lokal**
+   Buka terminal baru untuk masing-masing perintah berikut:
+   
+   Untuk menjalankan server backend Laravel:
+   ```bash
+   php artisan serve
+   ```
+   
+   Untuk me-compile aset frontend (Vite/Tailwind):
+   ```bash
+   npm run dev
+   ```
+
+Aplikasi sekarang dapat diakses melalui browser di `http://127.0.0.1:8000`.
