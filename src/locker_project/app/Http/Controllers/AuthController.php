@@ -145,13 +145,87 @@ class AuthController extends Controller
                 Auth::login($newUser);
             }
 
-            // Setelah sukses, lempar kembali ke halaman React (dashboard)
-            return redirect('/dashboard');
+            // Setelah sukses, lempar kembali ke halaman React (loker)
+            return redirect('/loker');
 
         } catch (\Exception $e) {
             DB::rollBack();
             // Jika gagal (misal batal memilih akun), kembalikan ke halaman awal
             return redirect('/')->with('error', 'Gagal masuk dengan Google.');
         }
+    }
+
+    // --- FUNGSI ME YANG SUDAH DISESUAIKAN DAN AMAN DARI BUG --- //
+    public function me(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Tidak ada sesi aktif'], 401);
+        }
+
+        $user = Auth::user();
+        $name = 'User'; // Default fallback
+
+        // Kerangka data profil default agar React tidak crash saat data di DB masih kosong
+        $profileData = [
+            'headline' => '',
+            'location' => '',
+            'current_position' => '',
+            'education' => '',
+            'avatar_url' => null,
+            'banner_url' => null,
+        ];
+
+        // Cari data profil berdasarkan role user yang aktif
+        if ($user->role === 'seeker') {
+            $profile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
+            
+            if ($profile) {
+                $name = $profile->nama_lengkap;
+
+                // Ekstrak string institusi dari data JSON kolom pendidikan secara aman
+                $educationText = '';
+                if (!empty($profile->pendidikan)) {
+                    $pendidikanArr = json_decode($profile->pendidikan, true);
+                    
+                    // Jaga-jaga apabila format JSON mengalami double-encoding di database SQLite
+                    if (is_string($pendidikanArr)) {
+                        $pendidikanArr = json_decode($pendidikanArr, true);
+                    }
+                    
+                    if (is_array($pendidikanArr) && !empty($pendidikanArr)) {
+                        $educationText = $pendidikanArr[0]['institusi'] ?? '';
+                    }
+                }
+
+                // Petakan data kolom snake_case database menjadi camelCase/nama prop properti React
+               $profileData = [
+                    'headline' => $profile->headline ?? '',
+                    'location' => $profile->lokasi ?? '',
+                    'current_position' => $profile->posisi_saat_ini ?? '',
+                    'education' => $educationText,
+                    'educations' => isset($profile->pendidikan) ? json_decode($profile->pendidikan) : [],
+                    'experiences' => isset($profile->pengalaman) ? json_decode($profile->pengalaman) : [],
+                    'certifications' => isset($profile->skill) ? json_decode($profile->skill) : [],
+                    'cv_url' => $profile->cv_url ?? null,
+                    'avatar_url' => $profile->avatar_url ?? null,
+                    'banner_url' => $profile->banner_url ?? null,
+                    'wa_number' => $profile->wa_number ?? '',
+                    'insta_username' => $profile->insta_username ?? '',
+                    'facebook_url' => $profile->facebook_url ?? '',
+                    'github_username' => $profile->github_username ?? '',
+                ];
+            }
+        } else if ($user->role === 'company') {
+            $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
+            if ($profile) {
+                $name = $profile->nama_perusahaan;
+            }
+        }
+
+        return response()->json([
+            'user' => $user,
+            'name' => $name,
+            'profile' => $profileData
+        ], 200);
     }
 }

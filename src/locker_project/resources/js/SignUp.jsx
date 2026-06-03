@@ -54,9 +54,9 @@ export default function SignUp() {
             const response = await axios.post('/register', payload);
 
             console.log('Sukses:', response.data);
-            alert('Registrasi Berhasil! Anda akan diarahkan ke Dashboard.');
+            alert('Registrasi Berhasil! Anda akan diarahkan ke Loker.');
 
-            navigate('/dashboard');
+            navigate('/loker');
 
         } catch (error) {
             console.error('Error:', error);

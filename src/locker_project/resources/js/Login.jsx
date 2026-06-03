@@ -35,8 +35,8 @@ export default function Login() {
             console.log('Login Sukses:', response.data);
             alert('Berhasil masuk!');
 
-            // Arahkan ke Dashboard
-            navigate('/dashboard');
+            // Arahkan ke Loker
+            navigate('/loker');
 
         } catch (error) {
             console.error('Login Error:', error);
