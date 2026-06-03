@@ -1,15 +1,36 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import axios from 'axios';
+
+axios.defaults.withCredentials = true;
+
+import SignUp from './SignUp';
+import Login from './Login';
+import Layout from './components/Layout';
+import Loker from './Loker';
+import Profile from './Profile';
+import PublicProfile from './PublicProfile';
 
 function App() {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <div className="p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center">
-                <h1 className="text-3xl font-bold mb-4 text-blue-600 dark:text-blue-400">Hello, React in Laravel!</h1>
-                <p className="text-lg">If you see this, React is successfully integrated with Vite and Tailwind.</p>
-            </div>
-        </div>
+        <Router>
+            <Routes>
+                {/* Halaman Autentikasi */}
+                <Route path="/" element={<Login />} />
+                <Route path="/register" element={<SignUp />} />
+
+                {/* Halaman Utama dengan Navbar/Header Tab */}
+                <Route element={<Layout />}>
+                    <Route path="/loker" element={<Loker />} />
+                </Route>
+
+                {/* HALAMAN PROFILE: Berdiri sendiri tanpa Header Tab Global */}
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:id" element={<PublicProfile />} />
+
+            </Routes>
+        </Router>
     );
 }
 
