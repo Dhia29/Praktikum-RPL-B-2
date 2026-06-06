@@ -34,6 +34,7 @@ function App() {
                 {/* HALAMAN PROFILE: Berdiri sendiri tanpa Header Tab Global */}
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:id" element={<PublicProfile />} />
+
             </Routes>
         </Router>
     );
