@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import SupportModal from './SupportModal';
+import NotificationsDropdown from './NotificationsDropdown';
 
 export default function Layout() {
     const location = useLocation();
@@ -8,13 +10,13 @@ export default function Layout() {
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
 
     // State ini akan diisi secara dinamis dari database
     const [userName, setUserName] = useState('...');
 
     const isActive = (path) => location.pathname.includes(path);
 
-    // Mengecek sesi dan mengambil nama setiap kali Layout dimuat (termasuk saat refresh)
     useEffect(() => {
         axios.defaults.withCredentials = true;
 
@@ -68,21 +70,36 @@ export default function Layout() {
                             <p className="text-gray-500 text-xs font-medium mt-1">Perjalanan Karir Dimulai dari Sekarang!</p>
                         </div>
 
-                        {/* 3. Dropdown Profil Dinamis */}
-                        <div className="relative flex items-center gap-4" ref={dropdownRef}>
-                            <span className="text-gray-700 font-medium text-sm">Hi, {userName}</span>
+                        {/* 3. Notifications, Support, Profile */}
+                        <div className="flex items-center gap-4">
+                            
+                            <NotificationsDropdown />
 
                             <button
-                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-[#8100D1] font-bold border border-purple-200 hover:ring-2 hover:ring-purple-300 transition-all focus:outline-none"
+                                onClick={() => setIsSupportModalOpen(true)}
+                                className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-[#8100D1] hover:bg-purple-50 transition-colors focus:outline-none"
+                                title="Customer Service"
                             >
-                                {userName !== '...' ? userName.charAt(0).toUpperCase() : '?'}
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                                    <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/>
+                                    <path d="M21 16v2a4 4 0 0 1-4 4h-5"/>
+                                </svg>
                             </button>
 
-                            {isDropdownOpen && (
-                                <div className="absolute right-0 top-12 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 animate-fade-in-down">
-                                    <Link to="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
-                                        Profil
+                            <div className="relative flex items-center gap-4" ref={dropdownRef}>
+                                <span className="text-gray-700 font-medium text-sm border-l border-gray-200 pl-4">Hi, {userName}</span>
+
+                                <button
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-[#8100D1] font-bold border border-purple-200 hover:ring-2 hover:ring-purple-300 transition-all focus:outline-none"
+                                >
+                                    {userName !== '...' ? userName.charAt(0).toUpperCase() : '?'}
+                                </button>
+
+                                {isDropdownOpen && (
+                                    <div className="absolute right-0 top-12 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 animate-fade-in-down">
+                                        <Link to="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
+                                            Profil
                                     </Link>
                                     <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
                                         Pengaturan
@@ -97,14 +114,15 @@ export default function Layout() {
                                     >
                                         Sign Out
                                     </button>
-                                </div>
-                            )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
                     {/* 2. Navigasi Loker */}
                     <nav className="flex gap-8 text-sm font-medium mt-2">
-                        {['/loker', '/lamaran', '/messages', '/community'].map((path) => {
+                        {['/loker', '/lamaran', '/pesan', '/komunitas'].map((path) => {
                             const label = path.replace('/', '');
                             const active = isActive(path);
 
@@ -129,6 +147,10 @@ export default function Layout() {
                 <Outlet />
             </main>
 
+            <SupportModal
+                isOpen={isSupportModalOpen}
+                onClose={() => setIsSupportModalOpen(false)}
+            />
         </div>
     );
 }

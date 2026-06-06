@@ -16,6 +16,7 @@
     "dependencies": {
         "@vitejs/plugin-react": "^6.0.2",
         "axios": "^1.16.1",
+        "emoji-picker-react": "^4.19.1",
         "react": "^19.2.6",
         "react-dom": "^19.2.6",
         "react-easy-crop": "^5.5.7",
