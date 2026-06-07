@@ -17,7 +17,6 @@ export default function Layout() {
 
     const isActive = (path) => location.pathname.includes(path);
 
-    // Mengecek sesi dan mengambil nama setiap kali Layout dimuat (termasuk saat refresh)
     useEffect(() => {
         axios.defaults.withCredentials = true;
 

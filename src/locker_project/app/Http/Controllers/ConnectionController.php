@@ -202,6 +202,7 @@ class ConnectionController extends Controller
         if ($receiver) {
             $receiver->notify(new \App\Notifications\ConnectionRequestNotification($senderName));
         }
+
         return response()->json(['message' => 'Request sent', 'connection' => $connection]);
     }
 

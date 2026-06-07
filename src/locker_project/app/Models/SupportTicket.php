@@ -15,6 +15,7 @@ class SupportTicket extends Model
 
     protected $fillable = [
         'id',
+    protected $fillable = [
         'user_id',
         'subject',
         'category',
@@ -33,6 +34,9 @@ class SupportTicket extends Model
             }
         });
     }
+        'admin_reply'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -10,6 +10,8 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\CsTicketApiController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,7 +32,6 @@ Route::put('/api/profile/certifications', [ProfileController::class, 'updateCert
 Route::post('/api/profile/certifications/upload', [ProfileController::class, 'uploadCertificationFile']);
 Route::post('/api/profile/cv', [ProfileController::class, 'uploadCV']);
 Route::delete('/api/profile/cv', [ProfileController::class, 'deleteCV']);
-// Connection & Application Routes
 Route::get('/api/applications/me', [ApplicationController::class, 'myApplications']);
 Route::get('/api/connections', [ConnectionController::class, 'getConnections']);
 Route::get('/api/connections/suggestions', [ConnectionController::class, 'getSuggestions']);
@@ -39,7 +40,7 @@ Route::post('/api/connections/respond', [ConnectionController::class, 'respondRe
 // Community Routes
 Route::post('/api/community/reports', [CommunityReportApiController::class, 'store']);
 
-use App\Http\Controllers\CsTicketApiController;
+
 
 // CS Tickets Routes
 Route::middleware('web')->group(function() { // Requires auth for user
@@ -49,9 +50,7 @@ Route::middleware('web')->group(function() { // Requires auth for user
     Route::post('/api/cs-tickets/{id}/messages', [CsTicketApiController::class, 'reply']);
 });
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminCommunityReportController;
-use App\Http\Controllers\AdminCsTicketController;
+
 
 // Admin API Auth Routes (No 'admin' middleware required for login)
 Route::prefix('api/admin')->middleware(['web'])->group(function () {
@@ -100,7 +99,6 @@ Route::post('/api/messages/{id}/respond-appointment', [MessageController::class,
 Route::get('/api/messages/search-users', [MessageController::class, 'searchUsers']);
 Route::post('/api/messages/settings/{contactId}', [MessageController::class, 'updateChatSettings']);
 Route::delete('/api/messages/{id}', [MessageController::class, 'deleteMessage']);
-
 Route::get('/api/community/posts', [CommunityController::class, 'getPosts']);
 Route::get('/api/community/posts/{id}/replies', [CommunityController::class, 'getPostReplies']);
 Route::post('/api/community/posts/create', [CommunityController::class, 'createPost']);
@@ -112,7 +110,6 @@ Route::get('/api/community/list', [CommunityController::class, 'getCommunities']
 Route::post('/api/community/create', [CommunityController::class, 'createCommunity']);
 Route::post('/api/community/join', [CommunityController::class, 'joinCommunity']);
 Route::delete('/api/community/leave', [CommunityController::class, 'leaveCommunity']);
-
 Route::get('/api/support/my-tickets', [SupportController::class, 'getUserTickets']);
 Route::post('/api/support/tickets', [SupportController::class, 'createTicket']);
 Route::get('/api/support/tickets/{id}/messages', [SupportController::class, 'getTicketMessages']);
