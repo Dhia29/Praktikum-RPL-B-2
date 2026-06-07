@@ -53,10 +53,13 @@ export default function SignUp() {
 
             const response = await axios.post('/register', payload);
 
-            console.log('Sukses:', response.data);
-            alert('Registrasi Berhasil! Anda akan diarahkan ke Loker.');
-
-            navigate('/loker');
+            if (response.data.requires_verification) {
+                alert('Registrasi Berhasil! Silakan cek email Anda untuk kode OTP.');
+                navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+            } else {
+                alert('Registrasi Berhasil! Anda akan diarahkan ke Loker.');
+                navigate('/loker');
+            }
 
         } catch (error) {
             console.error('Error:', error);

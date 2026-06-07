@@ -1,34 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useOutletContext } from 'react-router-dom';
+import JobModal from './components/JobModal';
 
 export default function Loker() {
+    const { currentUser } = useOutletContext() || {};
+    const isEmployer = currentUser && currentUser.role === 'company';
+    const isCompanyActive = isEmployer && currentUser?.status === 'Aktif';
+
     // STATE UNTUK DATA
     const [jobs, setJobs] = useState([]);
     const [filteredJobs, setFilteredJobs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // STATE UNTUK EMPLOYER
+    const [viewMode, setViewMode] = useState('all'); // 'all' or 'my'
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingJob, setEditingJob] = useState(null);
 
     // STATE UNTUK FILTER & PENCARIAN
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('');
     const [sortOrder, setSortOrder] = useState('terbaru');
 
+    const fetchJobs = async () => {
+        setIsLoading(true);
+        try {
+            const endpoint = viewMode === 'my' ? '/api/jobs/me' : '/api/jobs';
+            const response = await axios.get(endpoint);
+            setJobs(response.data);
+            setFilteredJobs(response.data);
+        } catch (error) {
+            console.error('Gagal mengambil data loker:', error);
+            setJobs([]);
+            setFilteredJobs([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // MENGAMBIL DATA
     useEffect(() => {
-        const fetchJobs = async () => {
-            try {
-                const response = await axios.get('/api/jobs');
-                setJobs(response.data);
-                setFilteredJobs(response.data);
-            } catch (error) {
-                console.error('Gagal mengambil data loker:', error);
-                setJobs([]);
-                setFilteredJobs([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchJobs();
-    }, []);
+    }, [viewMode]);
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Yakin ingin menutup/menghapus lowongan ini?')) return;
+        try {
+            await axios.delete(`/api/jobs/${id}`);
+            alert('Lowongan berhasil ditutup.');
+            fetchJobs();
+        } catch (error) {
+            console.error(error);
+            alert('Gagal menutup lowongan.');
+        }
+    };
+
+    const handleEdit = (job) => {
+        setEditingJob(job);
+        setIsModalOpen(true);
+    };
 
     // LOGIKA FILTER & SORTIR
     useEffect(() => {
@@ -68,10 +99,43 @@ export default function Loker() {
 
     return (
         // KONTAINER UTAMA: items-start sangat penting agar sisi kanan tidak memanjang mengikuti sisi kiri
-        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full relative">
+
+            <JobModal 
+                isOpen={isModalOpen} 
+                onClose={() => { setIsModalOpen(false); setEditingJob(null); }}
+                onSuccess={fetchJobs}
+                initialData={editingJob}
+            />
 
             {/* KONTAINER KIRI (Data Loker): Lebar 70%, akan memanjang ke bawah sesuai jumlah data */}
             <div className="w-full md:w-[65%] lg:w-[70%] flex flex-col gap-4">
+                
+                {isEmployer && (
+                    <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-2">
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => setViewMode('all')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${viewMode === 'all' ? 'bg-purple-100 text-[#8100D1]' : 'text-gray-500 hover:bg-gray-100'}`}
+                            >
+                                Semua Lowongan
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('my')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${viewMode === 'my' ? 'bg-purple-100 text-[#8100D1]' : 'text-gray-500 hover:bg-gray-100'}`}
+                            >
+                                Lowongan Saya
+                            </button>
+                        </div>
+                        <button 
+                            onClick={() => { setEditingJob(null); setIsModalOpen(true); }}
+                            className="bg-[#8100D1] hover:bg-purple-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                            Buat Lowongan
+                        </button>
+                    </div>
+                )}
 
                 {isLoading ? (
                     <div className="flex justify-center items-center h-40">
@@ -109,9 +173,28 @@ export default function Loker() {
                                 <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
                                     {job.description}
                                 </p>
-                                <button className="text-sm font-semibold text-[#8100D1] hover:text-purple-900 transition-colors">
-                                    Lihat Detail &rarr;
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <button className="text-sm font-semibold text-[#8100D1] hover:text-purple-900 transition-colors">
+                                        Lihat Detail &rarr;
+                                    </button>
+                                    
+                                    {isEmployer && viewMode === 'my' && (
+                                        <div className="ml-auto flex items-center gap-2">
+                                            <button 
+                                                onClick={() => handleEdit(job)}
+                                                className="text-xs font-semibold px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(job.id)}
+                                                className="text-xs font-semibold px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                                            >
+                                                Tutup
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))

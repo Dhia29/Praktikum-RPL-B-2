@@ -7,6 +7,8 @@ axios.defaults.withCredentials = true;
 
 import SignUp from './SignUp';
 import Login from './Login';
+import VerifyEmail from './VerifyEmail';
+import PendingApproval from './PendingApproval';
 import Layout from './components/Layout';
 import Loker from './Loker';
 import Profile from './Profile';
@@ -22,6 +24,8 @@ function App() {
                 {/* Halaman Autentikasi */}
                 <Route path="/" element={<Login />} />
                 <Route path="/register" element={<SignUp />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/pending-approval" element={<PendingApproval />} />
 
                 {/* Halaman Utama dengan Navbar/Header Tab */}
                 <Route element={<Layout />}>

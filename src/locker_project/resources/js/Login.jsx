@@ -15,16 +15,17 @@ export default function Login() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [requiresVerification, setRequiresVerification] = useState(false);
 
     // Fungsi menangani ketikan user
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Fungsi menangani Submit Form (Email & Password)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage('');
+        setRequiresVerification(false);
         setIsLoading(true);
 
         try {
@@ -40,9 +41,14 @@ export default function Login() {
 
         } catch (error) {
             console.error('Login Error:', error);
-            setErrorMessage(
-                error.response?.data?.message || 'Email atau password salah. Silakan coba lagi.'
-            );
+            if (error.response?.data?.requires_verification) {
+                setRequiresVerification(true);
+                setErrorMessage(error.response.data.message);
+            } else {
+                setErrorMessage(
+                    error.response?.data?.message || 'Email atau password salah. Silakan coba lagi.'
+                );
+            }
         } finally {
             setIsLoading(false);
         }
@@ -67,6 +73,16 @@ export default function Login() {
                 {errorMessage && (
                     <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm text-center">
                         {errorMessage}
+                        {requiresVerification && (
+                            <div className="mt-2">
+                                <button
+                                    onClick={() => navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`)}
+                                    className="text-[#8100D1] hover:underline font-semibold"
+                                >
+                                    Verifikasi Sekarang
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 

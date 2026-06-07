@@ -15,10 +15,16 @@ Route::get('/', function () {
 });
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/api/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('/api/resend-verification', [AuthController::class, 'resendCode']);
 Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::get('/me', [AuthController::class, 'me']);
 Route::get('/api/jobs', [JobController::class, 'index']);
+Route::get('/api/jobs/me', [JobController::class, 'myJobs']);
+Route::post('/api/jobs', [JobController::class, 'store']);
+Route::put('/api/jobs/{id}', [JobController::class, 'update']);
+Route::delete('/api/jobs/{id}', [JobController::class, 'destroy']);
 Route::get('/api/profile/{id}', [ProfileController::class, 'getPublicProfile']);
 Route::post('/api/profile/intro', [ProfileController::class, 'updateIntro']);
 Route::post('/api/profile/upload-image', [ProfileController::class, 'uploadImage']);

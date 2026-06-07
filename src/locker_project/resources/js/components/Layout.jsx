@@ -14,6 +14,7 @@ export default function Layout() {
 
     // State ini akan diisi secara dinamis dari database
     const [userName, setUserName] = useState('...');
+    const [currentUser, setCurrentUser] = useState(null);
 
     const isActive = (path) => location.pathname.includes(path);
 
@@ -23,6 +24,11 @@ export default function Layout() {
         axios.get('/me')
             .then(response => {
                 setUserName(response.data.name);
+                setCurrentUser(response.data.user);
+
+                if (response.data.user.role === 'company' && response.data.user.status !== 'Aktif') {
+                    navigate('/pending-approval');
+                }
             })
             .catch(error => {
                 console.error("Sesi tidak valid", error);
@@ -144,7 +150,7 @@ export default function Layout() {
             </header>
 
             <main className="flex-1 max-w-7xl mx-auto w-full px-6 sm:px-8 py-8">
-                <Outlet />
+                <Outlet context={{ currentUser }} />
             </main>
 
             <SupportModal
