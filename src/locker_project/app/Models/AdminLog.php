@@ -6,49 +6,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class SupportTicket extends Model
+class AdminLog extends Model
 {
     use HasFactory;
 
+    protected $table = 'admin_logs';
     protected $keyType = 'string';
     public $incrementing = false;
+    public $timestamps = false; // Using custom timestamp column
 
     protected $fillable = [
         'id',
-    protected $fillable = [
-        'user_id',
-        'subject',
-        'category',
-        'message',
-        'status',
-        'admin_reply',
-        'replied_by'
+        'admin_id',
+        'action',
+        'target_entity',
+        'target_id',
+        'timestamp',
     ];
 
     protected static function boot()
     {
         parent::boot();
+
         static::creating(function ($model) {
             if (empty($model->{$model->getKeyName()})) {
                 $model->{$model->getKeyName()} = Str::uuid()->toString();
             }
         });
     }
-        'admin_reply'
-    ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function admin()
     {
-        return $this->belongsTo(User::class, 'replied_by');
-    }
-
-    public function messages()
-    {
-        return $this->hasMany(SupportTicketMessage::class, 'support_ticket_id')->orderBy('created_at', 'asc');
+        return $this->belongsTo(User::class, 'admin_id');
     }
 }
