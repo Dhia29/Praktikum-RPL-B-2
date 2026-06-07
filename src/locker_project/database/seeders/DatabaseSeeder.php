@@ -64,4 +64,5 @@ class DatabaseSeeder extends Seeder
             'verifikasi_status' => 'verified',
         ]);
     }
+
 }

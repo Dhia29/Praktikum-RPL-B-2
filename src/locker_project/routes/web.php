@@ -4,9 +4,12 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
-
 use App\Http\Controllers\ConnectionController;
 use App\Http\Controllers\CommunityReportApiController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\SupportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,13 +30,12 @@ Route::put('/api/profile/certifications', [ProfileController::class, 'updateCert
 Route::post('/api/profile/certifications/upload', [ProfileController::class, 'uploadCertificationFile']);
 Route::post('/api/profile/cv', [ProfileController::class, 'uploadCV']);
 Route::delete('/api/profile/cv', [ProfileController::class, 'deleteCV']);
-
-// Connection Routes
+// Connection & Application Routes
+Route::get('/api/applications/me', [ApplicationController::class, 'myApplications']);
 Route::get('/api/connections', [ConnectionController::class, 'getConnections']);
 Route::get('/api/connections/suggestions', [ConnectionController::class, 'getSuggestions']);
 Route::post('/api/connections/request', [ConnectionController::class, 'sendRequest']);
 Route::post('/api/connections/respond', [ConnectionController::class, 'respondRequest']);
-
 // Community Routes
 Route::post('/api/community/reports', [CommunityReportApiController::class, 'store']);
 
@@ -88,6 +90,42 @@ Route::prefix('api/admin')->middleware(['web', 'admin'])->group(function () {
 Route::get('/admin/{any?}', function () {
     return view('admin-app');
 })->where('any', '.*');
+
+
+// User API Routes
+Route::get('/api/messages/rooms', [MessageController::class, 'getChatRooms']);
+Route::get('/api/messages/history/{receiverId}', [MessageController::class, 'getMessages']);
+Route::post('/api/messages/send', [MessageController::class, 'sendMessage']);
+Route::post('/api/messages/{id}/respond-appointment', [MessageController::class, 'respondAppointment']);
+Route::get('/api/messages/search-users', [MessageController::class, 'searchUsers']);
+Route::post('/api/messages/settings/{contactId}', [MessageController::class, 'updateChatSettings']);
+Route::delete('/api/messages/{id}', [MessageController::class, 'deleteMessage']);
+
+Route::get('/api/community/posts', [CommunityController::class, 'getPosts']);
+Route::get('/api/community/posts/{id}/replies', [CommunityController::class, 'getPostReplies']);
+Route::post('/api/community/posts/create', [CommunityController::class, 'createPost']);
+Route::post('/api/community/posts/{id}/like', [CommunityController::class, 'toggleLike']);
+Route::post('/api/community/posts/{id}/save', [CommunityController::class, 'toggleSave']);
+Route::post('/api/community/posts/{id}/report', [CommunityController::class, 'reportPost']);
+Route::delete('/api/community/posts/{id}', [CommunityController::class, 'deletePost']);
+Route::get('/api/community/list', [CommunityController::class, 'getCommunities']);
+Route::post('/api/community/create', [CommunityController::class, 'createCommunity']);
+Route::post('/api/community/join', [CommunityController::class, 'joinCommunity']);
+Route::delete('/api/community/leave', [CommunityController::class, 'leaveCommunity']);
+
+Route::get('/api/support/my-tickets', [SupportController::class, 'getUserTickets']);
+Route::post('/api/support/tickets', [SupportController::class, 'createTicket']);
+Route::get('/api/support/tickets/{id}/messages', [SupportController::class, 'getTicketMessages']);
+Route::post('/api/support/tickets/{id}/messages', [SupportController::class, 'sendTicketMessage']);
+Route::post('/api/support/tickets/{id}/handover', [SupportController::class, 'handoverTicket']);
+Route::post('/api/support/tickets/{id}/close', [SupportController::class, 'closeTicket']);
+Route::delete('/api/support/tickets/{id}', [SupportController::class, 'deleteTicket']);
+Route::get('/api/support/admin/tickets', [SupportController::class, 'getAllTickets']);
+Route::post('/api/support/admin/tickets/{id}/reply', [SupportController::class, 'replyTicket']);
+
+// Notifications
+Route::get('/api/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);
+Route::post('/api/notifications/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
 
 // Catch-all route for React Router (User)
 Route::get('/{any}', function () {

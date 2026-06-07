@@ -11,6 +11,9 @@ import Layout from './components/Layout';
 import Loker from './Loker';
 import Profile from './Profile';
 import PublicProfile from './PublicProfile';
+import Lamaran from './Lamaran';
+import Pesan from './Messages';
+import Komunitas from './Community';
 
 function App() {
     return (
@@ -23,6 +26,9 @@ function App() {
                 {/* Halaman Utama dengan Navbar/Header Tab */}
                 <Route element={<Layout />}>
                     <Route path="/loker" element={<Loker />} />
+                    <Route path="/lamaran" element={<Lamaran />} />
+                    <Route path="/pesan" element={<Pesan />} />
+                    <Route path="/komunitas" element={<Komunitas />} />
                 </Route>
 
                 {/* HALAMAN PROFILE: Berdiri sendiri tanpa Header Tab Global */}

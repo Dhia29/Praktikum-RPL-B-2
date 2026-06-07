@@ -17,6 +17,7 @@ class SupportTicket extends Model
         'id',
         'user_id',
         'subject',
+        'category',
         'message',
         'status',
         'admin_reply',
@@ -32,7 +33,6 @@ class SupportTicket extends Model
             }
         });
     }
-
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -41,5 +41,10 @@ class SupportTicket extends Model
     public function admin()
     {
         return $this->belongsTo(User::class, 'replied_by');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(SupportTicketMessage::class, 'support_ticket_id')->orderBy('created_at', 'asc');
     }
 }

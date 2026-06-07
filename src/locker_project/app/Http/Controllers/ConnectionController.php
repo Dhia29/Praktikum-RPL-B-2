@@ -194,6 +194,14 @@ class ConnectionController extends Controller
             'status' => 'pending'
         ]);
 
+        // Fetch sender name
+        $senderProfile = DB::table('job_seeker_profiles')->where('user_id', $sender->id)->first();
+        $senderName = $senderProfile ? ($senderProfile->nama_lengkap ?? 'User') : 'User';
+        
+        $receiver = \App\Models\User::find($receiverId);
+        if ($receiver) {
+            $receiver->notify(new \App\Notifications\ConnectionRequestNotification($senderName));
+        }
         return response()->json(['message' => 'Request sent', 'connection' => $connection]);
     }
 
@@ -217,6 +225,15 @@ class ConnectionController extends Controller
         if ($request->action === 'accept') {
             $connection->status = 'accepted';
             $connection->save();
+            // Fetch accepter name
+            $accepterProfile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
+            $accepterName = $accepterProfile ? ($accepterProfile->nama_lengkap ?? 'User') : 'User';
+
+            // sender_id is the person who originally sent the request
+            $requester = \App\Models\User::find($connection->sender_id);
+            if ($requester) {
+                $requester->notify(new \App\Notifications\ConnectionAcceptedNotification($accepterName));
+            }
             return response()->json(['message' => 'Request accepted']);
         } else {
             $connection->delete();
