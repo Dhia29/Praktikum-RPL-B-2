@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
 export default function LamaranPerusahaan() {
     const navigate = useNavigate();
+    const { currentUser } = useOutletContext() || {};
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filterJob, setFilterJob] = useState('Semua Lowongan');
@@ -12,6 +13,23 @@ export default function LamaranPerusahaan() {
     useEffect(() => {
         fetchApplications();
     }, []);
+
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const channel = window.Echo.private(`App.Models.User.${currentUser.id}`);
+        
+        channel.notification((notification) => {
+            if (notification.type && notification.type.includes('NewApplicationNotification')) {
+                fetchApplications();
+            }
+        });
+
+        return () => {
+            // Kita biarkan channel ini, karena bisa jadi komponen lain masih membutuhkannya.
+            // Atau cukup hapus event listen-nya saja agar tidak tertumpuk
+        };
+    }, [currentUser]);
 
     const fetchApplications = () => {
         setIsLoading(true);

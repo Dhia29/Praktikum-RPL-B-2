@@ -58,6 +58,11 @@ class AdminCsTicketController extends Controller
             'target_id' => $ticket->id
         ]);
 
+        $ticketUser = User::find($ticket->user_id);
+        if ($ticketUser) {
+            $ticketUser->notify(new \App\Notifications\TicketRepliedNotification($ticket, Auth::user()->email ?? 'Admin'));
+        }
+
         return response()->json(['message' => 'Message sent successfully.']);
     }
 

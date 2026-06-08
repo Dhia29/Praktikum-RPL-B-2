@@ -132,6 +132,14 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
                             placeholder="Mulai utas... Apa yang sedang Anda pikirkan?"
                             value={typedText}
                             onChange={(e) => setTypedText(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if (typedText.trim() || attachedMedia) {
+                                        handleCreatePost(e);
+                                    }
+                                }
+                            }}
                             className="w-full text-[16px] outline-none resize-none flex-1 text-gray-900 placeholder-gray-400 bg-transparent leading-relaxed"
                         />
 

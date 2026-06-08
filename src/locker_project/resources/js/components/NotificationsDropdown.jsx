@@ -2,6 +2,101 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Internal component for swipeable list item
+const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo }) => {
+    const [translateX, setTranslateX] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const startXRef = useRef(null);
+
+    const handleTouchStart = (e) => {
+        startXRef.current = e.touches[0].clientX;
+        setIsDragging(true);
+    };
+
+    const handleTouchMove = (e) => {
+        if (!startXRef.current) return;
+        const currentX = e.touches[0].clientX;
+        const diff = currentX - startXRef.current;
+        // Only allow swiping left (negative diff)
+        if (diff < 0 && diff > -100) {
+            setTranslateX(diff);
+        } else if (diff <= -100) {
+            setTranslateX(-100);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setIsDragging(false);
+        if (translateX <= -50) {
+            // Delete threshold reached
+            setTranslateX(-100); // lock open
+            onDelete(notif.id);
+        } else {
+            // Revert
+            setTranslateX(0);
+        }
+        startXRef.current = null;
+    };
+
+    return (
+        <div className="relative border-b border-gray-50 overflow-hidden group">
+            {/* Background Delete Button */}
+            <div className="absolute inset-y-0 right-0 w-[100px] bg-red-500 flex flex-col items-center justify-center text-white cursor-pointer"
+                onClick={() => onDelete(notif.id)}>
+                <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span className="text-[10px] font-medium">Hapus</span>
+            </div>
+
+            {/* Foreground Content */}
+            <div
+                className={`relative p-4 pl-5 cursor-pointer transition-transform duration-200 bg-white
+                    ${!notif.read_at ? 'hover:bg-[#fcf8ff]' : 'hover:bg-gray-50'} 
+                    ${isDragging ? 'duration-0' : ''}`}
+                style={{ transform: `translateX(${translateX}px)` }}
+                onClick={(e) => {
+                    // Prevent triggering click if user was just swiping
+                    if (translateX === 0) onClick(notif);
+                }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
+                {/* Unread Indicator Line */}
+                {!notif.read_at && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#8100D1]"></div>
+                )}
+
+                {/* Desktop hover delete button */}
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(notif.id); }}
+                    className="absolute top-4 right-4 text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all hidden sm:block"
+                    title="Hapus"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+
+                <div className="flex items-center gap-2 pr-6">
+                    <p className={`text-sm tracking-tight ${!notif.read_at ? 'text-gray-900 font-bold' : 'text-gray-500 font-medium'}`}>
+                        {notif.data?.title || (notif.data?.message ? 'Pesan Baru' : 'Notifikasi')}
+                    </p>
+                    {!notif.read_at && (
+                        <span className="w-1.5 h-1.5 bg-[#8100D1] rounded-full"></span>
+                    )}
+                </div>
+                <p className={`text-xs mt-1 line-clamp-2 pr-4 ${!notif.read_at ? 'text-gray-600' : 'text-gray-400'}`}>
+                    {notif.data?.message || 'Anda memiliki notifikasi baru.'}
+                </p>
+                <p className={`text-[11px] mt-2.5 ${!notif.read_at ? 'text-[#8100D1] font-semibold' : 'text-gray-400 font-medium'}`}>
+                    {timeAgo(notif.created_at)}
+                </p>
+            </div>
+        </div>
+    );
+};
 export default function NotificationsDropdown() {
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -40,19 +135,27 @@ export default function NotificationsDropdown() {
         });
     };
 
+    const handleDelete = (id) => {
+        // Optimistic UI update
+        setNotifications(prev => prev.filter(n => n.id !== id));
+        axios.delete(`/api/notifications/${id}`)
+            .then(() => fetchNotifications())
+            .catch(err => console.error("Gagal menghapus notifikasi", err));
+    };
+
     const handleNotifClick = (notif) => {
         if (!notif.read_at) {
             handleMarkAsRead(notif.id);
         }
-        
+
         setIsNotifOpen(false);
-        
+
         const type = notif.type || '';
-        
+
         // Admin routes
         if (type.includes('NewReportNotification')) {
             navigate('/admin/community');
-        } 
+        }
         // User routes
         else if (type.includes('PostRepliedNotification') || type.includes('PostLikedNotification')) {
             navigate('/komunitas');
@@ -100,11 +203,8 @@ export default function NotificationsDropdown() {
                 <div className="absolute right-0 top-12 mt-2 w-80 bg-white border border-gray-100 rounded-xl shadow-xl z-50 animate-fade-in-down overflow-hidden flex flex-col max-h-96">
                     <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <h3 className="font-bold text-gray-800 text-sm">Notifikasi</h3>
-                        {unreadCount > 0 && (
-                            <button onClick={() => handleMarkAsRead()} className="text-xs text-[#8100D1] font-medium hover:underline">Tandai semua dibaca</button>
-                        )}
                     </div>
-                    <div className="overflow-y-auto flex-1 p-0">
+                    <div className="overflow-y-auto flex-1 p-0 overflow-x-hidden">
                         {notifications.length === 0 ? (
                             <div className="p-8 flex flex-col items-center justify-center text-center">
                                 <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
@@ -114,26 +214,18 @@ export default function NotificationsDropdown() {
                             </div>
                         ) : (
                             notifications.map(notif => (
-                                <div 
-                                    key={notif.id} 
-                                    onClick={() => handleNotifClick(notif)}
-                                    className={`p-4 border-b border-gray-50 cursor-pointer transition-colors ${!notif.read_at ? 'bg-purple-50/30 hover:bg-purple-50/50' : 'hover:bg-gray-50'}`}
-                                >
-                                    <p className={`text-sm text-gray-800 ${!notif.read_at ? 'font-semibold' : 'font-medium'}`}>
-                                        {notif.data?.title || (notif.data?.message ? 'Pesan Baru' : 'Notifikasi')}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                                        {notif.data?.message || 'Anda memiliki notifikasi baru.'}
-                                    </p>
-                                    <p className="text-[11px] text-gray-400 mt-2">
-                                        {timeAgo(notif.created_at)}
-                                    </p>
-                                </div>
+                                <SwipeableNotificationItem
+                                    key={notif.id}
+                                    notif={notif}
+                                    onClick={handleNotifClick}
+                                    onDelete={handleDelete}
+                                    timeAgo={timeAgo}
+                                />
                             ))
                         )}
                     </div>
                     {notifications.length > 0 && (
-                        <div className="p-3 bg-gray-50 border-t border-gray-100 text-center">
+                        <div className="p-3 bg-gray-50 border-t border-gray-100 text-center flex justify-between items-center">
                             <button onClick={() => setIsNotifOpen(false)} className="text-xs font-semibold text-gray-600 hover:text-black">
                                 Tutup
                             </button>

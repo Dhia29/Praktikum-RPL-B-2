@@ -20,6 +20,7 @@ class SupportTicket extends Model
         'category',
         'message',
         'status',
+        'handled_by',
         'admin_reply',
         'replied_by'
     ];

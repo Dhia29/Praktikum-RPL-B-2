@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 
 export default function TicketsIndexAdmin() {
+    const { adminUser } = useOutletContext() || {};
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
@@ -22,6 +23,21 @@ export default function TicketsIndexAdmin() {
     useEffect(() => {
         fetchTickets();
     }, []);
+
+    // WebSocket: Auto-refresh when new ticket or handover
+    useEffect(() => {
+        if (!adminUser?.id) return;
+
+        const channel = window.Echo.private('admin.notifications');
+        
+        channel.listen('AdminDashboardUpdated', (e) => {
+            if (e.type === 'new_ticket' || e.type === 'ticket_handover') {
+                fetchTickets();
+            }
+        });
+
+        return () => {};
+    }, [adminUser]);
 
     const filteredTickets = tickets.filter(ticket => {
         if (statusFilter === 'all') return true;

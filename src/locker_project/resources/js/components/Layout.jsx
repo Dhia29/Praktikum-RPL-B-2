@@ -79,7 +79,7 @@ export default function Layout() {
                         {/* 3. Notifications, Support, Profile */}
                         <div className="flex items-center gap-4">
                             
-                            <NotificationsDropdown />
+                            <NotificationsDropdown currentUser={currentUser} />
 
                             <button
                                 onClick={() => setIsSupportModalOpen(true)}
@@ -156,6 +156,7 @@ export default function Layout() {
             <SupportModal
                 isOpen={isSupportModalOpen}
                 onClose={() => setIsSupportModalOpen(false)}
+                currentUser={currentUser}
             />
         </div>
     );

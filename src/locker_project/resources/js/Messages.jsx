@@ -36,6 +36,10 @@ export default function Messages() {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
+    // WebSockets Presence & Typing
+    const [onlineUsers, setOnlineUsers] = useState([]);
+    const [typingStatus, setTypingStatus] = useState({});
+
     const [selectedMedia, setSelectedMedia] = useState(null);
     const [mediaPreview, setMediaPreview] = useState(null);
     const chatEndRef = useRef(null);
@@ -83,6 +87,80 @@ export default function Messages() {
         fetchRooms();
     }, [location.search]);
 
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const channel = window.Echo.private(`chat.${currentUser.id}`);
+        
+        channel.listen('MessageSent', (e) => {
+            const incomingMessage = e.message;
+            
+            // Perbarui history jika pesan untuk active room (baik pengirim/penerima)
+            setActiveRoom((currentActiveRoom) => {
+                if (currentActiveRoom && (incomingMessage.from_user_id === currentActiveRoom.id || incomingMessage.to_user_id === currentActiveRoom.id)) {
+                    setChatHistory(prev => {
+                        // Cek apakah pesan sudah ada
+                        if (prev.find(m => m.id === incomingMessage.id)) return prev;
+                        return [...prev, incomingMessage];
+                    });
+                    scrollToBottom();
+                }
+                return currentActiveRoom;
+            });
+
+            // Refresh daftar kontak untuk memperbarui last_message dan time
+            fetchRooms();
+        });
+
+        channel.listen('MessageDeleted', (e) => {
+            const deletedId = e.id;
+            setChatHistory(prev => prev.filter(msg => msg.id !== deletedId));
+            fetchRooms();
+        });
+
+        channel.listen('MessageUpdated', (e) => {
+            const updatedMessage = e.message;
+            setChatHistory(prev => prev.map(msg => msg.id === updatedMessage.id ? updatedMessage : msg));
+            fetchRooms();
+        });
+
+        // Online & Typing Tracker via Presence Channel
+        const presenceChannel = window.Echo.join('chat.presence');
+        presenceChannel.here((users) => {
+            setOnlineUsers(users.map(u => u.id));
+        }).joining((user) => {
+            setOnlineUsers(prev => [...prev, user.id]);
+        }).leaving((user) => {
+            setOnlineUsers(prev => prev.filter(id => id !== user.id));
+        }).listenForWhisper('typing', (e) => {
+            if (e.toUserId === currentUser.id) {
+                setTypingStatus(prev => ({ ...prev, [e.userId]: e.typing }));
+                if (e.typing) {
+                    clearTimeout(window[`typingTimer_${e.userId}`]);
+                    window[`typingTimer_${e.userId}`] = setTimeout(() => {
+                        setTypingStatus(prev => ({ ...prev, [e.userId]: false }));
+                    }, 3000);
+                }
+            }
+        });
+
+        return () => {
+            window.Echo.leave(`chat.${currentUser.id}`);
+            window.Echo.leave('chat.presence');
+        };
+    }, [currentUser]);
+
+    const handleTypeMessage = (e) => {
+        setTypedMessage(e.target.value);
+        if (activeRoom && currentUser) {
+            window.Echo.join('chat.presence').whisper('typing', {
+                userId: currentUser.id,
+                toUserId: activeRoom.id,
+                typing: e.target.value.length > 0
+            });
+        }
+    };
+
     const handleChatAction = async (contactId, action) => {
         if (action === 'delete_history' && !confirm('Yakin ingin menghapus riwayat pesan pada obrolan ini?')) return;
 
@@ -114,6 +192,17 @@ export default function Messages() {
         } catch (error) {
             console.error("Gagal menghapus pesan", error);
             alert("Gagal menghapus pesan.");
+        }
+    };
+
+    const handleRespondAppointment = async (id, status) => {
+        try {
+            await axios.post(`/api/messages/${id}/respond-appointment`, { status });
+            setChatHistory(prev => prev.map(msg => msg.id === id ? { ...msg, appointment_status: status } : msg));
+            fetchRooms();
+        } catch (error) {
+            console.error("Gagal merespons jadwal", error);
+            alert(error.response?.data?.message || "Gagal merespons jadwal.");
         }
     };
 
@@ -195,6 +284,13 @@ export default function Messages() {
 
         try {
             setTypedMessage('');
+            if (activeRoom && currentUser) {
+                window.Echo.join('chat.presence').whisper('typing', {
+                    userId: currentUser.id,
+                    toUserId: activeRoom.id,
+                    typing: false
+                });
+            }
             cancelMedia();
             setShowEmojiPicker(false);
 
@@ -202,7 +298,10 @@ export default function Messages() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            setChatHistory(prev => [...prev, res.data.data]);
+            setChatHistory(prev => {
+                if (prev.some(m => m.id === res.data.data.id)) return prev;
+                return [...prev, res.data.data];
+            });
 
             setRooms(prevRooms =>
                 prevRooms.map(room =>
@@ -228,7 +327,10 @@ export default function Messages() {
                 onClose={() => setIsAppointmentModalOpen(false)}
                 activeRoom={activeRoom}
                 onAppointmentSent={(newMessage) => {
-                    setChatHistory(prev => [...prev, newMessage]);
+                    setChatHistory(prev => {
+                        if (prev.some(m => m.id === newMessage.id)) return prev;
+                        return [...prev, newMessage];
+                    });
                     setRooms(prevRooms => prevRooms.map(room => 
                         room.id === activeRoom.id ? { ...room, last_message: '[Jadwal Dikirim]', time: new Date().toISOString() } : room
                     ));
@@ -373,8 +475,19 @@ export default function Messages() {
                                 {activeRoom.avatar_url ? <img src={activeRoom.avatar_url} className="w-full h-full object-cover" alt="" /> : activeRoom.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-gray-900">{activeRoom.name}</h3>
-                                <p className="text-xs text-[#8100D1] font-medium capitalize mt-0.5">{activeRoom.role}</p>
+                                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                    {activeRoom.name}
+                                    {onlineUsers.includes(activeRoom.id) && (
+                                        <span className="w-2.5 h-2.5 bg-green-500 rounded-full inline-block shadow-sm" title="Online"></span>
+                                    )}
+                                </h3>
+                                <p className="text-xs text-[#8100D1] font-medium capitalize mt-0.5">
+                                    {typingStatus[activeRoom.id] ? (
+                                        <span className="flex items-center gap-1 text-purple-600 animate-pulse">Sedang mengetik<span className="flex gap-0.5"><span className="w-1 h-1 bg-purple-600 rounded-full"></span><span className="w-1 h-1 bg-purple-600 rounded-full animation-delay-200"></span><span className="w-1 h-1 bg-purple-600 rounded-full animation-delay-400"></span></span></span>
+                                    ) : (
+                                        activeRoom.role
+                                    )}
+                                </p>
                             </div>
                         </div>
 
@@ -584,12 +697,25 @@ export default function Messages() {
                                     )}
                                 </div>
 
-                                <input
-                                    type="text"
+                                <textarea
                                     placeholder="Ketik pesan..."
                                     value={typedMessage}
-                                    onChange={(e) => setTypedMessage(e.target.value)}
-                                    className="flex-1 border border-gray-300 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-[#8100D1] outline-none transition-all"
+                                    onChange={handleTypeMessage}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            if (typedMessage.trim() || attachments.length > 0) {
+                                                handleSendMessage(e);
+                                            }
+                                        }
+                                    }}
+                                    rows="1"
+                                    className="flex-1 border border-gray-300 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-[#8100D1] outline-none transition-all resize-none overflow-hidden"
+                                    style={{ minHeight: '46px', maxHeight: '120px' }}
+                                    onInput={(e) => {
+                                        e.target.style.height = 'auto';
+                                        e.target.style.height = e.target.scrollHeight + 'px';
+                                    }}
                                 />
 
                                 <button type="submit" className="bg-[#8100D1] hover:bg-purple-800 text-white p-3 rounded-xl shadow-md transition-colors flex items-center justify-center focus:outline-none flex-shrink-0">

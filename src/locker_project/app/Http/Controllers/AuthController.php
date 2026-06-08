@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationEmail;
+use App\Mail\ResetPasswordEmail;
 
 class AuthController extends Controller
 {
@@ -215,6 +216,74 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Kode verifikasi baru telah dikirim ke email Anda.'
         ], 200);
+    }
+
+    // --- FITUR LUPA PASSWORD --- //
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Email tidak terdaftar di sistem kami.'], 404);
+        }
+
+        $token = Str::random(60);
+        
+        DB::table('users')->where('id', $user->id)->update([
+            'reset_password_token' => hash('sha256', $token),
+            'reset_password_expires_at' => now()->addMinutes(60),
+        ]);
+
+        $name = 'Pengguna';
+        if ($user->role === 'seeker') {
+            $profile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
+            $name = $profile->nama_lengkap ?? $name;
+        } else {
+            $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
+            $name = $profile->nama_perusahaan ?? $name;
+        }
+
+        try {
+            Mail::to($user->email)->send(new ResetPasswordEmail($token, $user->email, $name));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send reset password email: ' . $e->getMessage());
+            return response()->json(['message' => 'Gagal mengirim email reset password. Silakan coba lagi.'], 500);
+        }
+
+        return response()->json(['message' => 'Tautan reset password telah dikirim ke email Anda.'], 200);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|min:8|confirmed'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Permintaan tidak valid.'], 400);
+        }
+
+        if ($user->reset_password_token !== hash('sha256', $request->token)) {
+            return response()->json(['message' => 'Tautan reset password tidak valid atau sudah digunakan.'], 400);
+        }
+
+        if ($user->reset_password_expires_at < now()) {
+            return response()->json(['message' => 'Tautan reset password telah kedaluwarsa. Silakan minta yang baru.'], 400);
+        }
+
+        DB::table('users')->where('id', $user->id)->update([
+            'password_hash' => Hash::make($request->password),
+            'reset_password_token' => null,
+            'reset_password_expires_at' => null,
+        ]);
+
+        return response()->json(['message' => 'Password berhasil diperbarui. Silakan login dengan password baru Anda.'], 200);
     }
 
     // --- FITUR LOGIN GOOGLE SSO --- //

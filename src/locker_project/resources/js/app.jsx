@@ -5,9 +5,13 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
+import './echo';
+
 import SignUp from './SignUp';
 import Login from './Login';
 import VerifyEmail from './VerifyEmail';
+import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
 import PendingApproval from './PendingApproval';
 import Layout from './components/Layout';
 import Loker from './Loker';
@@ -26,6 +30,8 @@ function App() {
                 <Route path="/" element={<Login />} />
                 <Route path="/register" element={<SignUp />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/pending-approval" element={<PendingApproval />} />
 
                 {/* Halaman Utama dengan Navbar/Header Tab */}

@@ -62,6 +62,13 @@ class SupportController extends Controller
         // Trigger AI reply asynchronously or synchronously
         $this->callGeminiAI($ticket, "Kamu adalah asisten customer service bernama LockER Support. Kategorinya: {$ticket->category}. Judul masalah: {$ticket->subject}. Pengguna berkata: {$ticket->message}");
 
+        // Dispatch admin dashboard event
+        event(new \App\Events\AdminDashboardUpdated('new_ticket', [
+            'ticket_id' => $ticket->id,
+            'subject' => $ticket->subject,
+            'user_email' => $user->email
+        ]));
+
         return response()->json([
             'message' => 'Tiket berhasil dibuat',
             'data' => $ticket
@@ -137,6 +144,12 @@ class SupportController extends Controller
             'message' => $request->message
         ]);
 
+        // Broadcast ke admin dashboard agar chat admin ikut terupdate real-time
+        event(new \App\Events\AdminDashboardUpdated('ticket_reply', [
+            'ticket_id' => $ticket->id,
+            'message' => 'User membalas tiket'
+        ]));
+
         if ($ticket->handled_by === 'ai' && $ticket->status === 'open') {
             // Build conversation history for context
             $messages = SupportTicketMessage::where('support_ticket_id', $id)->orderBy('created_at', 'asc')->get();
@@ -173,6 +186,12 @@ class SupportController extends Controller
             'sender' => 'admin',
             'message' => 'Laporan Anda telah diteruskan ke tim Admin. Admin akan segera membalas pesan Anda di sini.'
         ]);
+
+        // Notify admin dashboard about handover
+        event(new \App\Events\AdminDashboardUpdated('ticket_handover', [
+            'ticket_id' => $ticket->id,
+            'subject' => $ticket->subject
+        ]));
 
         return response()->json(['message' => 'Tiket diteruskan ke Admin', 'ticket' => $ticket], 200);
     }
@@ -214,7 +233,7 @@ class SupportController extends Controller
             return response()->json(['message' => 'Forbidden - Khusus Admin'], 403);
         }
 
-        $tickets = SupportTicket::with('user:id,name,email')
+        $tickets = SupportTicket::with('user:id,email')
                     ->orderBy('created_at', 'desc')
                     ->get();
 
@@ -245,7 +264,7 @@ class SupportController extends Controller
         $ticket->save();
 
         if ($ticket->user) {
-            $ticket->user->notify(new \App\Notifications\TicketRepliedNotification($ticket, $user->name));
+            $ticket->user->notify(new \App\Notifications\TicketRepliedNotification($ticket, $user->email));
         }
 
         return response()->json([

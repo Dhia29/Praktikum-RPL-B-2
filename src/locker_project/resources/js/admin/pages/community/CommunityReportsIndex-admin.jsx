@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 
 export default function CommunityReportsIndexAdmin() {
+    const { adminUser } = useOutletContext() || {};
     const [activeTab, setActiveTab] = useState('live_posts'); // 'live_posts' or 'reports'
     const [reports, setReports] = useState([]);
     const [posts, setPosts] = useState([]);
@@ -40,6 +41,22 @@ export default function CommunityReportsIndexAdmin() {
             fetchLivePosts();
         }
     }, [activeTab]);
+
+    // WebSocket: Auto-refresh when new report arrives
+    useEffect(() => {
+        if (!adminUser?.id) return;
+
+        const channel = window.Echo.private('admin.notifications');
+        
+        channel.listen('AdminDashboardUpdated', (e) => {
+            if (e.type === 'new_report') {
+                fetchReports();
+                fetchLivePosts();
+            }
+        });
+
+        return () => {};
+    }, [adminUser]);
 
     const handleDeletePost = async (postId) => {
         if (!window.confirm('Yakin ingin menghapus postingan ini secara paksa? (Aksi ini tidak bisa dibatalkan)')) return;

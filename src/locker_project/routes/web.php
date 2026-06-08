@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicationController;
@@ -27,6 +28,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/api/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('/api/resend-verification', [AuthController::class, 'resendCode']);
+Route::post('/api/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/api/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/auth/google/redirect', [AuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::get('/me', [AuthController::class, 'me']);
@@ -111,6 +114,7 @@ Route::middleware('web')->group(function() {
 // --- Notifications ---
 Route::get('/api/notifications', [NotificationController::class, 'index']);
 Route::post('/api/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
+Route::delete('/api/notifications/{id}', [NotificationController::class, 'destroy']);
 
 
 // ==========================================
@@ -123,6 +127,9 @@ Route::prefix('api/admin')->middleware(['web'])->group(function () {
 Route::prefix('api/admin')->middleware(['web', 'admin'])->group(function () {
     // Admin Core
     Route::post('/logout', [AdminController::class, 'logout'])->name('api.admin.logout');
+    Route::get('/me', function () {
+        return response()->json(Auth::user());
+    })->name('api.admin.me');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('api.admin.dashboard');
     Route::get('/analytics', [AdminController::class, 'analytics'])->name('api.admin.analytics');
     Route::get('/settings', [AdminController::class, 'settings'])->name('api.admin.settings');
