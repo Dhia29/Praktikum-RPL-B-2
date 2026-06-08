@@ -5,9 +5,11 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Notifications\Notification;
 
-class NewReportNotification extends Notification
+class NewReportNotification extends Notification implements ShouldBroadcastNow
 {
     use Queueable;
 
@@ -30,7 +32,12 @@ class NewReportNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database']; // Only sending via database
+        return ['database', 'broadcast'];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 
     /**

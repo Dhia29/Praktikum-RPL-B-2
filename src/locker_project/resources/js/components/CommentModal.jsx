@@ -248,6 +248,14 @@ const CommentModal = ({ isOpen, onClose, post, onCommentSuccess }) => {
                             <textarea
                                 value={commentText}
                                 onChange={(e) => setCommentText(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        if (commentText.trim() || selectedMedia) {
+                                            handleSubmit(e);
+                                        }
+                                    }
+                                }}
                                 placeholder="Kirim balasan Anda..."
                                 className="w-full bg-transparent border-none focus:ring-0 text-[15px] resize-none placeholder-gray-400 p-0"
                                 rows="2"

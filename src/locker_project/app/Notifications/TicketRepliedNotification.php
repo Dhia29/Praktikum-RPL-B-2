@@ -5,9 +5,11 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Notifications\Notification;
 
-class TicketRepliedNotification extends Notification
+class TicketRepliedNotification extends Notification implements ShouldBroadcastNow
 {
     use Queueable;
 
@@ -30,18 +32,12 @@ class TicketRepliedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 
     /**
@@ -53,6 +49,7 @@ class TicketRepliedNotification extends Notification
     {
         return [
             'type' => 'ticket_reply',
+            'title' => 'Balasan Tiket Support',
             'ticket_id' => $this->ticket->id,
             'message' => "{$this->adminName} membalas laporan Anda: {$this->ticket->subject}",
             'action_url' => "/support/tickets/{$this->ticket->id}"

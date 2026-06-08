@@ -227,6 +227,8 @@ class MessageController extends Controller
 
             DB::table('messages')->insert($newMessage);
 
+            broadcast(new \App\Events\MessageSent($newMessage));
+
             // Fetch sender profile to get name
             $senderProfile = DB::table('job_seeker_profiles')->where('user_id', $authId)->first();
             $senderName = $senderProfile ? ($senderProfile->nama_lengkap ?? 'User') : 'User';
@@ -273,6 +275,9 @@ class MessageController extends Controller
             DB::table('messages')->where('id', $id)->update([
                 'appointment_status' => $request->status
             ]);
+
+            $updatedMessage = DB::table('messages')->where('id', $id)->first();
+            broadcast(new \App\Events\MessageUpdated($updatedMessage));
 
             return response()->json(['message' => 'Berhasil merespons jadwal', 'status' => $request->status], 200);
         } catch (\Exception $e) {
@@ -414,6 +419,7 @@ class MessageController extends Controller
                     return response()->json(['message' => 'Hanya pengirim yang dapat menghapus untuk semua orang'], 403);
                 }
                 DB::table('messages')->where('id', $id)->delete();
+                broadcast(new \App\Events\MessageDeleted($id, $message->from_user_id, $message->to_user_id));
                 return response()->json(['message' => 'Pesan dihapus untuk semua orang'], 200);
             } else {
                 // for_me
