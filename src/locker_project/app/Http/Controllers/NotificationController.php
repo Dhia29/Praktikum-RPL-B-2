@@ -14,11 +14,20 @@ class NotificationController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $notifications = $user->notifications()->take(20)->get();
+        $allNotifications = $user->notifications()->latest()->get();
+        
+        if ($allNotifications->count() > 6) {
+            $toDelete = $allNotifications->slice(6)->pluck('id');
+            $user->notifications()->whereIn('id', $toDelete)->delete();
+            $notifications = $allNotifications->take(6);
+        } else {
+            $notifications = $allNotifications;
+        }
+
         $unreadCount = $user->unreadNotifications()->count();
 
         return response()->json([
-            'notifications' => $notifications,
+            'notifications' => $notifications->values(),
             'unread_count' => $unreadCount
         ]);
     }
@@ -40,5 +49,21 @@ class NotificationController extends Controller
         }
 
         return response()->json(['message' => 'Success']);
+    }
+
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $notification = $user->notifications()->where('id', $id)->first();
+        if ($notification) {
+            $notification->delete();
+            return response()->json(['message' => 'Notification deleted']);
+        }
+
+        return response()->json(['message' => 'Not found'], 404);
     }
 }
