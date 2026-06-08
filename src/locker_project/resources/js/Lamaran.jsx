@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import LamaranPerusahaan from './LamaranPerusahaan';
 
 export default function Lamaran() {
     const navigate = useNavigate();
+    const { currentUser } = useOutletContext() || {};
 
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('Semua');
+    const [showRejected, setShowRejected] = useState(false);
 
-    useEffect(() => {
+    const fetchApplications = () => {
         axios.get('/api/applications/me')
             .then(response => {
                 setApplications(response.data.data || []);
@@ -19,14 +22,35 @@ export default function Lamaran() {
                 console.error("Gagal memuat data lamaran:", error);
                 setIsLoading(false);
             });
+    };
+
+    useEffect(() => {
+        fetchApplications();
     }, []);
 
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const channel = window.Echo.private(`App.Models.User.${currentUser.id}`);
+        
+        channel.listen('ApplicationStatusUpdated', (e) => {
+            // Update application status in the local state
+            setApplications(prev => prev.map(app => 
+                app.id === e.application_id ? { ...app, status: e.status } : app
+            ));
+        });
+
+        return () => {
+            window.Echo.leave(`App.Models.User.${currentUser.id}`);
+        };
+    }, [currentUser]);
+
     const filteredApplications = applications.filter(app => {
-        if (activeTab === 'Semua') return true;
-        if (activeTab === 'Antrian' && (app.status === 'Menunggu Review' || app.status === 'Terkirim')) return true;
+        if (activeTab === 'Semua') return app.status !== 'Draft' && app.status !== 'Ditolak';
+        if (activeTab === 'Antrian' && (app.status === 'Menunggu Review' || app.status === 'Terkirim' || app.status === 'Pending' || app.status === 'Review')) return true;
         if (activeTab === 'Diproses' && (app.status === 'Diproses' || app.status === 'Tes Teknis')) return true;
         if (activeTab === 'Interview' && (app.status === 'Wawancara' || app.status === 'Interview')) return true;
-        if (activeTab === 'Draft' && (app.status === 'Draft')) return true;
+        if (activeTab === 'Arsip' && (app.status === 'Draft' || app.status === 'Diterima' || app.status === 'Ditolak')) return true;
         return false;
     });
 
@@ -47,6 +71,11 @@ export default function Lamaran() {
 
     // CATATAN PENTING: Karena Layout.jsx sudah memuat Header dan Navigasi, 
     // komponen ini HANYA mengembalikan kotak konten utama (Card).
+
+    if (currentUser?.role === 'company') {
+        return <LamaranPerusahaan />;
+    }
+
     return (
         // LANGSUNG DIV KOTAK PUTIH, JANGAN ADA TAG <Layout>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[65vh] flex flex-col">
@@ -58,7 +87,7 @@ export default function Lamaran() {
 
             <div className="p-6 md:p-8 flex-1 flex flex-col">
                 <div className="flex rounded-xl border border-gray-200 p-1 mb-8 overflow-x-auto hide-scrollbar">
-                    {['Semua', 'Antrian', 'Diproses', 'Interview', 'Draft'].map((tab) => (
+                    {['Semua', 'Antrian', 'Diproses', 'Interview', 'Arsip'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -81,7 +110,7 @@ export default function Lamaran() {
                     </div>
                 ) : filteredApplications.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
-                        {filteredApplications.map((app) => (
+                        {filteredApplications.filter(app => app.status !== 'Ditolak').map((app) => (
                             <div key={app.id} className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group flex flex-col sm:flex-row gap-5 items-start sm:items-center cursor-pointer">
                                 <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 overflow-hidden">
                                     {app.company_logo ? (
@@ -104,6 +133,44 @@ export default function Lamaran() {
                                 </div>
                             </div>
                         ))}
+
+                        {filteredApplications.some(app => app.status === 'Ditolak') && (
+                            <div className="mt-4 border-t border-gray-100 pt-4">
+                                <button 
+                                    onClick={() => setShowRejected(!showRejected)}
+                                    className="flex items-center justify-between w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200 focus:outline-none"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                                        <span className="font-semibold text-gray-700 text-sm">Arsip Lamaran Ditolak ({filteredApplications.filter(app => app.status === 'Ditolak').length})</span>
+                                    </div>
+                                    <svg className={`w-5 h-5 text-gray-400 transition-transform ${showRejected ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+
+                                {showRejected && (
+                                    <div className="grid grid-cols-1 gap-3 mt-3">
+                                        {filteredApplications.filter(app => app.status === 'Ditolak').map(app => (
+                                            <div key={app.id} className="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-200 opacity-60 hover:opacity-100 transition-opacity flex justify-between items-center group cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-300 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+                                                        {app.company_logo ? (
+                                                            <img src={app.company_logo} alt="Logo" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="text-sm font-bold text-gray-400">{app.company_name.charAt(0)}</span>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-bold text-gray-600 line-through group-hover:line-clamp-none line-clamp-1 group-hover:no-underline transition-all">{app.job_title}</h3>
+                                                        <p className="text-xs text-gray-500">{app.company_name}</p>
+                                                    </div>
+                                                </div>
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusStyle(app.status)}`}>{app.status}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ) : (
                     // EMPTY STATE

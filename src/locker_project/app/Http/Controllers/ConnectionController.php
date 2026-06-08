@@ -226,6 +226,7 @@ class ConnectionController extends Controller
         if ($request->action === 'accept') {
             $connection->status = 'accepted';
             $connection->save();
+
             // Fetch accepter name
             $accepterProfile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
             $accepterName = $accepterProfile ? ($accepterProfile->nama_lengkap ?? 'User') : 'User';
@@ -235,6 +236,7 @@ class ConnectionController extends Controller
             if ($requester) {
                 $requester->notify(new \App\Notifications\ConnectionAcceptedNotification($accepterName));
             }
+
             return response()->json(['message' => 'Request accepted']);
         } else {
             $connection->delete();

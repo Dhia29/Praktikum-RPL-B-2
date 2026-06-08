@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 
 export default function DashboardAdmin() {
+    const { adminUser } = useOutletContext() || {};
     const [stats, setStats] = useState({
         totalUsers: 0,
         pendingCompanies: 0,
@@ -11,20 +12,36 @@ export default function DashboardAdmin() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const fetchStats = async () => {
+        try {
+            const response = await axios.get('/api/admin/dashboard');
+            setStats(response.data);
+        } catch (error) {
+            console.error("Failed to fetch dashboard stats", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await axios.get('/api/admin/dashboard');
-                setStats(response.data);
-            } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
         fetchStats();
     }, []);
+
+    // WebSocket: Auto-refresh stats when events happen
+    useEffect(() => {
+        if (!adminUser?.id) return;
+
+        const channel = window.Echo.private('admin.notifications');
+        
+        channel.listen('AdminDashboardUpdated', (e) => {
+            // Re-fetch stats whenever any admin event fires
+            fetchStats();
+        });
+
+        return () => {
+            window.Echo.leave('admin.notifications');
+        };
+    }, [adminUser]);
 
     return (
         <>

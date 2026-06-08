@@ -5,9 +5,11 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Notifications\Notification;
 
-class ConnectionAcceptedNotification extends Notification
+class ConnectionAcceptedNotification extends Notification implements ShouldBroadcastNow
 {
     use Queueable;
 
@@ -25,7 +27,12 @@ class ConnectionAcceptedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 
     /**
@@ -37,6 +44,7 @@ class ConnectionAcceptedNotification extends Notification
     {
         return [
             'type' => 'connection_accepted',
+            'title' => 'Koneksi Diterima',
             'message' => "{$this->accepterName} menerima permintaan koneksi Anda.",
             'action_url' => "/profile"
         ];

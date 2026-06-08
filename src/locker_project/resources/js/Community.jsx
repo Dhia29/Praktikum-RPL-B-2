@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ComposeModal from './components/ComposeModal';
 import CommentModal from './components/CommentModal';
+import ReportModal from './components/ReportModal';
 
 export default function Community() {
     const [posts, setPosts] = useState([]);
@@ -27,6 +28,10 @@ export default function Community() {
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
     const [selectedPostToComment, setSelectedPostToComment] = useState(null);
+    
+    // State untuk Modal Report
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [selectedReportPostId, setSelectedReportPostId] = useState(null);
 
     const toggleLike = async (e, postId) => {
         e.stopPropagation();
@@ -168,18 +173,11 @@ export default function Community() {
         }
     };
 
-    const handleReportPost = async (e, postId) => {
+    const handleReportPost = (e, postId) => {
         e.stopPropagation();
         setOpenDropdownId(null);
-        const reason = prompt('Masukkan alasan pelaporan (misal: Spam, Mengganggu, dll):');
-        if (!reason) return;
-        
-        try {
-            await axios.post(`/api/community/posts/${postId}/report`, { reason });
-            alert('Postingan berhasil dilaporkan. Terima kasih atas laporan Anda.');
-        } catch (err) {
-            alert(err.response?.data?.message || 'Gagal melaporkan postingan.');
-        }
+        setSelectedReportPostId(postId);
+        setIsReportModalOpen(true);
     };
 
     const handleAvatarChange = (e) => {
@@ -403,7 +401,7 @@ export default function Community() {
                                                         </div>
 
                                                         {/* Hapus Postingan (Jika milik sendiri) */}
-                                                        {post.is_me ? (
+                                                        {post.is_me && (
                                                             <button 
                                                                 onClick={(e) => { setOpenDropdownId(null); handleDeletePost(e, post.id); }}
                                                                 className="w-full text-left px-4 py-2 text-sm text-red-600 font-semibold hover:bg-red-50 transition flex items-center gap-3"
@@ -411,15 +409,16 @@ export default function Community() {
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                                 Hapus
                                                             </button>
-                                                        ) : (
-                                                            <button 
-                                                                onClick={(e) => handleReportPost(e, post.id)}
-                                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 font-semibold hover:bg-gray-100 transition flex items-center gap-3"
-                                                            >
-                                                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
-                                                                Laporkan Postingan
-                                                            </button>
                                                         )}
+                                                        
+                                                        {/* Laporkan Postingan (Sekarang muncul untuk semua orang agar bisa di-test) */}
+                                                        <button 
+                                                            onClick={(e) => handleReportPost(e, post.id)}
+                                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 font-semibold hover:bg-gray-100 transition flex items-center gap-3"
+                                                        >
+                                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
+                                                            Laporkan Postingan
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>
@@ -563,6 +562,16 @@ export default function Community() {
                         }
                         return p;
                     }));
+                }}
+            />
+
+            {/* Report Modal */}
+            <ReportModal 
+                isOpen={isReportModalOpen}
+                onClose={() => { setIsReportModalOpen(false); setSelectedReportPostId(null); }}
+                postId={selectedReportPostId}
+                onSuccess={() => {
+                    // Report success
                 }}
             />
         </div>

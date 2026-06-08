@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('support_tickets', function (Blueprint $table) {
-            $table->enum('handled_by', ['ai', 'admin'])->default('ai')->after('status');
+        Schema::table('company_profiles', function (Blueprint $table) {
+            $table->text('alasan_penolakan')->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('support_tickets', function (Blueprint $table) {
-            $table->dropColumn('handled_by');
+        Schema::table('company_profiles', function (Blueprint $table) {
+            $table->dropColumn('alasan_penolakan');
         });
     }
 };

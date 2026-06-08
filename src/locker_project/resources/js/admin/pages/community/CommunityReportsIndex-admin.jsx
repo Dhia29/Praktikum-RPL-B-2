@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 
 export default function CommunityReportsIndexAdmin() {
+    const { adminUser } = useOutletContext() || {};
+    const [activeTab, setActiveTab] = useState('live_posts'); // 'live_posts' or 'reports'
     const [reports, setReports] = useState([]);
+    const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
 
@@ -19,9 +22,57 @@ export default function CommunityReportsIndexAdmin() {
         }
     };
 
+    const fetchLivePosts = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('/api/admin/community/posts/all');
+            setPosts(response.data.posts || []);
+        } catch (error) {
+            console.error("Failed to fetch live posts", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        fetchReports();
-    }, []);
+        if (activeTab === 'reports') {
+            fetchReports();
+        } else {
+            fetchLivePosts();
+        }
+    }, [activeTab]);
+
+    // WebSocket: Auto-refresh when new report arrives
+    useEffect(() => {
+        if (!adminUser?.id) return;
+
+        const channel = window.Echo.private('admin.notifications');
+        
+        channel.listen('AdminDashboardUpdated', (e) => {
+            if (e.type === 'new_report') {
+                fetchReports();
+                fetchLivePosts();
+            }
+        });
+
+        return () => {};
+    }, [adminUser]);
+
+    const handleDeletePost = async (postId) => {
+        if (!window.confirm('Yakin ingin menghapus postingan ini secara paksa? (Aksi ini tidak bisa dibatalkan)')) return;
+        
+        try {
+            await axios.delete(`/api/admin/community/reports/${postId}/post`);
+            alert('Postingan berhasil dihapus.');
+            if (activeTab === 'reports') {
+                fetchReports();
+            } else {
+                fetchLivePosts();
+            }
+        } catch (error) {
+            alert('Gagal menghapus postingan.');
+        }
+    };
 
     const filteredReports = reports.filter(report => {
         if (statusFilter === 'all') return true;
@@ -55,10 +106,29 @@ export default function CommunityReportsIndexAdmin() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-gray-100 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">Laporan Komunitas</h3>
-                    <p className="text-sm text-gray-500 mt-1">Kelola laporan konten komunitas yang melanggar aturan.</p>
+                    <h3 className="text-lg font-bold text-gray-800">Pengawasan Komunitas</h3>
+                    <p className="text-sm text-gray-500 mt-1">Pantau seluruh aktivitas postingan atau kelola laporan yang masuk.</p>
                 </div>
-                <div className="flex gap-2">
+                
+                {/* Tabs */}
+                <div className="flex bg-gray-100 p-1 rounded-lg">
+                    <button 
+                        onClick={() => setActiveTab('live_posts')}
+                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'live_posts' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Live Update Postingan
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('reports')}
+                        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'reports' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Laporan Masuk
+                    </button>
+                </div>
+            </div>
+
+            {activeTab === 'reports' && (
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-end">
                     <select 
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -71,57 +141,126 @@ export default function CommunityReportsIndexAdmin() {
                         <option value="rejected">Rejected</option>
                     </select>
                 </div>
-            </div>
+            )}
 
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                            <th className="p-4 border-b border-gray-100">ID Laporan / Alasan</th>
-                            <th className="p-4 border-b border-gray-100">Pelapor</th>
-                            <th className="p-4 border-b border-gray-100">Pemilik Postingan</th>
-                            <th className="p-4 border-b border-gray-100">Tanggal</th>
-                            <th className="p-4 border-b border-gray-100">Status</th>
-                            <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                            {activeTab === 'reports' ? (
+                                <>
+                                    <th className="p-4 border-b border-gray-100">ID Laporan / Alasan</th>
+                                    <th className="p-4 border-b border-gray-100">Pelapor</th>
+                                    <th className="p-4 border-b border-gray-100">Pemilik Postingan</th>
+                                    <th className="p-4 border-b border-gray-100">Tanggal</th>
+                                    <th className="p-4 border-b border-gray-100">Status</th>
+                                    <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                                </>
+                            ) : (
+                                <>
+                                    <th className="p-4 border-b border-gray-100 w-[40%]">Isi Konten</th>
+                                    <th className="p-4 border-b border-gray-100">Pemilik</th>
+                                    <th className="p-4 border-b border-gray-100">Lokasi</th>
+                                    <th className="p-4 border-b border-gray-100 text-center">Jlh Laporan</th>
+                                    <th className="p-4 border-b border-gray-100">Waktu</th>
+                                    <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                                </>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="text-sm divide-y divide-gray-100">
                         {loading ? (
                             <tr>
-                                <td colSpan="6" className="p-8 text-center text-gray-500">Memuat data laporan...</td>
+                                <td colSpan="6" className="p-8 text-center text-gray-500">Memuat data...</td>
                             </tr>
-                        ) : filteredReports.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="p-8 text-center text-gray-500">Belum ada laporan komunitas saat ini.</td>
-                            </tr>
-                        ) : (
-                            filteredReports.map(report => (
-                                <tr key={report.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="p-4">
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-gray-900 text-sm mb-1">{report.id.toString().substring(0, 8)}...</span>
-                                            <span className="text-red-600 text-xs font-semibold">{report.reason}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">
-                                        <span className="block font-medium text-gray-800">{report.reporter_email}</span>
-                                    </td>
-                                    <td className="p-4">
-                                        <span className="block font-medium text-gray-800">{report.post_owner_email || 'Deleted User'}</span>
-                                    </td>
-                                    <td className="p-4 text-gray-500">
-                                        {formatDate(report.created_at)}
-                                    </td>
-                                    <td className="p-4">
-                                        {renderStatus(report.status)}
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <Link to={`/community/reports/${report.id}`} className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                            Lihat Detail
-                                        </Link>
-                                    </td>
+                        ) : activeTab === 'reports' ? (
+                            filteredReports.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="p-8 text-center text-gray-500">Belum ada laporan komunitas saat ini.</td>
                                 </tr>
-                            ))
+                            ) : (
+                                filteredReports.map(report => (
+                                    <tr key={report.id} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-gray-900 text-sm mb-1">{report.id.toString().substring(0, 8)}...</span>
+                                                <span className="text-red-600 text-xs font-semibold">{report.reason}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="block font-medium text-gray-800">{report.reporter_email}</span>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="block font-medium text-gray-800">{report.post_owner_email || 'Deleted User'}</span>
+                                        </td>
+                                        <td className="p-4 text-gray-500">
+                                            {formatDate(report.created_at)}
+                                        </td>
+                                        <td className="p-4">
+                                            {renderStatus(report.status)}
+                                        </td>
+                                        <td className="p-4 text-right flex items-center justify-end gap-2">
+                                            <Link to={`/community/reports/${report.id}`} className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                                Detail
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            )
+                        ) : (
+                            posts.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="p-8 text-center text-gray-500">Belum ada postingan sama sekali.</td>
+                                </tr>
+                            ) : (
+                                posts.map(post => (
+                                    <tr key={post.id} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="p-4">
+                                            <p className="text-gray-800 text-sm line-clamp-2 mb-1">{post.konten}</p>
+                                            {post.media_url && (
+                                                <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">Terdapat Media ({post.media_type})</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-gray-800">{post.user_email || 'Deleted User'}</span>
+                                                <span className="text-xs text-gray-500 uppercase">{post.user_role}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            {post.community_id ? (
+                                                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 truncate max-w-[120px]">
+                                                    {post.community_name}
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                                                    Global
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            {post.report_count > 0 ? (
+                                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 font-bold text-xs">
+                                                    {post.report_count}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400">-</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-gray-500 whitespace-nowrap text-xs">
+                                            {formatDate(post.created_at)}
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <button 
+                                                onClick={() => handleDeletePost(post.id)}
+                                                className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+                                            >
+                                                Hapus
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )
                         )}
                     </tbody>
                 </table>

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CsTicket;
-use App\Models\CsTicketMessage;
+use App\Models\SupportTicket;
+use App\Models\SupportTicketMessage;
 use App\Models\User;
 use App\Models\AdminLog;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ class AdminCsTicketController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CsTicket::with('user', 'assignedAdmin');
+        $query = SupportTicket::with('user', 'admin');
 
         if ($request->has('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
@@ -26,7 +26,7 @@ class AdminCsTicketController extends Controller
 
     public function show($id)
     {
-        $ticket = CsTicket::with(['user', 'assignedAdmin', 'messages.sender'])->findOrFail($id);
+        $ticket = SupportTicket::with(['user', 'admin', 'messages'])->findOrFail($id);
         $admins = User::where('role', 'ADMIN')->get();
 
         return response()->json(compact('ticket', 'admins'));
@@ -35,29 +35,33 @@ class AdminCsTicketController extends Controller
     public function reply(Request $request, $id)
     {
         $request->validate([
-            'message' => 'required|string',
-            'is_internal_note' => 'nullable'
+            'message' => 'required|string'
         ]);
 
-        $ticket = CsTicket::findOrFail($id);
+        $ticket = SupportTicket::findOrFail($id);
 
-        CsTicketMessage::create([
-            'ticket_id' => $ticket->id,
-            'sender_id' => Auth::id(),
-            'message' => $request->message,
-            'is_internal_note' => $request->has('is_internal_note') ? true : false
+        SupportTicketMessage::create([
+            'support_ticket_id' => $ticket->id,
+            'sender' => 'admin',
+            'message' => $request->message
         ]);
 
-        if (!$request->has('is_internal_note')) {
-            $ticket->update(['status' => 'waiting_for_user']);
-        }
+        $ticket->update([
+            'status' => 'in_progress',
+            'handled_by' => 'admin'
+        ]);
 
         AdminLog::create([
             'admin_id' => Auth::id(),
-            'action' => 'Reply to CS Ticket',
-            'target_entity' => 'cs_tickets',
+            'action' => 'Reply to Support Ticket',
+            'target_entity' => 'support_tickets',
             'target_id' => $ticket->id
         ]);
+
+        $ticketUser = User::find($ticket->user_id);
+        if ($ticketUser) {
+            $ticketUser->notify(new \App\Notifications\TicketRepliedNotification($ticket, Auth::user()->email ?? 'Admin'));
+        }
 
         return response()->json(['message' => 'Message sent successfully.']);
     }
@@ -65,21 +69,17 @@ class AdminCsTicketController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:open,pending_response,in_progress,waiting_for_user,resolved,closed',
-            'priority' => 'nullable|in:low,medium,high,critical'
+            'status' => 'required|in:open,in_progress,resolved,closed'
         ]);
 
-        $ticket = CsTicket::findOrFail($id);
+        $ticket = SupportTicket::findOrFail($id);
         $ticket->status = $request->status;
-        if ($request->has('priority')) {
-            $ticket->priority = $request->priority;
-        }
         $ticket->save();
 
         AdminLog::create([
             'admin_id' => Auth::id(),
-            'action' => 'Update CS Ticket Status',
-            'target_entity' => 'cs_tickets',
+            'action' => 'Update Support Ticket Status',
+            'target_entity' => 'support_tickets',
             'target_id' => $ticket->id
         ]);
 
@@ -92,15 +92,15 @@ class AdminCsTicketController extends Controller
             'assigned_admin_id' => 'required|exists:users,id'
         ]);
 
-        $ticket = CsTicket::findOrFail($id);
+        $ticket = SupportTicket::findOrFail($id);
         $ticket->update([
-            'assigned_admin_id' => $request->assigned_admin_id
+            'replied_by' => $request->assigned_admin_id
         ]);
 
         AdminLog::create([
             'admin_id' => Auth::id(),
-            'action' => 'Assign CS Ticket',
-            'target_entity' => 'cs_tickets',
+            'action' => 'Assign Support Ticket',
+            'target_entity' => 'support_tickets',
             'target_id' => $ticket->id
         ]);
 

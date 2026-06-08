@@ -5,9 +5,11 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Notifications\Notification;
 
-class PostLikedNotification extends Notification
+class PostLikedNotification extends Notification implements ShouldBroadcastNow
 {
     use Queueable;
 
@@ -30,18 +32,12 @@ class PostLikedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 
     /**
@@ -53,6 +49,7 @@ class PostLikedNotification extends Notification
     {
         return [
             'type' => 'post_like',
+            'title' => 'Postingan Disukai',
             'post_id' => $this->post->id,
             'message' => "{$this->likerName} menyukai postingan Anda.",
             'action_url' => "/community/post/{$this->post->id}"

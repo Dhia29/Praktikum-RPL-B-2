@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerificationEmail;
+use App\Mail\ResetPasswordEmail;
 
 class AuthController extends Controller
 {
@@ -27,6 +30,8 @@ class AuthController extends Controller
         try {
             DB::beginTransaction();
 
+            $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
             // Insert ke tabel users (Sesuai Migration)
             $user = User::create([
                 'id' => Str::uuid()->toString(),
@@ -34,6 +39,11 @@ class AuthController extends Controller
                 'password_hash' => Hash::make($request->password),
                 'role' => $request->role,
                 'status' => $request->role === 'company' ? 'Menunggu Verifikasi' : 'Aktif',
+            ]);
+
+            DB::table('users')->where('id', $user->id)->update([
+                'verification_code' => $code,
+                'verification_expires_at' => now()->addMinutes(15),
             ]);
 
             // Insert ke tabel profil
@@ -58,11 +68,17 @@ class AuthController extends Controller
 
             DB::commit();
 
-            Auth::login($user);
+            try {
+                Mail::to($user->email)->send(new VerificationEmail($code, $request->nama_lengkap_atau_perusahaan));
+            } catch (\Exception $e) {
+                // Log error but don't rollback user creation
+                \Log::error('Failed to send verification email: ' . $e->getMessage());
+            }
 
             return response()->json([
-                'message' => 'Registrasi berhasil!',
-                'user' => $user
+                'message' => 'Registrasi berhasil! Silakan cek email Anda untuk kode verifikasi.',
+                'requires_verification' => true,
+                'email' => $user->email
             ], 201);
 
         } catch (\Exception $e) {
@@ -83,12 +99,23 @@ class AuthController extends Controller
         // Laravel otomatis mencocokkan 'password' dengan kolom 'password_hash'
         // karena kita sudah mengaturnya di getAuthPasswordName() pada model User.php
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            if (is_null($user->email_verified_at)) {
+                Auth::logout();
+                return response()->json([
+                    'message' => 'Akun Anda belum diverifikasi. Silakan cek email Anda untuk kode OTP.',
+                    'requires_verification' => true,
+                    'email' => $user->email
+                ], 403);
+            }
+
             // 3. Regenerasi session untuk keamanan (mencegah Session Fixation)
             $request->session()->regenerate();
 
             return response()->json([
                 'message' => 'Login berhasil!',
-                'user' => Auth::user()
+                'user' => $user
             ], 200);
         }
 
@@ -96,6 +123,167 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Email atau password yang Anda masukkan salah.'
         ], 401);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan.'], 404);
+        }
+
+        if (!is_null($user->email_verified_at)) {
+            return response()->json(['message' => 'Email sudah terverifikasi.'], 400);
+        }
+
+        if ($user->verification_code !== $request->code) {
+            return response()->json(['message' => 'Kode verifikasi tidak valid.'], 400);
+        }
+
+        if ($user->verification_expires_at < now()) {
+            return response()->json(['message' => 'Kode verifikasi telah kedaluwarsa. Silakan minta kode baru.'], 400);
+        }
+
+        DB::table('users')->where('id', $user->id)->update([
+            'email_verified_at' => now(),
+            'verification_code' => null,
+            'verification_expires_at' => null,
+            'status' => $user->role === 'company' ? 'Menunggu Persetujuan' : 'Aktif'
+        ]);
+
+        $user->status = $user->role === 'company' ? 'Menunggu Persetujuan' : 'Aktif';
+
+        // Login user
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'message' => 'Email berhasil diverifikasi!',
+            'user' => $user
+        ], 200);
+    }
+
+    public function resendCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan.'], 404);
+        }
+
+        if (!is_null($user->email_verified_at)) {
+            return response()->json(['message' => 'Email sudah terverifikasi.'], 400);
+        }
+
+        // Check if we just sent one recently to prevent spam
+        if ($user->verification_expires_at && $user->verification_expires_at > now()->addMinutes(14)) {
+            return response()->json(['message' => 'Tunggu beberapa saat sebelum meminta kode baru.'], 429);
+        }
+
+        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        DB::table('users')->where('id', $user->id)->update([
+            'verification_code' => $code,
+            'verification_expires_at' => now()->addMinutes(15),
+        ]);
+
+        // Cari nama untuk email
+        $name = 'Pengguna';
+        if ($user->role === 'seeker') {
+            $profile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
+            $name = $profile->nama_lengkap ?? $name;
+        } else {
+            $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
+            $name = $profile->nama_perusahaan ?? $name;
+        }
+
+        try {
+            Mail::to($user->email)->send(new VerificationEmail($code, $name));
+        } catch (\Exception $e) {
+            \Log::error('Failed to resend verification email: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Kode verifikasi baru telah dikirim ke email Anda.'
+        ], 200);
+    }
+
+    // --- FITUR LUPA PASSWORD --- //
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Email tidak terdaftar di sistem kami.'], 404);
+        }
+
+        $token = Str::random(60);
+        
+        DB::table('users')->where('id', $user->id)->update([
+            'reset_password_token' => hash('sha256', $token),
+            'reset_password_expires_at' => now()->addMinutes(60),
+        ]);
+
+        $name = 'Pengguna';
+        if ($user->role === 'seeker') {
+            $profile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
+            $name = $profile->nama_lengkap ?? $name;
+        } else {
+            $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
+            $name = $profile->nama_perusahaan ?? $name;
+        }
+
+        try {
+            Mail::to($user->email)->send(new ResetPasswordEmail($token, $user->email, $name));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send reset password email: ' . $e->getMessage());
+            return response()->json(['message' => 'Gagal mengirim email reset password. Silakan coba lagi.'], 500);
+        }
+
+        return response()->json(['message' => 'Tautan reset password telah dikirim ke email Anda.'], 200);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|min:8|confirmed'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Permintaan tidak valid.'], 400);
+        }
+
+        if ($user->reset_password_token !== hash('sha256', $request->token)) {
+            return response()->json(['message' => 'Tautan reset password tidak valid atau sudah digunakan.'], 400);
+        }
+
+        if ($user->reset_password_expires_at < now()) {
+            return response()->json(['message' => 'Tautan reset password telah kedaluwarsa. Silakan minta yang baru.'], 400);
+        }
+
+        DB::table('users')->where('id', $user->id)->update([
+            'password_hash' => Hash::make($request->password),
+            'reset_password_token' => null,
+            'reset_password_expires_at' => null,
+        ]);
+
+        return response()->json(['message' => 'Password berhasil diperbarui. Silakan login dengan password baru Anda.'], 200);
     }
 
     // --- FITUR LOGIN GOOGLE SSO --- //
@@ -219,6 +407,20 @@ class AuthController extends Controller
             $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
             if ($profile) {
                 $name = $profile->nama_perusahaan;
+                $profileData = [
+                    'headline' => $profile->bidang_industri ?? '',
+                    'location' => $profile->lokasi ?? '',
+                    'description' => $profile->deskripsi ?? '',
+                    'avatar_url' => $profile->logo_url ?? null,
+                    'banner_url' => $profile->banner_url ?? null,
+                    'npwp' => $profile->npwp ?? '',
+                    'employee_count' => $profile->employee_count ?? '',
+                    'website_url' => $profile->website_url ?? '',
+                    'follower_count' => $profile->follower_count ?? 0,
+                ];
+                if ($user->status === 'Ditolak') {
+                    $profileData['alasan_penolakan'] = $profile->alasan_penolakan;
+                }
             }
         }
 

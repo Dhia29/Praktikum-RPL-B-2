@@ -14,6 +14,7 @@ export default function Layout() {
 
     // State ini akan diisi secara dinamis dari database
     const [userName, setUserName] = useState('...');
+    const [currentUser, setCurrentUser] = useState(null);
 
     const isActive = (path) => location.pathname.includes(path);
 
@@ -23,6 +24,11 @@ export default function Layout() {
         axios.get('/me')
             .then(response => {
                 setUserName(response.data.name);
+                setCurrentUser(response.data.user);
+
+                if (response.data.user.role === 'company' && response.data.user.status !== 'Aktif') {
+                    navigate('/pending-approval');
+                }
             })
             .catch(error => {
                 console.error("Sesi tidak valid", error);
@@ -73,7 +79,7 @@ export default function Layout() {
                         {/* 3. Notifications, Support, Profile */}
                         <div className="flex items-center gap-4">
                             
-                            <NotificationsDropdown />
+                            <NotificationsDropdown currentUser={currentUser} />
 
                             <button
                                 onClick={() => setIsSupportModalOpen(true)}
@@ -98,9 +104,9 @@ export default function Layout() {
 
                                 {isDropdownOpen && (
                                     <div className="absolute right-0 top-12 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 animate-fade-in-down">
-                                        <Link to="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
+                                        <Link to={currentUser?.role === 'company' ? '/profile-perusahaan' : '/profile'} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
                                             Profil
-                                    </Link>
+                                        </Link>
                                     <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
                                         Pengaturan
                                     </Link>
@@ -144,12 +150,13 @@ export default function Layout() {
             </header>
 
             <main className="flex-1 max-w-7xl mx-auto w-full px-6 sm:px-8 py-8">
-                <Outlet />
+                <Outlet context={{ currentUser }} />
             </main>
 
             <SupportModal
                 isOpen={isSupportModalOpen}
                 onClose={() => setIsSupportModalOpen(false)}
+                currentUser={currentUser}
             />
         </div>
     );

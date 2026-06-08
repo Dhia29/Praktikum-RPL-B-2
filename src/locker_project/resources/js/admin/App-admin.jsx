@@ -4,12 +4,15 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
+import '../echo';
+
 import AppLayoutAdmin from './layouts/AppLayout-admin';
 import LoginAdmin from './pages/Login-admin';
 import DashboardAdmin from './pages/Dashboard-admin';
 import AnalyticsAdmin from './pages/Analytics-admin';
 import SettingsAdmin from './pages/Settings-admin';
 import UsersIndexAdmin from './pages/users/UsersIndex-admin';
+import CompaniesIndexAdmin from './pages/companies/CompaniesIndex-admin';
 import JobsIndexAdmin from './pages/jobs/JobsIndex-admin';
 import TicketsIndexAdmin from './pages/tickets/TicketsIndex-admin';
 import TicketsShowAdmin from './pages/tickets/TicketsShow-admin';
@@ -21,12 +24,13 @@ export default function AppAdmin() {
         <Router basename="/admin">
             <Routes>
                 <Route path="/login" element={<LoginAdmin />} />
-                
+
                 <Route element={<AppLayoutAdmin />}>
                     <Route path="/dashboard" element={<DashboardAdmin />} />
                     <Route path="/analytics" element={<AnalyticsAdmin />} />
                     <Route path="/settings" element={<SettingsAdmin />} />
                     <Route path="/users" element={<UsersIndexAdmin />} />
+                    <Route path="/companies" element={<CompaniesIndexAdmin />} />
                     <Route path="/jobs" element={<JobsIndexAdmin />} />
                     <Route path="/tickets" element={<TicketsIndexAdmin />} />
                     <Route path="/tickets/:id" element={<TicketsShowAdmin />} />

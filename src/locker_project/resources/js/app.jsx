@@ -5,11 +5,18 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
+import './echo';
+
 import SignUp from './SignUp';
 import Login from './Login';
+import VerifyEmail from './VerifyEmail';
+import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
+import PendingApproval from './PendingApproval';
 import Layout from './components/Layout';
 import Loker from './Loker';
 import Profile from './Profile';
+import ProfilePerusahaan from './ProfilePerusahaan';
 import PublicProfile from './PublicProfile';
 import Lamaran from './Lamaran';
 import Pesan from './Messages';
@@ -22,6 +29,10 @@ function App() {
                 {/* Halaman Autentikasi */}
                 <Route path="/" element={<Login />} />
                 <Route path="/register" element={<SignUp />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/pending-approval" element={<PendingApproval />} />
 
                 {/* Halaman Utama dengan Navbar/Header Tab */}
                 <Route element={<Layout />}>
@@ -33,6 +44,7 @@ function App() {
 
                 {/* HALAMAN PROFILE: Berdiri sendiri tanpa Header Tab Global */}
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/profile-perusahaan" element={<ProfilePerusahaan />} />
                 <Route path="/profile/:id" element={<PublicProfile />} />
 
             </Routes>

@@ -16,8 +16,10 @@ class ProfileController extends Controller
             'name' => 'required|string|max:200',
             'headline' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
-            'current_position' => 'nullable|string|max:255',
+            'current_position' => 'nullable|string',
             'education' => 'nullable|string|max:255',
+            'employee_count' => 'nullable|string|max:50',
+            'website_url' => 'nullable|url|max:500',
         ]);
 
         $user = Auth::user();
@@ -53,6 +55,30 @@ class ProfileController extends Controller
                         'posisi_saat_ini' => $request->current_position,
                         'pendidikan' => $pendidikanJson,
                         'updated_at' => now(),
+                    ]);
+                }
+            } else if ($user->role === 'company') {
+                $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
+                if ($profile) {
+                    DB::table('company_profiles')->where('user_id', $user->id)->update([
+                        'nama_perusahaan' => $request->name,
+                        'bidang_industri' => $request->headline,
+                        'lokasi' => $request->location,
+                        'deskripsi' => $request->current_position, // Re-using current_position for deskripsi
+                        'employee_count' => $request->employee_count,
+                        'website_url' => $request->website_url,
+                    ]);
+                } else {
+                    DB::table('company_profiles')->insert([
+                        'id' => Str::uuid()->toString(),
+                        'user_id' => $user->id,
+                        'nama_perusahaan' => $request->name,
+                        'bidang_industri' => $request->headline,
+                        'lokasi' => $request->location,
+                        'deskripsi' => $request->current_position,
+                        'employee_count' => $request->employee_count,
+                        'website_url' => $request->website_url,
+                        'verifikasi_status' => 'Menunggu',
                     ]);
                 }
             }
@@ -150,9 +176,60 @@ class ProfileController extends Controller
         }
     }
 
+    public function getCompanies()
+    {
+        try {
+            $companies = DB::table('company_profiles')
+                ->select('id', 'user_id', 'nama_perusahaan as name', 'bidang_industri as industry', 'logo_url as avatar_url', 'follower_count')
+                ->where('verifikasi_status', 'Aktif')
+                ->orWhere('verifikasi_status', 'Disetujui')
+                ->orderBy('follower_count', 'desc')
+                ->get();
+            return response()->json($companies, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengambil data perusahaan: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function getPublicProfile($id)
     {
-        // Temukan user dan profilnya
+        // Temukan role user
+        $user = DB::table('users')->where('id', $id)->first();
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        if ($user->role === 'company') {
+            $profile = DB::table('company_profiles')->where('user_id', $id)->first();
+            if (!$profile) {
+                return response()->json(['message' => 'Profile not found'], 404);
+            }
+            
+            $is_following = false;
+            if (auth()->check()) {
+                $is_following = DB::table('company_followers')
+                    ->where('user_id', auth()->id())
+                    ->where('company_id', $id)
+                    ->exists();
+            }
+
+            return response()->json([
+                'role' => 'company',
+                'is_following' => $is_following,
+                'id' => $profile->user_id,
+                'name' => $profile->nama_perusahaan,
+                'headline' => $profile->bidang_industri,
+                'location' => $profile->lokasi,
+                'description' => $profile->deskripsi,
+                'employee_count' => $profile->employee_count,
+                'website_url' => $profile->website_url,
+                'follower_count' => $profile->follower_count,
+                'avatar_url' => $profile->logo_url,
+                'banner_url' => $profile->banner_url,
+            ], 200);
+        }
+
+        // Jika jobseeker
         $profile = DB::table('job_seeker_profiles')
             ->where('user_id', $id)
             ->first();
@@ -161,8 +238,9 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Profile not found'], 404);
         }
 
-        // Return data publik (hindari return data sensitif jika ada)
+        // Return data publik
         return response()->json([
+            'role' => 'seeker',
             'id' => $profile->user_id,
             'name' => $profile->nama_lengkap,
             'headline' => $profile->headline,
@@ -312,6 +390,80 @@ class ProfileController extends Controller
             return response()->json(['message' => 'CV berhasil dihapus.'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal menghapus CV: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function toggleFollow(Request $request, $id)
+    {
+        if (!auth()->check()) {
+            return response()->json(['message' => 'Harus login untuk memfollow perusahaan'], 401);
+        }
+
+        $userId = auth()->id();
+        
+        try {
+            DB::beginTransaction();
+
+            // Cek apakah sudah follow
+            $existingFollow = DB::table('company_followers')
+                ->where('user_id', $userId)
+                ->where('company_id', $id)
+                ->first();
+
+            $profile = DB::table('company_profiles')->where('user_id', $id)->first();
+            if (!$profile) {
+                return response()->json(['message' => 'Perusahaan tidak ditemukan'], 404);
+            }
+
+            if ($existingFollow) {
+                // Unfollow
+                DB::table('company_followers')
+                    ->where('user_id', $userId)
+                    ->where('company_id', $id)
+                    ->delete();
+                
+                $newCount = max(0, $profile->follower_count - 1);
+                DB::table('company_profiles')->where('user_id', $id)->update(['follower_count' => $newCount]);
+                
+                $is_following = false;
+            } else {
+                // Follow
+                DB::table('company_followers')->insert([
+                    'id' => (string) \Illuminate\Support\Str::uuid(),
+                    'user_id' => $userId,
+                    'company_id' => $id,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $newCount = $profile->follower_count + 1;
+                DB::table('company_profiles')->where('user_id', $id)->update(['follower_count' => $newCount]);
+                
+                $is_following = true;
+
+                // Send Notification
+                $companyUser = \App\Models\User::find($id);
+                if ($companyUser) {
+                    $followerProfile = DB::table('job_seeker_profiles')->where('user_id', $userId)->first();
+                    $followerName = $followerProfile ? $followerProfile->nama_lengkap : null;
+                    if (!$followerName) {
+                        $followerProfile = DB::table('company_profiles')->where('user_id', $userId)->first();
+                        $followerName = $followerProfile ? $followerProfile->nama_perusahaan : 'Pengguna';
+                    }
+                    $companyUser->notify(new \App\Notifications\NewFollowerNotification($followerName, $userId));
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'is_following' => $is_following,
+                'follower_count' => $newCount
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()], 500);
         }
     }
 }

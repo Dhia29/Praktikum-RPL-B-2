@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-export default function SupportModal({ isOpen, onClose }) {
+export default function SupportModal({ isOpen, onClose, currentUser }) {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('list'); // 'list', 'new', 'chat'
@@ -25,6 +25,38 @@ export default function SupportModal({ isOpen, onClose }) {
             setSelectedTicket(null);
         }
     }, [isOpen]);
+
+    // WebSocket: Listen for admin replies in real-time
+    useEffect(() => {
+        if (!currentUser?.id || !isOpen) return;
+
+        const channel = window.Echo.private(`App.Models.User.${currentUser.id}`);
+        
+        const handleTicketReply = (notification) => {
+            const isTicketReply = notification.type === 'ticket_reply' || 
+                                 (notification.type && notification.type.includes('TicketRepliedNotification'));
+            
+            if (isTicketReply) {
+                // If we're viewing this ticket's chat, reload messages
+                if (selectedTicket && String(notification.ticket_id) === String(selectedTicket.id)) {
+                    axios.get(`/api/support/tickets/${selectedTicket.id}/messages`)
+                        .then(res => {
+                            setChatMessages(res.data.data);
+                            scrollToBottom();
+                        })
+                        .catch(err => console.error('Failed to reload chat', err));
+                }
+                // Also refresh ticket list
+                fetchTickets();
+            }
+        };
+
+        channel.notification(handleTicketReply);
+
+        return () => {
+            // Don't leave the channel entirely, just stop this specific listener
+        };
+    }, [currentUser, isOpen, selectedTicket]);
 
     const fetchTickets = async () => {
         setLoading(true);
@@ -163,13 +195,32 @@ export default function SupportModal({ isOpen, onClose }) {
                 
                 {/* Header Modal */}
                 <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white relative z-10">
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-800">
-                            {activeTab === 'chat' ? 'Obrolan Bantuan' : 'Customer Service'}
-                        </h2>
-                        <p className="text-xs text-gray-500 mt-1">
-                            {activeTab === 'chat' ? `Tiket #${selectedTicket?.id} - ${selectedTicket?.handled_by === 'ai' ? 'Dijawab oleh AI' : 'Ditangani Admin'}` : 'Kami siap membantu permasalahan Anda'}
-                        </p>
+                    <div className="flex items-center gap-3">
+                        {activeTab === 'chat' && (
+                            <button onClick={() => { setActiveTab('list'); setSelectedTicket(null); }} className="p-2 -ml-2 text-gray-500 hover:bg-gray-100 rounded-full transition focus:outline-none" title="Kembali">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                        )}
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    {activeTab === 'chat' ? 'Obrolan Bantuan' : 'Customer Service'}
+                                </h2>
+                                {activeTab === 'chat' && selectedTicket && (
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                                        selectedTicket.status === 'open' ? 'bg-orange-100 text-orange-700' :
+                                        selectedTicket.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                                        selectedTicket.status === 'resolved' ? 'bg-green-100 text-green-700' :
+                                        'bg-gray-100 text-gray-600'
+                                    }`}>
+                                        {selectedTicket.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {activeTab === 'chat' ? `Tiket #${selectedTicket?.id} - ${selectedTicket?.handled_by === 'ai' ? 'Dijawab oleh AI' : 'Ditangani Admin'}` : 'Kami siap membantu permasalahan Anda'}
+                            </p>
+                        </div>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors bg-gray-100 hover:bg-gray-200 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8100D1]">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -223,8 +274,13 @@ export default function SupportModal({ isOpen, onClose }) {
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="flex items-center gap-2 flex-1 pr-3">
                                                 <h4 className="font-bold text-gray-800 line-clamp-1 group-hover:text-[#8100D1] transition-colors">{ticket.subject}</h4>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${ticket.status === 'open' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
-                                                    {ticket.status.toUpperCase()}
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap uppercase ${
+                                                    ticket.status === 'open' ? 'bg-orange-100 text-orange-600' : 
+                                                    ticket.status === 'in_progress' ? 'bg-blue-100 text-blue-600' :
+                                                    ticket.status === 'resolved' ? 'bg-green-100 text-green-600' :
+                                                    'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                    {ticket.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                                 </span>
                                             </div>
                                             <button 
@@ -289,6 +345,14 @@ export default function SupportModal({ isOpen, onClose }) {
                                 <textarea 
                                     value={newTicket.message}
                                     onChange={(e) => setNewTicket({...newTicket, message: e.target.value})}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            if (newTicket.message.trim()) {
+                                                handleCreateTicket(e);
+                                            }
+                                        }
+                                    }}
                                     placeholder="Ceritakan detail masalah yang Anda alami..." 
                                     rows="4"
                                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 outline-none focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all text-sm resize-none"
@@ -317,20 +381,7 @@ export default function SupportModal({ isOpen, onClose }) {
 
                     {activeTab === 'chat' && selectedTicket && (
                         <div className="flex flex-col h-full bg-gray-50 -m-6">
-                            {/* Chat Header inside content */}
-                            <div className="bg-white border-b border-gray-100 p-3 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                                <button onClick={() => { setActiveTab('list'); setSelectedTicket(null); }} className="flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#8100D1] transition-colors">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
-                                    Kembali
-                                </button>
-                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                                    selectedTicket.status === 'open' ? 'bg-orange-100 text-orange-700' :
-                                    selectedTicket.status === 'resolved' ? 'bg-green-100 text-green-700' :
-                                    'bg-gray-100 text-gray-600'
-                                }`}>
-                                    {selectedTicket.status.toUpperCase()}
-                                </span>
-                            </div>
+                            {/* Chat Header was moved to Main Header */}
 
                             {/* Chat Messages */}
                             <div className="flex-1 overflow-y-auto p-5 space-y-4">
@@ -387,16 +438,29 @@ export default function SupportModal({ isOpen, onClose }) {
                             </div>
 
                             {/* Chat Input */}
-                            {selectedTicket.status !== 'closed' ? (
+                            {(selectedTicket.status !== 'closed' && selectedTicket.status !== 'resolved') ? (
                                 <div className="bg-white p-4 border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
                                     <form onSubmit={handleSendMessage} className="flex gap-2 mb-3">
-                                        <input 
-                                            type="text" 
+                                        <textarea 
                                             value={newMessage}
                                             onChange={(e) => setNewMessage(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    if (newMessage.trim() && !sendingMsg) {
+                                                        handleSendMessage(e);
+                                                    }
+                                                }
+                                            }}
                                             placeholder="Ketik balasan Anda..." 
-                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all"
+                                            rows="1"
+                                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all resize-none overflow-hidden"
                                             disabled={sendingMsg}
+                                            style={{ minHeight: '44px', maxHeight: '120px' }}
+                                            onInput={(e) => {
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = e.target.scrollHeight + 'px';
+                                            }}
                                         />
                                         <button 
                                             type="submit" 
@@ -435,8 +499,10 @@ export default function SupportModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="bg-gray-100 p-4 text-center border-t border-gray-200">
-                                    <p className="text-sm font-semibold text-gray-500">Tiket ini telah ditutup.</p>
+                                <div className="bg-white p-4 border-t border-gray-100 text-center">
+                                    <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 inline-block">
+                                        Tiket ini telah {selectedTicket.status === 'resolved' ? 'diselesaikan' : 'ditutup'}. Anda tidak dapat membalas pesan lagi.
+                                    </p>
                                 </div>
                             )}
                         </div>

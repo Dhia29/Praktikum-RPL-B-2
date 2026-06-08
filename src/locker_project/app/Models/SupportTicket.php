@@ -15,12 +15,12 @@ class SupportTicket extends Model
 
     protected $fillable = [
         'id',
-    protected $fillable = [
         'user_id',
         'subject',
         'category',
         'message',
         'status',
+        'handled_by',
         'admin_reply',
         'replied_by'
     ];
@@ -34,8 +34,6 @@ class SupportTicket extends Model
             }
         });
     }
-        'admin_reply'
-    ];
 
     public function user()
     {
@@ -46,7 +44,6 @@ class SupportTicket extends Model
     {
         return $this->belongsTo(User::class, 'replied_by');
     }
-
     public function messages()
     {
         return $this->hasMany(SupportTicketMessage::class, 'support_ticket_id')->orderBy('created_at', 'asc');
