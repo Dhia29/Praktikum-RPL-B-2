@@ -45,8 +45,8 @@ export default function JobsIndexAdmin() {
 
     const filteredJobs = jobs.filter(job => {
         if (filter === 'Semua Status') return true;
-        if (filter === 'Menunggu Persetujuan') return job.status === 'pending';
-        if (filter === 'Dipublikasikan') return job.status === 'published';
+        if (filter === 'Menunggu Persetujuan') return job.status === 'Menunggu Persetujuan';
+        if (filter === 'Dipublikasikan') return job.status === 'Aktif';
         return true;
     });
 
@@ -114,11 +114,11 @@ export default function JobsIndexAdmin() {
                                         </div>
                                     </td>
                                     <td className="p-4">
-                                        {job.status === 'published' ? (
+                                        {job.status === 'Aktif' ? (
                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Dipublikasikan
                                             </span>
-                                        ) : job.status === 'pending' ? (
+                                        ) : job.status === 'Menunggu Persetujuan' ? (
                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Menunggu
                                             </span>
@@ -130,7 +130,7 @@ export default function JobsIndexAdmin() {
                                     </td>
                                     <td className="p-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            {job.status === 'pending' && (
+                                            {job.status === 'Menunggu Persetujuan' && (
                                                 <button onClick={() => handleVerify(job.id)} title="Setujui Lowongan" className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200">
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                                                 </button>

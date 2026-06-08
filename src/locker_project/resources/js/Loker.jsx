@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import JobModal from './components/JobModal';
+import JobDetailsModal from './components/JobDetailsModal';
+import CompanyBrowseBox from './components/CompanyBrowseBox';
 
 export default function Loker() {
     const { currentUser } = useOutletContext() || {};
+    const navigate = useNavigate();
     const isEmployer = currentUser && currentUser.role === 'company';
     const isCompanyActive = isEmployer && currentUser?.status === 'Aktif';
 
@@ -13,10 +16,20 @@ export default function Loker() {
     const [filteredJobs, setFilteredJobs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    useEffect(() => {
+        if (isEmployer && !isCompanyActive) {
+            navigate('/pending-approval');
+        }
+    }, [isEmployer, isCompanyActive, navigate]);
+
     // STATE UNTUK EMPLOYER
     const [viewMode, setViewMode] = useState('all'); // 'all' or 'my'
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingJob, setEditingJob] = useState(null);
+
+    // STATE UNTUK PENCARI KERJA
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [selectedJob, setSelectedJob] = useState(null);
 
     // STATE UNTUK FILTER & PENCARIAN
     const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +74,11 @@ export default function Loker() {
         setIsModalOpen(true);
     };
 
+    const handleViewDetails = (job) => {
+        setSelectedJob(job);
+        setIsDetailsModalOpen(true);
+    };
+
     // LOGIKA FILTER & SORTIR
     useEffect(() => {
         let result = [...jobs];
@@ -101,33 +119,40 @@ export default function Loker() {
         // KONTAINER UTAMA: items-start sangat penting agar sisi kanan tidak memanjang mengikuti sisi kiri
         <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start w-full relative">
 
-            <JobModal 
-                isOpen={isModalOpen} 
+            <JobModal
+                isOpen={isModalOpen}
                 onClose={() => { setIsModalOpen(false); setEditingJob(null); }}
                 onSuccess={fetchJobs}
                 initialData={editingJob}
             />
 
+            <JobDetailsModal
+                isOpen={isDetailsModalOpen}
+                onClose={() => { setIsDetailsModalOpen(false); setSelectedJob(null); }}
+                job={selectedJob}
+                onSuccess={fetchJobs}
+            />
+
             {/* KONTAINER KIRI (Data Loker): Lebar 70%, akan memanjang ke bawah sesuai jumlah data */}
             <div className="w-full md:w-[65%] lg:w-[70%] flex flex-col gap-4">
-                
+
                 {isEmployer && (
                     <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-2">
                         <div className="flex gap-2">
-                            <button 
+                            <button
                                 onClick={() => setViewMode('all')}
                                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${viewMode === 'all' ? 'bg-purple-100 text-[#8100D1]' : 'text-gray-500 hover:bg-gray-100'}`}
                             >
                                 Semua Lowongan
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setViewMode('my')}
                                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${viewMode === 'my' ? 'bg-purple-100 text-[#8100D1]' : 'text-gray-500 hover:bg-gray-100'}`}
                             >
                                 Lowongan Saya
                             </button>
                         </div>
-                        <button 
+                        <button
                             onClick={() => { setEditingJob(null); setIsModalOpen(true); }}
                             className="bg-[#8100D1] hover:bg-purple-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 transition-colors"
                         >
@@ -156,8 +181,15 @@ export default function Loker() {
                 ) : (
                     filteredJobs.map((job) => (
                         <div key={job.id} className="bg-white rounded-xl p-6 flex flex-col sm:flex-row gap-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-400 font-bold text-2xl border border-gray-200">
-                                {job.company ? job.company.charAt(0).toUpperCase() : 'C'}
+                            <div 
+                                onClick={() => navigate(`/profile/${job.company_user_id}`)}
+                                className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-400 font-bold text-2xl border border-gray-200 cursor-pointer overflow-hidden hover:opacity-80 transition"
+                            >
+                                {job.logo_url ? (
+                                    <img src={job.logo_url} alt="Logo" className="w-full h-full object-contain" />
+                                ) : (
+                                    job.company ? job.company.charAt(0).toUpperCase() : 'C'
+                                )}
                             </div>
 
                             <div className="flex-1">
@@ -168,25 +200,34 @@ export default function Loker() {
                                     </span>
                                 </div>
                                 <h4 className="text-sm text-[#8100D1] font-medium mb-3">
-                                    {job.company} <span className="text-gray-400 mx-1">•</span> <span className="text-gray-500 font-normal">{job.location}</span>
+                                    <span 
+                                        onClick={() => navigate(`/profile/${job.company_user_id}`)} 
+                                        className="cursor-pointer hover:underline"
+                                    >
+                                        {job.company}
+                                    </span> 
+                                    <span className="text-gray-400 mx-1">•</span> <span className="text-gray-500 font-normal">{job.location}</span>
                                 </h4>
                                 <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
                                     {job.description}
                                 </p>
                                 <div className="flex items-center gap-3">
-                                    <button className="text-sm font-semibold text-[#8100D1] hover:text-purple-900 transition-colors">
+                                    <button 
+                                        onClick={() => handleViewDetails(job)}
+                                        className="text-sm font-semibold text-[#8100D1] hover:text-purple-900 transition-colors"
+                                    >
                                         Lihat Detail &rarr;
                                     </button>
-                                    
+
                                     {isEmployer && viewMode === 'my' && (
                                         <div className="ml-auto flex items-center gap-2">
-                                            <button 
+                                            <button
                                                 onClick={() => handleEdit(job)}
                                                 className="text-xs font-semibold px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
                                             >
                                                 Edit
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => handleDelete(job.id)}
                                                 className="text-xs font-semibold px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                                             >
@@ -255,6 +296,8 @@ export default function Loker() {
 
                     </div>
                 </div>
+
+                <CompanyBrowseBox />
 
             </div>
 

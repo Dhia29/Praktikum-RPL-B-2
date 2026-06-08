@@ -297,7 +297,8 @@ class MessageController extends Controller
                 ->where('users.role', 'seeker')
                 ->where(function($query) use ($keyword) {
                     $query->where('job_seeker_profiles.nama_lengkap', 'like', "%{$keyword}%")
-                          ->orWhere('users.email', 'like', "%{$keyword}%");
+                          ->orWhere('users.email', 'like', "%{$keyword}%")
+                          ->orWhere('users.id', $keyword);
                 })
                 ->select(
                     'users.id',
@@ -316,7 +317,8 @@ class MessageController extends Controller
                 ->where('users.role', 'company')
                 ->where(function($query) use ($keyword) {
                     $query->where('company_profiles.nama_perusahaan', 'like', "%{$keyword}%")
-                          ->orWhere('users.email', 'like', "%{$keyword}%");
+                          ->orWhere('users.email', 'like', "%{$keyword}%")
+                          ->orWhere('users.id', $keyword);
                 })
                 ->select(
                     'users.id',

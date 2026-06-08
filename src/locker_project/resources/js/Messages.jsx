@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import EmojiPicker from 'emoji-picker-react';
 import AppointmentModal from './components/AppointmentModal';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useOutletContext } from 'react-router-dom';
 
 const getFileIcon = (fileName) => {
     if (!fileName) return <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>;
@@ -29,6 +29,7 @@ export default function Messages() {
     const [isChatLoading, setIsChatLoading] = useState(false);
     
     const location = useLocation();
+    const { currentUser } = useOutletContext() || {};
 
     const [isComposeOpen, setIsComposeOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -58,7 +59,20 @@ export default function Messages() {
                 if (targetUserId) {
                     const targetRoom = loadedRooms.find(r => r.id === targetUserId);
                     if (targetRoom && !activeRoom) {
-                        openChat(targetRoom);
+                        setActiveRoom(targetRoom);
+                    } else if (!targetRoom) {
+                        // Jika target room tidak ada di list, coba fetch data user
+                        axios.get(`/api/messages/search-users?q=${targetUserId}`)
+                            .then(searchRes => {
+                                const userMatch = searchRes.data.data?.find(u => u.id === targetUserId);
+                                if (userMatch) {
+                                    const newRoom = { id: userMatch.id, name: userMatch.name, avatar_url: userMatch.avatar_url, role: userMatch.role, last_message: 'Mulai obrolan baru...', time: new Date().toISOString(), is_read: true };
+                                    setRooms(prev => [newRoom, ...prev]);
+                                    setActiveRoom(newRoom);
+                                    setChatHistory([]);
+                                }
+                            })
+                            .catch(e => console.error(e));
                     }
                 }
             })
@@ -276,9 +290,11 @@ export default function Messages() {
                 <div className="p-5 border-b border-gray-100 flex flex-col gap-3 bg-gray-50/50">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-bold text-gray-900">Pesan Masuk</h2>
-                        <button onClick={() => setIsComposeOpen(true)} className="p-2 bg-white border border-gray-200 text-gray-600 rounded-full hover:bg-purple-50 hover:text-[#8100D1] hover:border-purple-200 transition-all shadow-sm focus:outline-none" title="Tulis pesan baru">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                        </button>
+                        {currentUser?.role !== 'seeker' && (
+                            <button onClick={() => setIsComposeOpen(true)} className="p-2 bg-white border border-gray-200 text-gray-600 rounded-full hover:bg-purple-50 hover:text-[#8100D1] hover:border-purple-200 transition-all shadow-sm focus:outline-none" title="Tulis pesan baru">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                        )}
                     </div>
                     
                     {/* Toggle Arsip */}
@@ -342,7 +358,7 @@ export default function Messages() {
                     ) : (
                         <div className="text-center p-8 flex flex-col items-center">
                             <p className="text-gray-500 text-sm mb-4">{showArchived ? 'Belum ada obrolan yang diarsipkan.' : 'Belum ada obrolan.'}</p>
-                            {!showArchived && <button onClick={() => setIsComposeOpen(true)} className="px-4 py-2 bg-purple-100 text-[#8100D1] text-xs font-bold rounded-full hover:bg-purple-200 transition">Mulai Percakapan Baru</button>}
+                            {!showArchived && currentUser?.role !== 'seeker' && <button onClick={() => setIsComposeOpen(true)} className="px-4 py-2 bg-purple-100 text-[#8100D1] text-xs font-bold rounded-full hover:bg-purple-200 transition">Mulai Percakapan Baru</button>}
                         </div>
                     )}
                 </div>

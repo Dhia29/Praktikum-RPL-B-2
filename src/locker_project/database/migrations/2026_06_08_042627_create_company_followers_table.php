@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('support_tickets', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('user_id'); // Referensi ke users
-            $table->string('subject');
-            $table->string('category'); // Dropdown permasalahan
-            $table->text('message');
-            $table->enum('status', ['open', 'resolved', 'closed'])->default('open');
-            $table->text('admin_reply')->nullable();
+        Schema::create('company_followers', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->uuid('company_id');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('company_id')->references('id')->on('users')->onDelete('cascade');
+            
+            $table->unique(['user_id', 'company_id']);
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('support_tickets');
+        Schema::dropIfExists('company_followers');
     }
 };

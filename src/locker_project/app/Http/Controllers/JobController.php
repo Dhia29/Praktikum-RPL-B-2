@@ -9,25 +9,46 @@ use Illuminate\Support\Str;
 
 class JobController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $user = $request->user();
+            $appliedJobIds = [];
+
+            if ($user && $user->role === 'seeker') {
+                $seekerProfile = DB::table('job_seeker_profiles')->where('user_id', $user->id)->first();
+                if ($seekerProfile) {
+                    $appliedJobIds = DB::table('applications')
+                        ->where('jobseeker_id', $seekerProfile->id)
+                        ->pluck('job_id')
+                        ->toArray();
+                }
+            }
+
             // Mengambil data loker dan menggabungkannya dengan profil perusahaan
             $jobs = DB::table('job_postings')
                 ->join('company_profiles', 'job_postings.company_id', '=', 'company_profiles.id')
                 ->select(
                     'job_postings.id',
+                    'job_postings.company_id',
                     'job_postings.judul as role',              // Sesuaikan dengan kolom 'judul'
                     'job_postings.kategori as type',           // Sesuaikan dengan kolom 'kategori'
                     'job_postings.lokasi as location',         // Sesuaikan dengan kolom 'lokasi'
                     'job_postings.deskripsi as description',   // Sesuaikan dengan kolom 'deskripsi'
+                    'job_postings.deadline',
                     'job_postings.created_at',
-                    'company_profiles.nama_perusahaan as company'
+                    'company_profiles.user_id as company_user_id',
+                    'company_profiles.nama_perusahaan as company',
+                    'company_profiles.logo_url'
                 )
                 // Pastikan penulisan status di database (Aktif/aktif) sama persis dengan ini
                 ->where('job_postings.status', 'Aktif') 
                 ->orderBy('job_postings.created_at', 'desc')
-                ->get();
+                ->get()
+                ->map(function ($job) use ($appliedJobIds) {
+                    $job->has_applied = in_array($job->id, $appliedJobIds);
+                    return $job;
+                });
 
             return response()->json($jobs, 200);
 
@@ -98,7 +119,7 @@ class JobController extends Controller
                 'kategori' => $validated['kategori'],
                 'lokasi' => $validated['lokasi'],
                 'deadline' => $validated['deadline'],
-                'status' => 'Aktif',
+                'status' => 'Menunggu Persetujuan',
                 'created_at' => now(),
             ]);
 

@@ -338,6 +338,17 @@ class AuthController extends Controller
             $profile = DB::table('company_profiles')->where('user_id', $user->id)->first();
             if ($profile) {
                 $name = $profile->nama_perusahaan;
+                $profileData = [
+                    'headline' => $profile->bidang_industri ?? '',
+                    'location' => $profile->lokasi ?? '',
+                    'description' => $profile->deskripsi ?? '',
+                    'avatar_url' => $profile->logo_url ?? null,
+                    'banner_url' => $profile->banner_url ?? null,
+                    'npwp' => $profile->npwp ?? '',
+                    'employee_count' => $profile->employee_count ?? '',
+                    'website_url' => $profile->website_url ?? '',
+                    'follower_count' => $profile->follower_count ?? 0,
+                ];
                 if ($user->status === 'Ditolak') {
                     $profileData['alasan_penolakan'] = $profile->alasan_penolakan;
                 }

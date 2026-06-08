@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('support_tickets', function (Blueprint $table) {
-            $table->enum('handled_by', ['ai', 'admin'])->default('ai')->after('status');
+        Schema::table('post_reports', function (Blueprint $table) {
+            $table->string('status')->default('pending');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('support_tickets', function (Blueprint $table) {
-            $table->dropColumn('handled_by');
+        Schema::table('post_reports', function (Blueprint $table) {
+            $table->dropColumn('status');
         });
     }
 };

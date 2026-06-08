@@ -12,6 +12,7 @@ import PendingApproval from './PendingApproval';
 import Layout from './components/Layout';
 import Loker from './Loker';
 import Profile from './Profile';
+import ProfilePerusahaan from './ProfilePerusahaan';
 import PublicProfile from './PublicProfile';
 import Lamaran from './Lamaran';
 import Pesan from './Messages';
@@ -37,6 +38,7 @@ function App() {
 
                 {/* HALAMAN PROFILE: Berdiri sendiri tanpa Header Tab Global */}
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/profile-perusahaan" element={<ProfilePerusahaan />} />
                 <Route path="/profile/:id" element={<PublicProfile />} />
 
             </Routes>

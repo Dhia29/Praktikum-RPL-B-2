@@ -28,20 +28,16 @@ export default function TicketsIndexAdmin() {
         return ticket.status === statusFilter;
     });
 
-    const renderPriority = (priority) => {
-        if (priority === 'low') return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 uppercase tracking-wider">Low</span>;
-        if (priority === 'medium') return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800 uppercase tracking-wider">Medium</span>;
-        if (priority === 'high') return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 uppercase tracking-wider">High</span>;
-        if (priority === 'critical') return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 uppercase tracking-wider">Critical</span>;
-        return null;
+    const renderHandledBy = (handledBy) => {
+        if (handledBy === 'ai') return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-[#8100D1] uppercase tracking-wider">AI Support</span>;
+        if (handledBy === 'admin') return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800 uppercase tracking-wider">Admin</span>;
+        return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-800 uppercase tracking-wider">{handledBy}</span>;
     };
 
     const renderStatus = (status) => {
         const statusColors = {
-            'open': 'bg-red-50 text-red-700 border-red-200',
-            'pending_response': 'bg-orange-50 text-orange-700 border-orange-200',
+            'open': 'bg-orange-50 text-orange-700 border-orange-200',
             'in_progress': 'bg-blue-50 text-blue-700 border-blue-200',
-            'waiting_for_user': 'bg-yellow-50 text-yellow-700 border-yellow-200',
             'resolved': 'bg-green-50 text-green-700 border-green-200',
             'closed': 'bg-gray-100 text-gray-700 border-gray-200',
         };
@@ -70,9 +66,7 @@ export default function TicketsIndexAdmin() {
                     >
                         <option value="all">Semua Status</option>
                         <option value="open">Open</option>
-                        <option value="pending_response">Pending Response</option>
                         <option value="in_progress">In Progress</option>
-                        <option value="waiting_for_user">Waiting for User</option>
                         <option value="resolved">Resolved</option>
                         <option value="closed">Closed</option>
                     </select>
@@ -85,7 +79,7 @@ export default function TicketsIndexAdmin() {
                         <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
                             <th className="p-4 border-b border-gray-100">Tiket ID & Subjek</th>
                             <th className="p-4 border-b border-gray-100">Pelapor</th>
-                            <th className="p-4 border-b border-gray-100">Kategori & Prioritas</th>
+                            <th className="p-4 border-b border-gray-100">Kategori & Penanganan</th>
                             <th className="p-4 border-b border-gray-100">Status</th>
                             <th className="p-4 border-b border-gray-100">Ditugaskan Kepada</th>
                             <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
@@ -115,21 +109,21 @@ export default function TicketsIndexAdmin() {
                                     </td>
                                     <td className="p-4">
                                         <span className="block text-sm text-gray-800 mb-1">{ticket.category}</span>
-                                        {renderPriority(ticket.priority)}
+                                        {renderHandledBy(ticket.handled_by)}
                                     </td>
                                     <td className="p-4">
                                         {renderStatus(ticket.status)}
                                     </td>
                                     <td className="p-4">
-                                        {ticket.assigned_admin ? (
+                                        {ticket.admin ? (
                                             <div className="flex items-center gap-2">
                                                 <div className="w-6 h-6 rounded-full bg-[#8100D1] text-white flex items-center justify-center font-bold text-[10px]">
-                                                    {ticket.assigned_admin.email.substring(0, 1).toUpperCase()}
+                                                    {ticket.admin.email.substring(0, 1).toUpperCase()}
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-700">{ticket.assigned_admin.email.split('@')[0]}</span>
+                                                <span className="text-sm font-medium text-gray-700">{ticket.admin.email.split('@')[0]}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400 italic text-sm">Belum ditugaskan</span>
+                                            <span className="text-gray-400 italic text-sm">Belum ada Admin</span>
                                         )}
                                     </td>
                                     <td className="p-4 text-right">

@@ -104,9 +104,9 @@ export default function Layout() {
 
                                 {isDropdownOpen && (
                                     <div className="absolute right-0 top-12 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 animate-fade-in-down">
-                                        <Link to="/profile" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
+                                        <Link to={currentUser?.role === 'company' ? '/profile-perusahaan' : '/profile'} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
                                             Profil
-                                    </Link>
+                                        </Link>
                                     <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
                                         Pengaturan
                                     </Link>

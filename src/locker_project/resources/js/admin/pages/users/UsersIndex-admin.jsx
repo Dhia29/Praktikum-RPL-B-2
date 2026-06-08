@@ -4,7 +4,6 @@ import axios from 'axios';
 export default function UsersIndexAdmin() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('Semua Peran');
 
     const fetchUsers = async () => {
         try {
@@ -21,16 +20,6 @@ export default function UsersIndexAdmin() {
     useEffect(() => {
         fetchUsers();
     }, []);
-
-    const handleVerify = async (userId) => {
-        try {
-            await axios.post(`/api/admin/users/${userId}/verify`);
-            fetchUsers();
-        } catch (error) {
-            console.error("Failed to verify company", error);
-            alert("Gagal memverifikasi perusahaan");
-        }
-    };
 
     const handleToggleStatus = async (userId) => {
         try {
@@ -53,30 +42,12 @@ export default function UsersIndexAdmin() {
         }
     };
 
-    const filteredUsers = users.filter(user => {
-        if (filter === 'Semua Peran') return true;
-        if (filter === 'Perusahaan') return user.role === 'employer';
-        if (filter === 'Pencari Kerja') return user.role === 'seeker';
-        return true;
-    });
-
     return (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-gray-100 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">Daftar Pengguna</h3>
-                    <p className="text-sm text-gray-500 mt-1">Kelola akses, status, dan verifikasi akun perusahaan serta pencari kerja.</p>
-                </div>
-                <div className="flex gap-2">
-                    <select 
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-[#8100D1] focus:border-[#8100D1] block px-3 py-2 outline-none"
-                    >
-                        <option>Semua Peran</option>
-                        <option>Perusahaan</option>
-                        <option>Pencari Kerja</option>
-                    </select>
+                    <h3 className="text-lg font-bold text-gray-800">Daftar Pengguna (Pencari Kerja)</h3>
+                    <p className="text-sm text-gray-500 mt-1">Kelola akses dan status akun pencari kerja.</p>
                 </div>
             </div>
 
@@ -95,12 +66,12 @@ export default function UsersIndexAdmin() {
                             <tr>
                                 <td colSpan="4" className="p-8 text-center text-gray-500">Memuat data pengguna...</td>
                             </tr>
-                        ) : filteredUsers.length === 0 ? (
+                        ) : users.length === 0 ? (
                             <tr>
                                 <td colSpan="4" className="p-8 text-center text-gray-500">Tidak ada pengguna yang ditemukan.</td>
                             </tr>
                         ) : (
-                            filteredUsers.map(user => (
+                            users.map(user => (
                                 <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
@@ -109,7 +80,7 @@ export default function UsersIndexAdmin() {
                                             </div>
                                             <div>
                                                 <p className="font-bold text-gray-900">
-                                                    {user.role === 'employer' ? (user.company_name || 'N/A') : (user.seeker_name || 'N/A')}
+                                                    {user.seeker_name || 'N/A'}
                                                 </p>
                                                 <p className="text-gray-500 text-xs">{user.email}</p>
                                             </div>
@@ -117,12 +88,12 @@ export default function UsersIndexAdmin() {
                                     </td>
                                     <td className="p-4">
                                         <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
-                                            {user.role === 'employer' ? 'Perusahaan' : 'Pencari Kerja'}
+                                            Pencari Kerja
                                         </span>
                                     </td>
                                     <td className="p-4">
                                         <div className="flex flex-col gap-1.5 items-start">
-                                            {user.status === 'active' ? (
+                                            {user.status === 'Aktif' || user.status === 'active' ? (
                                                 <span className="flex items-center gap-1 text-green-600 font-medium text-xs">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Aktif
                                                 </span>
@@ -131,23 +102,10 @@ export default function UsersIndexAdmin() {
                                                     <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Nonaktif
                                                 </span>
                                             )}
-                                            
-                                            {user.role === 'employer' && (
-                                                user.company_status === 'pending' ? (
-                                                    <span className="px-2 py-0.5 bg-orange-50 text-orange-600 text-[10px] font-bold uppercase rounded border border-orange-200 mt-1">Pending Verifikasi</span>
-                                                ) : (
-                                                    <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold uppercase rounded border border-green-200 mt-1">Terverifikasi</span>
-                                                )
-                                            )}
                                         </div>
                                     </td>
                                     <td className="p-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            {user.role === 'employer' && user.company_status === 'pending' && (
-                                                <button onClick={() => handleVerify(user.id)} title="Verifikasi Perusahaan" className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200">
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                </button>
-                                            )}
 
                                             <button onClick={() => handleToggleStatus(user.id)} title={user.status === 'active' ? 'Nonaktifkan Akun' : 'Aktifkan Akun'} className={`p-1.5 ${user.status === 'active' ? 'text-orange-500 hover:bg-orange-50 hover:border-orange-200' : 'text-green-600 hover:bg-green-50 hover:border-green-200'} rounded-lg transition-colors border border-transparent`}>
                                                 {user.status === 'active' ? (
@@ -168,9 +126,9 @@ export default function UsersIndexAdmin() {
                     </tbody>
                 </table>
             </div>
-            
+
             <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500 bg-gray-50">
-                <span>Menampilkan {filteredUsers.length} pengguna</span>
+                <span>Menampilkan {users.length} pengguna</span>
                 <div className="flex gap-1">
                     <button className="px-3 py-1 bg-white border border-gray-200 rounded text-gray-400 cursor-not-allowed">Sebelumnya</button>
                     <button className="px-3 py-1 bg-white border border-gray-200 rounded hover:bg-gray-50 text-gray-700">Selanjutnya</button>

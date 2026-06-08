@@ -203,6 +203,14 @@ class CommunityController extends Controller
                 'created_at' => now()
             ]);
 
+            // Notify all admins
+            $admins = \App\Models\User::where('role', 'ADMIN')->get();
+            $post = DB::table('posts')->where('id', $id)->first();
+            $reporter = Auth::user();
+            if ($post && $reporter && $admins->count() > 0) {
+                \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewReportNotification($post, $reporter));
+            }
+
             return response()->json(['message' => 'Postingan berhasil dilaporkan.'], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal melaporkan postingan: ' . $e->getMessage()], 500);
