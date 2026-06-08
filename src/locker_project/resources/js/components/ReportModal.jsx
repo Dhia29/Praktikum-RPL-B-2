@@ -94,6 +94,14 @@ export default function ReportModal({ isOpen, onClose, postId, onSuccess }) {
                                     placeholder="Tuliskan alasan spesifik Anda..."
                                     value={customReason}
                                     onChange={(e) => setCustomReason(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            if (customReason.trim()) {
+                                                handleSubmit(e);
+                                            }
+                                        }
+                                    }}
                                     className="w-full text-sm outline-none resize-none p-3 border border-gray-200 rounded-xl focus:ring-1 focus:ring-[#8100D1] focus:border-[#8100D1]"
                                     rows="3"
                                 />

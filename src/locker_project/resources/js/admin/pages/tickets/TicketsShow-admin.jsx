@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 
 export default function TicketsShowAdmin() {
     const { id } = useParams();
+    const { adminUser } = useOutletContext() || {};
     const [ticket, setTicket] = useState(null);
     const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,6 +38,31 @@ export default function TicketsShowAdmin() {
     useEffect(() => {
         fetchTicket();
     }, [id]);
+
+    // WebSocket: Auto-refresh ticket when events arrive
+    useEffect(() => {
+        if (!adminUser?.id) return;
+
+        const channel = window.Echo.private('admin.notifications');
+        
+        channel.listen('AdminDashboardUpdated', (e) => {
+            // Refresh if it's a ticket-related event for this ticket
+            if (e.type === 'new_ticket' || e.type === 'ticket_handover' || e.type === 'ticket_reply') {
+                if (e.data?.ticket_id === id) {
+                    fetchTicket();
+                }
+            }
+        });
+
+        // Also listen on user's notification channel for user replies
+        const userChannel = window.Echo.private(`App.Models.User.${adminUser.id}`);
+        userChannel.notification((notification) => {
+            // If we get any notification, refresh ticket data
+            fetchTicket();
+        });
+
+        return () => {};
+    }, [adminUser, id]);
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -252,6 +278,15 @@ export default function TicketsShowAdmin() {
                                     <textarea 
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                if (newMessage.trim()) {
+                                                    // create synthetic event for form submit or just call handleReply directly
+                                                    handleReply(e);
+                                                }
+                                            }
+                                        }}
                                         rows="3" 
                                         required 
                                         className="w-full bg-white border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#8100D1] focus:border-transparent outline-none resize-none" 
