@@ -17,8 +17,7 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        // Validasi disesuaikan dengan kebutuhan form dan database
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
             'role' => 'required|in:seeker,company',
@@ -26,6 +25,13 @@ class AuthController extends Controller
             'npwp' => 'required_if:role,company',
             'industri' => 'required_if:role,company',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
         try {
             DB::beginTransaction();
