@@ -45,7 +45,7 @@ export default function AnalyticsAdmin() {
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await axios.get('/api/admin/analytics/stats');
+                const response = await axios.get('/api/admin/analytics');
                 setStats(response.data);
             } catch (error) {
                 console.error("Failed to fetch analytics stats", error);

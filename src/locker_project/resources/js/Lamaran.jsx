@@ -12,7 +12,7 @@ export default function Lamaran() {
     const [activeTab, setActiveTab] = useState('Semua');
     const [showRejected, setShowRejected] = useState(false);
 
-    useEffect(() => {
+    const fetchApplications = () => {
         axios.get('/api/applications/me')
             .then(response => {
                 setApplications(response.data.data || []);
@@ -22,7 +22,28 @@ export default function Lamaran() {
                 console.error("Gagal memuat data lamaran:", error);
                 setIsLoading(false);
             });
+    };
+
+    useEffect(() => {
+        fetchApplications();
     }, []);
+
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const channel = window.Echo.private(`App.Models.User.${currentUser.id}`);
+        
+        channel.listen('ApplicationStatusUpdated', (e) => {
+            // Update application status in the local state
+            setApplications(prev => prev.map(app => 
+                app.id === e.application_id ? { ...app, status: e.status } : app
+            ));
+        });
+
+        return () => {
+            window.Echo.leave(`App.Models.User.${currentUser.id}`);
+        };
+    }, [currentUser]);
 
     const filteredApplications = applications.filter(app => {
         if (activeTab === 'Semua') return app.status !== 'Draft' && app.status !== 'Ditolak';

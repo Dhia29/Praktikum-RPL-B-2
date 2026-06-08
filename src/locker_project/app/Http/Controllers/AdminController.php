@@ -143,7 +143,10 @@ class AdminController extends Controller
     public function verifyCompany(Request $request, $userId)
     {
         DB::table('users')->where('id', $userId)->update(['status' => 'Aktif']);
-        DB::table('company_profiles')->where('user_id', $userId)->update(['alasan_penolakan' => null]);
+        DB::table('company_profiles')->where('user_id', $userId)->update([
+            'verifikasi_status' => 'Terverifikasi',
+            'alasan_penolakan' => null
+        ]);
         
         AdminLog::create([
             'admin_id' => Auth::id(),
@@ -191,7 +194,7 @@ class AdminController extends Controller
     {
         $user = DB::table('users')->where('id', $userId)->first();
         if ($user) {
-            $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+            $newStatus = $user->status === 'Aktif' ? 'Nonaktif' : 'Aktif';
             DB::table('users')->where('id', $userId)->update(['status' => $newStatus]);
             
             AdminLog::create([
@@ -262,6 +265,19 @@ class AdminController extends Controller
     }
 
     /**
+     * Admin Logs
+     */
+    public function logs()
+    {
+        $logs = AdminLog::with('admin:id,email')
+            ->orderBy('created_at', 'desc')
+            ->limit(100)
+            ->get();
+
+        return response()->json(compact('logs'));
+    }
+
+    /**
      * Customer Service (Tickets)
      */
     public function tickets()
@@ -309,7 +325,7 @@ class AdminController extends Controller
             'target_id' => $id
         ]);
 
-        return redirect()->route('admin.tickets.show', $id)->with('success', 'Ticket successfully updated and replied.');
+        return response()->json(['message' => 'Ticket successfully updated and replied.']);
     }
 
     /**
@@ -320,11 +336,11 @@ class AdminController extends Controller
         $totalUsers = DB::table('users')->where('role', '!=', 'ADMIN')->count();
         $totalCompanies = DB::table('company_profiles')->count();
         $totalJobs = DB::table('job_postings')->count();
-        $totalApplications = DB::table('job_applications')->count(); // Added for more stats
+        $totalApplications = DB::table('applications')->count();
         $activeSessions = rand(15, 120); // Simulated real-time metric
 
         // Distribusi Pengguna
-        $jobSeekers = DB::table('users')->where('role', 'user')->count();
+        $jobSeekers = DB::table('users')->where('role', 'seeker')->count();
         $companies = DB::table('users')->where('role', 'company')->count();
         $total = $jobSeekers + $companies;
         

@@ -118,6 +118,12 @@ class ApplicationController extends Controller
                 }
             }
 
+            // Notify admin dashboard
+            event(new \App\Events\AdminDashboardUpdated('new_application', [
+                'job_title' => $job->judul,
+                'applicant' => $profile->nama_lengkap
+            ]));
+
             return response()->json(['message' => 'Berhasil melamar pekerjaan ini!'], 201);
 
         } catch (\Exception $e) {
@@ -187,9 +193,10 @@ class ApplicationController extends Controller
 
             $application = DB::table('applications')
                 ->join('job_postings', 'applications.job_id', '=', 'job_postings.id')
+                ->join('job_seeker_profiles', 'applications.jobseeker_id', '=', 'job_seeker_profiles.id')
                 ->where('applications.id', $id)
                 ->where('job_postings.company_id', $company->id)
-                ->select('applications.id')
+                ->select('applications.id', 'job_seeker_profiles.user_id as seeker_user_id')
                 ->first();
 
             if (!$application) {
@@ -199,6 +206,8 @@ class ApplicationController extends Controller
             DB::table('applications')->where('id', $id)->update([
                 'status' => $request->input('status')
             ]);
+
+            broadcast(new \App\Events\ApplicationStatusUpdated($id, $request->input('status'), $application->seeker_user_id));
 
             return response()->json(['message' => 'Status lamaran berhasil diperbarui'], 200);
         } catch (\Exception $e) {
