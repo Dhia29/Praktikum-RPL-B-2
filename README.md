@@ -93,5 +93,27 @@ Berikut adalah langkah-langkah untuk mengatur dan menjalankan proyek ini di ling
    ```bash
    php artisan reverb:start
    ```
+   
+   Buka file `.env` dan atur koneksi laravel reverb pada komputermu:
+   ```env
+   REVERB_APP_ID=304200
+   REVERB_APP_KEY=vdhz6fnbhv8gsdfel8us
+   REVERB_APP_SECRET=3kyhxhdprgwipkda3dpq
+   REVERB_HOST="localhost"
+   REVERB_PORT=8080
+   REVERB_SCHEME=http
+   ```
+
+   Buka file`.env` dan atur Mailer Login/Sign up OTP 
+   ```env
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME="zzaqi72@gmail.com"
+   MAIL_PASSWORD="gghfcuckuiboaxgy"
+   MAIL_ENCRYPTION=tls
+   MAIL_FROM_ADDRESS="zzaqi72@gmail.com"
+   MAIL_FROM_NAME="LockER"
+   ```
 
 Aplikasi sekarang dapat diakses melalui browser di `http://127.0.0.1:8000`.
