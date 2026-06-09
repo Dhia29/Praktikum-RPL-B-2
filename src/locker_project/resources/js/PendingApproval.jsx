@@ -31,27 +31,32 @@ export default function PendingApproval() {
                 }
 
                 setStatus(user.status);
-                // Kita juga perlu me-retrieve profileData jika ada alasan penolakan
-                // Tapi untuk amannya, kita panggil API khusus jika ingin alasan dari endpoint lain
-                // Sementara alasan sudah di-inject di /me untuk company di $profileData['alasan_penolakan']
-                // Wait, di /me kita return profileData terpisah atau tidak?
-                // Coba kita lihat struktur respons /me
+                if (response.data.profile?.alasan_penolakan) {
+                    setReason(response.data.profile.alasan_penolakan);
+                }
+                setIsLoading(false);
+
+                // Setup WebSocket Listener for Real-time Verification
+                if (window.Echo) {
+                    const channelName = `App.Models.User.${user.id}`;
+                    window.Echo.private(channelName)
+                        .listen('CompanyStatusUpdated', (e) => {
+                            if (e.status === 'Aktif') {
+                                navigate('/loker');
+                            } else if (e.status === 'Ditolak') {
+                                setStatus('Ditolak');
+                                setReason(e.reason || 'Ditolak oleh admin.');
+                            }
+                        });
+                }
             })
             .catch(error => {
                 navigate('/');
-            })
-            .finally(() => {
-                // Di AuthController@me, return-nya: response()->json(['name' => $name, 'user' => $user, 'profile' => $profileData])
             });
 
-        axios.get('/me').then(response => {
-            setStatus(response.data.user.status);
-            if (response.data.profile?.alasan_penolakan) {
-                setReason(response.data.profile.alasan_penolakan);
-            }
-            setIsLoading(false);
-        }).catch(() => setIsLoading(false));
-
+        return () => {
+            // Echo cleanup could go here, but navigating away is fine
+        };
     }, [navigate]);
 
     const handleLogout = async () => {

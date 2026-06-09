@@ -124,6 +124,13 @@ class JobController extends Controller
             ]);
 
             $newJob = DB::table('job_postings')->where('id', $jobId)->first();
+            
+            // Notify admin dashboard about new job
+            event(new \App\Events\AdminDashboardUpdated('new_job', [
+                'job_title' => $newJob->judul,
+                'company' => $company->nama_perusahaan
+            ]));
+
             return response()->json(['message' => 'Lowongan berhasil dibuat', 'job' => $newJob], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal menyimpan data: ' . $e->getMessage()], 500);

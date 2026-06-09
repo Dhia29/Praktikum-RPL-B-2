@@ -4,26 +4,22 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class AdminDashboardUpdated implements ShouldBroadcastNow
+class JobStatusUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $type;
-    public $data;
+    public $job;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(string $type, array $data = [])
+    public function __construct($job)
     {
-        $this->type = $type;
-        $this->data = $data;
+        $this->job = $job;
     }
 
     /**
@@ -34,7 +30,7 @@ class AdminDashboardUpdated implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('admin.notifications'),
+            new Channel('public-jobs'),
         ];
     }
 }

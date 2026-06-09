@@ -52,10 +52,38 @@ export default function Loker() {
         }
     };
 
-    // MENGAMBIL DATA
+    // MENGAMBIL DATA & MENDENGARKAN WEBSOCKETS
     useEffect(() => {
         fetchJobs();
-    }, [viewMode]);
+
+        // Setup WebSocket Listener for Real-time Jobs
+        if (window.Echo) {
+            const channel = window.Echo.channel('public-jobs');
+            channel.listen('JobStatusUpdated', (e) => {
+                if (e.job && e.job.status === 'Aktif') {
+                    setJobs(prevJobs => {
+                        // Jika mode 'my', abaikan loker milik perusahaan lain
+                        if (viewMode === 'my' && currentUser && e.job.company_user_id !== currentUser.id) {
+                            return prevJobs;
+                        }
+                        // Cegah duplikasi jika loker sudah ada di daftar
+                        if (prevJobs.find(job => job.id === e.job.id)) {
+                            // Jika sudah ada (mungkin tadinya pending dan baru berubah aktif), update datanya
+                            return prevJobs.map(job => job.id === e.job.id ? e.job : job);
+                        }
+                        // Tambahkan loker baru ke urutan teratas
+                        return [e.job, ...prevJobs];
+                    });
+                }
+            });
+        }
+
+        return () => {
+            if (window.Echo) {
+                window.Echo.leaveChannel('public-jobs');
+            }
+        };
+    }, [viewMode, currentUser]);
 
     const handleDelete = async (id) => {
         if (!window.confirm('Yakin ingin menutup/menghapus lowongan ini?')) return;

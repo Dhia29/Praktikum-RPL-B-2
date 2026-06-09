@@ -10,20 +10,22 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class AdminDashboardUpdated implements ShouldBroadcastNow
+class CompanyStatusUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $type;
-    public $data;
+    public $userId;
+    public $status;
+    public $reason;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(string $type, array $data = [])
+    public function __construct($userId, $status, $reason = null)
     {
-        $this->type = $type;
-        $this->data = $data;
+        $this->userId = $userId;
+        $this->status = $status;
+        $this->reason = $reason;
     }
 
     /**
@@ -34,7 +36,7 @@ class AdminDashboardUpdated implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('admin.notifications'),
+            new PrivateChannel('App.Models.User.' . $this->userId),
         ];
     }
 }

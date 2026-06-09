@@ -20,6 +20,15 @@ export default function JobsIndexAdmin() {
 
     useEffect(() => {
         fetchJobs();
+
+        if (window.Echo) {
+            const channel = window.Echo.private('admin.notifications');
+            channel.listen('AdminDashboardUpdated', (e) => {
+                if (e.type === 'new_job' || e.type === 'job_deleted') {
+                    fetchJobs();
+                }
+            });
+        }
     }, []);
 
     const handleVerify = async (jobId) => {

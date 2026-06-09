@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CompanyApprovedNotification;
 use App\Models\SupportTicket;
 use App\Models\PlatformSetting;
+use App\Events\CompanyStatusUpdated;
 
 class AdminController extends Controller
 {
@@ -166,6 +167,8 @@ class AdminController extends Controller
             }
         }
         
+        broadcast(new CompanyStatusUpdated($userId, 'Aktif'));
+        
         return response()->json(['message' => 'Company successfully verified.']);
     }
 
@@ -186,6 +189,8 @@ class AdminController extends Controller
             'target_entity' => 'users',
             'target_id' => $userId
         ]);
+        
+        broadcast(new CompanyStatusUpdated($userId, 'Ditolak', $request->alasan_penolakan));
         
         return response()->json(['message' => 'Company has been rejected.']);
     }
@@ -246,6 +251,31 @@ class AdminController extends Controller
             'target_entity' => 'job_postings',
             'target_id' => $jobId
         ]);
+        
+        // Ambil data lowongan lengkap untuk di-broadcast ke WebSockets
+        $verifiedJob = DB::table('job_postings')
+            ->join('company_profiles', 'job_postings.company_id', '=', 'company_profiles.id')
+            ->select(
+                'job_postings.id',
+                'job_postings.company_id',
+                'job_postings.judul as role',
+                'job_postings.kategori as type',
+                'job_postings.lokasi as location',
+                'job_postings.deskripsi as description',
+                'job_postings.deadline',
+                'job_postings.created_at',
+                'company_profiles.user_id as company_user_id',
+                'company_profiles.nama_perusahaan as company',
+                'company_profiles.logo_url'
+            )
+            ->where('job_postings.id', $jobId)
+            ->first();
+
+        if ($verifiedJob) {
+            $verifiedJob->status = 'Aktif'; // Ensure status is set for frontend condition
+            $verifiedJob->has_applied = false; // default for real-time insert
+            broadcast(new \App\Events\JobStatusUpdated($verifiedJob));
+        }
         
         return response()->json(['message' => 'Job posting successfully published.']);
     }
