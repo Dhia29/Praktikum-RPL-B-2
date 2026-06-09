@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import Cropper from 'react-easy-crop';
+import ProfilePerusahaan from './ProfilePerusahaan';
 
 // --- FUNGSI UTILITY: MEMOTONG GAMBAR (CANVAS) ---
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -79,6 +80,10 @@ export default function Profile() {
     useEffect(() => {
         axios.get('/me')
             .then(response => {
+                if (response.data.user?.role === 'company') {
+                    navigate('/profile-perusahaan', { replace: true });
+                    return;
+                }
                 const profile = response.data.profile || {};
                 setUserData({
                     name: response.data.name || '',

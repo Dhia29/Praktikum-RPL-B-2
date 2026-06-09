@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import PublicCompanyProfile from './PublicCompanyProfile';
 
 export default function PublicProfile() {
     const { id } = useParams();
@@ -54,6 +55,10 @@ export default function PublicProfile() {
     }
 
     const hasContactInfo = userData.wa_number || userData.insta_username || userData.facebook_url || userData.github_username;
+
+    if (userData.role === 'company') {
+        return <PublicCompanyProfile userData={userData} />;
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans pb-12 relative overflow-x-hidden">
