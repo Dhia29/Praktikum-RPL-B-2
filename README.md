@@ -81,4 +81,17 @@ Berikut adalah langkah-langkah untuk mengatur dan menjalankan proyek ini di ling
    npm run dev
    ```
 
+7. **Jalankan Web Socket**
+   Buka terminal baru untuk masing-masing perintah berikut:
+
+   Untuk menginstall Laravel Reverb:
+   ```bash
+   php artisan reverb:install
+   ```
+   
+   Untuk menjalankan Laravel Reverb:
+   ```bash
+   php artisan reverb:start
+   ```
+
 Aplikasi sekarang dapat diakses melalui browser di `http://127.0.0.1:8000`.
