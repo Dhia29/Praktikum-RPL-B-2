@@ -39,6 +39,13 @@ export default function SignUp() {
         try {
             axios.defaults.withCredentials = true;
 
+            const config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            };
+
             const payload = {
                 nama_lengkap_atau_perusahaan: formData.name,
                 email: formData.email,
@@ -51,7 +58,7 @@ export default function SignUp() {
                 payload.industri = formData.industri;
             }
 
-            const response = await axios.post('/register', payload);
+            const response = await axios.post('/register', payload, config);
 
             if (response.data.requires_verification || response.status === 201) {
                 alert('Registrasi Berhasil! Silakan cek email Anda untuk kode OTP.');
@@ -60,9 +67,22 @@ export default function SignUp() {
 
         } catch (error) {
             console.error('Error:', error);
-            setErrorMessage(
-                error.response?.data?.message || 'Terjadi kesalahan pada server. Silakan coba lagi.'
-            );
+            if (error.response?.status === 422 && error.response.data.errors) {
+                // Get the first error message from the validation errors
+                const errors = error.response.data.errors;
+                const firstError = Object.values(errors)[0][0];
+                
+                // Customize specific known error messages
+                if (firstError.includes('has already been taken')) {
+                    setErrorMessage('Alamat email ini sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.');
+                } else {
+                    setErrorMessage(firstError);
+                }
+            } else {
+                setErrorMessage(
+                    error.response?.data?.message || 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                );
+            }
         } finally {
             setIsLoading(false);
         }
