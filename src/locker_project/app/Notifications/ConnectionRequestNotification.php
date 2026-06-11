@@ -44,8 +44,8 @@ class ConnectionRequestNotification extends Notification implements ShouldBroadc
     {
         return [
             'type' => 'connection_request',
-            'title' => 'Permintaan Koneksi',
-            'message' => "{$this->senderName} mengirimkan permintaan koneksi.",
+            'title' => 'Connection Request',
+            'message' => "{$this->senderName} sent you a connection request.",
             'action_url' => "/profile"
         ];
     }

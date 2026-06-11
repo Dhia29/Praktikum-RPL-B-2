@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import SupportModal from './SupportModal';
 import NotificationsDropdown from './NotificationsDropdown';
 
 export default function Layout() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -46,8 +48,12 @@ export default function Layout() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleSignOut = () => {
-        alert("Proses Sign Out...");
+    const handleSignOut = async () => {
+        try {
+            await axios.post('/api/logout');
+        } catch (err) {
+            console.error('Logout error:', err);
+        }
         navigate('/');
     };
 
@@ -73,7 +79,7 @@ export default function Layout() {
                             >
                                 LockER
                             </Link>
-                            <p className="text-gray-500 text-xs font-medium mt-1">Perjalanan Karir Dimulai dari Sekarang!</p>
+                            <p className="text-gray-500 text-xs font-medium mt-1">{t('layout.tagline')}</p>
                         </div>
 
                         {/* 3. Notifications, Support, Profile */}
@@ -105,20 +111,20 @@ export default function Layout() {
                                 {isDropdownOpen && (
                                     <div className="absolute right-0 top-12 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 animate-fade-in-down">
                                         <Link to={currentUser?.role === 'company' ? '/profile-perusahaan' : '/profile'} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
-                                            Profil
+                                            {t('nav.profile', 'Profil')}
                                         </Link>
                                     <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
-                                        Pengaturan
+                                        {t('nav.settings', 'Pengaturan')}
                                     </Link>
                                     <Link to="/help" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
-                                        Bantuan
+                                        {t('nav.help', 'Bantuan')}
                                     </Link>
                                     <div className="border-t border-gray-100 my-1"></div>
                                     <button
                                         onClick={handleSignOut}
                                         className="block w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
                                     >
-                                        Sign Out
+                                        {t('nav.logout', 'Sign Out')}
                                     </button>
                                     </div>
                                 )}
@@ -129,7 +135,8 @@ export default function Layout() {
                     {/* 2. Navigasi Loker */}
                     <nav className="flex gap-8 text-sm font-medium mt-2">
                         {['/loker', '/lamaran', '/pesan', '/komunitas'].map((path) => {
-                            const label = path.replace('/', '');
+                            const rawLabel = path.replace('/', '');
+                            const label = t(`nav.${rawLabel}`, { defaultValue: rawLabel });
                             const active = isActive(path);
 
                             return (

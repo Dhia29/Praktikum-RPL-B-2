@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function JobsIndexAdmin() {
+    const { t } = useTranslation();
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('Semua Status');
+    const [filter, setFilter] = useState('all');
 
     const fetchJobs = async () => {
         try {
@@ -37,25 +39,25 @@ export default function JobsIndexAdmin() {
             fetchJobs();
         } catch (error) {
             console.error("Failed to verify job", error);
-            alert("Gagal menyetujui lowongan");
+            alert(t('admin.jobs.alert_verify_fail'));
         }
     };
 
     const handleDelete = async (jobId) => {
-        if (!window.confirm('Apakah Anda yakin ingin menghapus lowongan ini?')) return;
+        if (!window.confirm(t('admin.jobs.confirm_delete'))) return;
         try {
             await axios.delete(`/api/admin/jobs/${jobId}`);
             fetchJobs();
         } catch (error) {
             console.error("Failed to delete job", error);
-            alert("Gagal menghapus lowongan");
+            alert(t('admin.jobs.alert_delete_fail'));
         }
     };
 
     const filteredJobs = jobs.filter(job => {
-        if (filter === 'Semua Status') return true;
-        if (filter === 'Menunggu Persetujuan') return job.status === 'Menunggu Persetujuan';
-        if (filter === 'Dipublikasikan') return job.status === 'Aktif';
+        if (filter === 'all') return true;
+        if (filter === 'pending') return job.status === 'Menunggu Persetujuan';
+        if (filter === 'published') return job.status === 'Aktif';
         return true;
     });
 
@@ -63,8 +65,8 @@ export default function JobsIndexAdmin() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-gray-100 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">Daftar Lowongan Pekerjaan</h3>
-                    <p className="text-sm text-gray-500 mt-1">Tinjau, setujui, atau hapus lowongan pekerjaan yang dipublikasikan oleh perusahaan.</p>
+                    <h3 className="text-lg font-bold text-gray-800">{t('admin.jobs.title')}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('admin.jobs.desc')}</p>
                 </div>
                 <div className="flex gap-2">
                     <select 
@@ -72,9 +74,9 @@ export default function JobsIndexAdmin() {
                         onChange={(e) => setFilter(e.target.value)}
                         className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-[#8100D1] focus:border-[#8100D1] block px-3 py-2 outline-none"
                     >
-                        <option>Semua Status</option>
-                        <option>Menunggu Persetujuan</option>
-                        <option>Dipublikasikan</option>
+                        <option value="all">{t('admin.jobs.filter_all')}</option>
+                        <option value="pending">{t('admin.jobs.filter_pending')}</option>
+                        <option value="published">{t('admin.jobs.filter_published')}</option>
                     </select>
                 </div>
             </div>
@@ -83,21 +85,21 @@ export default function JobsIndexAdmin() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                            <th className="p-4 border-b border-gray-100 w-1/3">Detail Pekerjaan</th>
-                            <th className="p-4 border-b border-gray-100">Perusahaan</th>
-                            <th className="p-4 border-b border-gray-100">Lokasi & Tipe</th>
-                            <th className="p-4 border-b border-gray-100">Status</th>
-                            <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                            <th className="p-4 border-b border-gray-100 w-1/3">{t('admin.jobs.col_detail')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.jobs.col_company')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.jobs.col_location')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.jobs.col_status')}</th>
+                            <th className="p-4 border-b border-gray-100 text-right">{t('admin.jobs.col_action')}</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm divide-y divide-gray-100">
                         {loading ? (
                             <tr>
-                                <td colSpan="5" className="p-8 text-center text-gray-500">Memuat data lowongan...</td>
+                                <td colSpan="5" className="p-8 text-center text-gray-500">{t('admin.jobs.loading')}</td>
                             </tr>
                         ) : filteredJobs.length === 0 ? (
                             <tr>
-                                <td colSpan="5" className="p-8 text-center text-gray-500">Tidak ada lowongan pekerjaan saat ini.</td>
+                                <td colSpan="5" className="p-8 text-center text-gray-500">{t('admin.jobs.empty')}</td>
                             </tr>
                         ) : (
                             filteredJobs.map(job => (
@@ -125,11 +127,11 @@ export default function JobsIndexAdmin() {
                                     <td className="p-4">
                                         {job.status === 'Aktif' ? (
                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Dipublikasikan
+                                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> {t('admin.jobs.status_published')}
                                             </span>
                                         ) : job.status === 'Menunggu Persetujuan' ? (
                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Menunggu
+                                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span> {t('admin.jobs.status_pending')}
                                             </span>
                                         ) : (
                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
@@ -140,11 +142,11 @@ export default function JobsIndexAdmin() {
                                     <td className="p-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             {job.status === 'Menunggu Persetujuan' && (
-                                                <button onClick={() => handleVerify(job.id)} title="Setujui Lowongan" className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200">
+                                                <button onClick={() => handleVerify(job.id)} title={t('admin.jobs.approve_title')} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors border border-transparent hover:border-green-200">
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                                                 </button>
                                             )}
-                                            <button onClick={() => handleDelete(job.id)} title="Hapus Lowongan" className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200">
+                                            <button onClick={() => handleDelete(job.id)} title={t('admin.jobs.delete_title')} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                             </button>
                                         </div>
@@ -157,10 +159,10 @@ export default function JobsIndexAdmin() {
             </div>
 
             <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500 bg-gray-50">
-                <span>Menampilkan {filteredJobs.length} lowongan</span>
+                <span>{t('admin.jobs.showing', { count: filteredJobs.length })}</span>
                 <div className="flex gap-1">
-                    <button className="px-3 py-1 bg-white border border-gray-200 rounded text-gray-400 cursor-not-allowed">Sebelumnya</button>
-                    <button className="px-3 py-1 bg-white border border-gray-200 rounded hover:bg-gray-50 text-gray-700">Selanjutnya</button>
+                    <button className="px-3 py-1 bg-white border border-gray-200 rounded text-gray-400 cursor-not-allowed">{t('admin.jobs.prev')}</button>
+                    <button className="px-3 py-1 bg-white border border-gray-200 rounded hover:bg-gray-50 text-gray-700">{t('admin.jobs.next')}</button>
                 </div>
             </div>
         </div>

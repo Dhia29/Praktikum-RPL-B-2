@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import JobDetailsModal from './components/JobDetailsModal';
+import { useTranslation } from 'react-i18next';
 
 export default function PublicCompanyProfile({ userData }) {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('tentang');
     const [recentJobs, setRecentJobs] = useState([]);
@@ -53,7 +55,7 @@ export default function PublicCompanyProfile({ userData }) {
         } catch (error) {
             console.error("Gagal follow/unfollow perusahaan", error);
             if (error.response?.status === 401) {
-                alert("Anda harus login untuk bisa mengikuti perusahaan.");
+                alert(t('company.login_to_follow'));
             }
         } finally {
             setIsFollowLoading(false);
@@ -124,7 +126,7 @@ export default function PublicCompanyProfile({ userData }) {
                                     ) : (
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
                                     )}
-                                    {isFollowing ? 'Mengikuti' : 'Follow'}
+                                    {isFollowing ? t('company.following') : t('company.follow')}
                                 </button>
                             </div>
                         </div>
@@ -138,13 +140,13 @@ export default function PublicCompanyProfile({ userData }) {
                                 </span>
                             </h1>
                             <p className="text-lg text-gray-600 mt-1.5 font-medium">
-                                {userData.headline || 'Bidang Industri'}
+                                {userData.headline || t('company.industry')}
                             </p>
                             
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-gray-500">
                                 <div className="flex items-center gap-1.5">
                                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    {userData.location || 'Lokasi belum diatur'}
+                                    {userData.location || t('company.location_not_set')}
                                 </div>
                                 {userData.employee_count && (
                                     <div className="flex items-center gap-1.5">
@@ -154,7 +156,7 @@ export default function PublicCompanyProfile({ userData }) {
                                 )}
                                 <div className="flex items-center gap-1.5">
                                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                                    <span className="font-semibold text-gray-700">{followerCount?.toLocaleString() || 0}</span> Pengikut
+                                    <span className="font-semibold text-gray-700">{followerCount?.toLocaleString() || 0}</span> {t('company.followers')}
                                 </div>
                             </div>
                         </div>
@@ -163,7 +165,7 @@ export default function PublicCompanyProfile({ userData }) {
                         <div className="pb-6 flex flex-wrap gap-3 border-b border-gray-100 mt-6">
                             {userData.website_url && (
                                 <a href={userData.website_url} target="_blank" rel="noopener noreferrer" className="bg-purple-50 text-[#8100D1] hover:bg-purple-100 border border-purple-100 px-6 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2">
-                                    Kunjungi Website
+                                    {t('company.visit_website')}
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                                 </a>
                             )}
@@ -173,8 +175,8 @@ export default function PublicCompanyProfile({ userData }) {
                         <div className="pt-2">
                             <div className="flex gap-6 overflow-x-auto no-scrollbar">
                                 {[
-                                    { id: 'tentang', label: 'Tentang Perusahaan' },
-                                    { id: 'lowongan', label: 'Lowongan Kerja' }
+                                    { id: 'tentang', label: t('company.tab_about') },
+                                    { id: 'lowongan', label: t('company.tab_jobs') }
                                 ].map(tab => (
                                     <button 
                                         key={tab.id}
@@ -197,14 +199,14 @@ export default function PublicCompanyProfile({ userData }) {
                     {/* TAB TENTANG */}
                     {activeTab === 'tentang' && (
                         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-8 animate-fade-in-up">
-                            <h2 className="text-xl font-extrabold text-gray-900 mb-5">Gambaran Umum</h2>
+                            <h2 className="text-xl font-extrabold text-gray-900 mb-5">{t('company.overview')}</h2>
                             {userData.description ? (
                                 <div className="text-[15px] text-gray-700 leading-relaxed whitespace-pre-wrap">
                                     {userData.description}
                                 </div>
                             ) : (
                                 <div className="py-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-300">
-                                    <p className="text-gray-500 font-medium">Belum ada deskripsi profil perusahaan.</p>
+                                    <p className="text-gray-500 font-medium">{t('company.no_description')}</p>
                                 </div>
                             )}
                             
@@ -212,19 +214,19 @@ export default function PublicCompanyProfile({ userData }) {
                                 <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                                     {userData.website_url && (
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 mb-1">Situs Web</p>
+                                            <p className="text-sm font-bold text-gray-900 mb-1">{t('company.website')}</p>
                                             <a href={userData.website_url} target="_blank" rel="noopener noreferrer" className="text-[#8100D1] hover:underline text-sm break-all font-medium">{userData.website_url}</a>
                                         </div>
                                     )}
                                     {userData.employee_count && (
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 mb-1">Ukuran Perusahaan</p>
+                                            <p className="text-sm font-bold text-gray-900 mb-1">{t('company.company_size')}</p>
                                             <p className="text-sm text-gray-600">{userData.employee_count}</p>
                                         </div>
                                     )}
                                     {userData.npwp && (
                                         <div>
-                                            <p className="text-sm font-bold text-gray-900 mb-1">Nomor Induk Berusaha / NPWP</p>
+                                            <p className="text-sm font-bold text-gray-900 mb-1">{t('company.npwp')}</p>
                                             <p className="text-sm text-gray-600">{userData.npwp}</p>
                                         </div>
                                     )}
@@ -237,8 +239,8 @@ export default function PublicCompanyProfile({ userData }) {
                     {activeTab === 'lowongan' && (
                         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-8 animate-fade-in-up">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-extrabold text-gray-900">Lowongan yang Dibuka</h2>
-                                <span className="bg-purple-100 text-[#8100D1] text-xs font-bold px-3 py-1 rounded-full">{recentJobs.length} Lowongan</span>
+                                <h2 className="text-xl font-extrabold text-gray-900">{t('company.open_jobs')}</h2>
+                                <span className="bg-purple-100 text-[#8100D1] text-xs font-bold px-3 py-1 rounded-full">{recentJobs.length} {t('company.jobs_count')}</span>
                             </div>
                             
                             {isJobsLoading ? (
@@ -279,8 +281,8 @@ export default function PublicCompanyProfile({ userData }) {
                                     <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
                                         <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                                     </div>
-                                    <h3 className="text-gray-900 font-bold mb-1">Belum Ada Lowongan</h3>
-                                    <p className="text-gray-500 text-sm">Perusahaan ini belum memiliki lowongan pekerjaan yang aktif saat ini.</p>
+                                    <h3 className="text-gray-900 font-bold mb-1">{t('company.no_jobs_title')}</h3>
+                                    <p className="text-gray-500 text-sm">{t('company.no_jobs_desc')}</p>
                                 </div>
                             )}
                         </div>

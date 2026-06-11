@@ -109,6 +109,7 @@ class JobController extends Controller
             ]);
 
             $company = DB::table('company_profiles')->where('user_id', $user->id)->first();
+            $isAutoApprove = \App\Models\PlatformSetting::get('auto_approve_jobs', '0') === '1';
 
             $jobId = Str::uuid()->toString();
             DB::table('job_postings')->insert([
@@ -119,17 +120,41 @@ class JobController extends Controller
                 'kategori' => $validated['kategori'],
                 'lokasi' => $validated['lokasi'],
                 'deadline' => $validated['deadline'],
-                'status' => 'Menunggu Persetujuan',
+                'status' => $isAutoApprove ? 'Aktif' : 'Menunggu Persetujuan',
                 'created_at' => now(),
             ]);
 
             $newJob = DB::table('job_postings')->where('id', $jobId)->first();
             
-            // Notify admin dashboard about new job
-            event(new \App\Events\AdminDashboardUpdated('new_job', [
-                'job_title' => $newJob->judul,
-                'company' => $company->nama_perusahaan
-            ]));
+            if ($isAutoApprove) {
+                // If auto-approved, fetch full details and broadcast it to job seekers
+                $verifiedJob = DB::table('job_postings')
+                    ->join('company_profiles', 'job_postings.company_id', '=', 'company_profiles.id')
+                    ->select(
+                        'job_postings.id',
+                        'job_postings.company_id',
+                        'job_postings.judul as role',
+                        'job_postings.kategori as type',
+                        'job_postings.lokasi as location',
+                        'job_postings.deskripsi as description',
+                        'job_postings.deadline',
+                        'job_postings.created_at',
+                        'company_profiles.user_id as company_user_id',
+                        'company_profiles.nama_perusahaan as company',
+                        'company_profiles.logo_url'
+                    )
+                    ->where('job_postings.id', $jobId)
+                    ->first();
+                $verifiedJob->status = 'Aktif';
+                $verifiedJob->has_applied = false;
+                event(new \App\Events\JobStatusUpdated($verifiedJob));
+            } else {
+                // Notify admin dashboard about new job
+                event(new \App\Events\AdminDashboardUpdated('new_job', [
+                    'job_title' => $newJob->judul,
+                    'company' => $company->nama_perusahaan
+                ]));
+            }
 
             return response()->json(['message' => 'Lowongan berhasil dibuat', 'job' => $newJob], 201);
         } catch (\Exception $e) {

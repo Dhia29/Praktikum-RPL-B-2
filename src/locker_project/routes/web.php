@@ -16,6 +16,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminCsTicketController;
 use App\Http\Controllers\AdminCommunityReportController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserSettingsController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -115,6 +116,15 @@ Route::middleware('web')->group(function() {
 Route::get('/api/notifications', [NotificationController::class, 'index']);
 Route::post('/api/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
 Route::delete('/api/notifications/{id}', [NotificationController::class, 'destroy']);
+
+// --- User Settings ---
+Route::get('/api/user/settings', [UserSettingsController::class, 'index']);
+Route::post('/api/user/settings', [UserSettingsController::class, 'update']);
+Route::post('/api/account/change-password', [UserSettingsController::class, 'changePassword']);
+Route::post('/api/account/change-email', [UserSettingsController::class, 'changeEmail']);
+Route::delete('/api/account', [UserSettingsController::class, 'deleteAccount']);
+Route::get('/api/account/blocked-users', [UserSettingsController::class, 'blockedUsers']);
+Route::post('/api/logout', [UserSettingsController::class, 'logout']);
 
 
 // ==========================================

@@ -57,7 +57,7 @@ class MessageReceivedNotification extends Notification implements ShouldBroadcas
     {
         return [
             'type' => 'new_message',
-            'message' => "Pesan baru dari {$this->senderName}.",
+            'message' => "New message from {$this->senderName}.",
             'action_url' => "/pesan?user={$this->senderId}"
         ];
     }

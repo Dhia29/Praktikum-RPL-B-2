@@ -12,11 +12,18 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationEmail;
 use App\Mail\ResetPasswordEmail;
+use App\Models\PlatformSetting;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        if (PlatformSetting::get('close_registrations', '0') === '1') {
+            return response()->json([
+                'message' => 'Pendaftaran akun baru saat ini ditutup oleh Administrator.'
+            ], 403);
+        }
+
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
@@ -38,13 +45,15 @@ class AuthController extends Controller
 
             $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
+            $isAutoApproveCompany = $request->role === 'company' && PlatformSetting::get('auto_approve_companies', '0') === '1';
+            
             // Insert ke tabel users (Sesuai Migration)
             $user = User::create([
                 'id' => Str::uuid()->toString(),
                 'email' => $request->email,
                 'password_hash' => Hash::make($request->password),
                 'role' => $request->role,
-                'status' => $request->role === 'company' ? 'Menunggu Verifikasi' : 'Aktif',
+                'status' => ($request->role === 'company' && !$isAutoApproveCompany) ? 'Menunggu Verifikasi' : 'Aktif',
             ]);
 
             DB::table('users')->where('id', $user->id)->update([
@@ -67,8 +76,7 @@ class AuthController extends Controller
                     'nama_perusahaan' => $request->nama_lengkap_atau_perusahaan,
                     'npwp' => $request->npwp,
                     'bidang_industri' => $request->industri,
-                    'verifikasi_status' => 'Menunggu',
-                    // Migration ini TIDAK punya timestamps sama sekali
+                    'verifikasi_status' => $isAutoApproveCompany ? 'Terverifikasi' : 'Menunggu',
                 ]);
             }
 

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function CommunityReportsShowAdmin() {
+    const { t } = useTranslation();
     const { id } = useParams();
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,20 +35,20 @@ export default function CommunityReportsShowAdmin() {
             fetchReport();
         } catch (error) {
             console.error("Failed to update report status", error);
-            alert("Gagal memperbarui status laporan");
+            alert(t('admin.community.alert_status_fail'));
         }
     };
 
     const handleDeletePost = async (e) => {
         e.preventDefault();
-        if (!window.confirm('Apakah Anda yakin ingin menghapus postingan ini secara permanen? Aksi ini tidak dapat dibatalkan.')) return;
+        if (!window.confirm(t('admin.community.confirm_delete_permanent'))) return;
         
         try {
             await axios.delete(`/api/admin/community/reports/${id}/post`);
             fetchReport();
         } catch (error) {
             console.error("Failed to delete post", error);
-            alert("Gagal menghapus postingan");
+            alert(t('admin.community.alert_delete_post_fail'));
         }
     };
 
@@ -62,11 +64,11 @@ export default function CommunityReportsShowAdmin() {
     };
 
     if (loading) {
-        return <div className="p-8 text-center text-gray-500">Memuat detail laporan...</div>;
+        return <div className="p-8 text-center text-gray-500">{t('admin.community.loading_detail')}</div>;
     }
 
     if (!report) {
-        return <div className="p-8 text-center text-red-500">Laporan tidak ditemukan.</div>;
+        return <div className="p-8 text-center text-red-500">{t('admin.community.not_found')}</div>;
     }
 
     const renderStatusBadge = (currentStatus) => {
@@ -86,7 +88,7 @@ export default function CommunityReportsShowAdmin() {
             <div className="mb-6 flex justify-between items-center">
                 <Link to="/community/reports" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
                     <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    Kembali ke Laporan
+                    {t('admin.community.show_back')}
                 </Link>
             </div>
 
@@ -94,30 +96,30 @@ export default function CommunityReportsShowAdmin() {
                 {/* Report Actions & Details */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Informasi Laporan</h3>
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">{t('admin.community.show_info_title')}</h3>
                         
                         <div className="space-y-4">
                             <div>
-                                <span className="block text-xs font-medium text-gray-500 uppercase">Pelapor</span>
+                                <span className="block text-xs font-medium text-gray-500 uppercase">{t('admin.community.show_reporter')}</span>
                                 <span className="block text-sm text-gray-900 mt-1">{report.reporter_email} ({report.reporter_role})</span>
                             </div>
                             <div>
-                                <span className="block text-xs font-medium text-gray-500 uppercase">Alasan Laporan</span>
+                                <span className="block text-xs font-medium text-gray-500 uppercase">{t('admin.community.show_reason')}</span>
                                 <span className="block text-sm font-bold text-red-600 mt-1">{report.reason}</span>
                             </div>
                             <div>
-                                <span className="block text-xs font-medium text-gray-500 uppercase">Tanggal Dilaporkan</span>
+                                <span className="block text-xs font-medium text-gray-500 uppercase">{t('admin.community.show_date')}</span>
                                 <span className="block text-sm text-gray-900 mt-1">{formatDate(report.created_at)}</span>
                             </div>
                             <div>
-                                <span className="block text-xs font-medium text-gray-500 uppercase mb-2">Status Saat Ini</span>
+                                <span className="block text-xs font-medium text-gray-500 uppercase mb-2">{t('admin.community.show_current_status')}</span>
                                 {renderStatusBadge(report.status)}
                             </div>
                         </div>
                     </div>
 
                     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Aksi Laporan</h3>
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">{t('admin.community.show_actions_title')}</h3>
                         
                         <form onSubmit={handleStatusUpdate} className="mb-4">
                             <div className="flex flex-col gap-2">
@@ -132,7 +134,7 @@ export default function CommunityReportsShowAdmin() {
                                     <option value="rejected">Rejected (False Alarm)</option>
                                 </select>
                                 <button type="submit" className="w-full justify-center inline-flex items-center px-4 py-2 bg-[#8100D1] hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                    Perbarui Status
+                                    {t('admin.community.show_update_status')}
                                 </button>
                             </div>
                         </form>
@@ -141,9 +143,9 @@ export default function CommunityReportsShowAdmin() {
                             <form onSubmit={handleDeletePost}>
                                 <button type="submit" className="w-full justify-center inline-flex items-center px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition-colors border border-red-200">
                                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    Hapus Postingan
+                                    {t('admin.community.show_delete_post')}
                                 </button>
-                                <p className="text-xs text-gray-400 mt-2 text-center">Menghapus postingan otomatis mengubah status laporan menjadi Resolved.</p>
+                                <p className="text-xs text-gray-400 mt-2 text-center">{t('admin.community.show_delete_note')}</p>
                             </form>
                         </div>
                     </div>
@@ -152,7 +154,7 @@ export default function CommunityReportsShowAdmin() {
                 {/* Reported Content Details */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Konten yang Dilaporkan</h3>
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">{t('admin.community.show_content_title')}</h3>
                         
                         {(report.post_content || report.post_media) ? (
                             <>
@@ -161,7 +163,7 @@ export default function CommunityReportsShowAdmin() {
                                         {report.post_owner_email ? report.post_owner_email.substring(0, 1).toUpperCase() : 'U'}
                                     </div>
                                     <div>
-                                        <span className="block font-bold text-gray-900">{report.post_owner_email || 'User Terhapus'}</span>
+                                        <span className="block font-bold text-gray-900">{report.post_owner_email || t('admin.community.show_deleted_user')}</span>
                                         <span className="block text-xs text-gray-500">{(report.post_owner_role || '').toUpperCase()}</span>
                                     </div>
                                 </div>
@@ -170,7 +172,7 @@ export default function CommunityReportsShowAdmin() {
                                     {report.post_content ? (
                                         <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">{report.post_content}</p>
                                     ) : (
-                                        <p className="text-gray-400 italic">Hanya media (tanpa teks)</p>
+                                        <p className="text-gray-400 italic">{t('admin.community.show_media_only')}</p>
                                     )}
 
                                     {report.post_media && (
@@ -190,8 +192,8 @@ export default function CommunityReportsShowAdmin() {
                                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                 </div>
-                                <h3 className="text-gray-900 font-medium text-lg">Postingan Tidak Tersedia</h3>
-                                <p className="text-gray-500 text-sm mt-1">Postingan ini mungkin telah dihapus oleh pengguna atau admin lain.</p>
+                                <h3 className="text-gray-900 font-medium text-lg">{t('admin.community.show_post_unavailable')}</h3>
+                                <p className="text-gray-500 text-sm mt-1">{t('admin.community.show_post_unavailable_desc')}</p>
                             </div>
                         )}
                     </div>

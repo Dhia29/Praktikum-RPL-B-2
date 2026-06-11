@@ -3,6 +3,7 @@ import axios from 'axios';
 import EmojiPicker from 'emoji-picker-react';
 import AppointmentModal from './components/AppointmentModal';
 import { useLocation, useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const getFileIcon = (fileName) => {
     if (!fileName) return <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>;
@@ -30,6 +31,7 @@ export default function Messages() {
     
     const location = useLocation();
     const { currentUser } = useOutletContext() || {};
+    const { t } = useTranslation();
 
     const [isComposeOpen, setIsComposeOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -319,7 +321,7 @@ export default function Messages() {
     };
 
     return (
-        <div className="relative bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-[75vh] flex">
+        <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden h-[75vh] flex">
             <input type="file" ref={fileInputRef} onChange={handleMediaChange} className="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.rar" />
             
             <AppointmentModal 
@@ -345,7 +347,7 @@ export default function Messages() {
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-fade-in-up">
                         <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50">
-                            <h3 className="font-bold text-gray-900">Pesan Baru</h3>
+                            <h3 className="font-bold text-gray-900">{t('messages.new_message')}</h3>
                             <button onClick={() => { setIsComposeOpen(false); setSearchQuery(''); }} className="text-gray-400 hover:text-gray-700 transition">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
@@ -353,15 +355,15 @@ export default function Messages() {
                         <div className="p-4 border-b border-gray-100">
                             <div className="relative">
                                 <svg className="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                <input type="text" autoFocus placeholder="Ketik nama atau email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#8100D1] focus:bg-white outline-none transition" />
+                                <input type="text" autoFocus placeholder={t('messages.search_placeholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#8100D1] focus:bg-white outline-none transition" />
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2">
                             {isSearching ? (
-                                <div className="text-center py-8 text-sm text-gray-400 animate-pulse">Mencari...</div>
+                                <div className="text-center py-8 text-sm text-gray-400 animate-pulse">{t('messages.searching')}</div>
                             ) : searchResults.length > 0 ? (
                                 <div className="space-y-1">
-                                    <p className="px-3 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">Hasil Pencarian</p>
+                                    <p className="px-3 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('messages.search_results')}</p>
                                     {searchResults.map((user) => (
                                         <div key={user.id} onClick={() => handleSelectNewContact(user)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-purple-50 cursor-pointer transition">
                                             <div className="w-12 h-12 rounded-full bg-purple-100 text-[#8100D1] flex items-center justify-center font-bold flex-shrink-0 overflow-hidden">
@@ -375,11 +377,11 @@ export default function Messages() {
                                     ))}
                                 </div>
                             ) : searchQuery.length > 0 ? (
-                                <div className="text-center py-8 text-sm text-gray-400">Pengguna tidak ditemukan.</div>
+                                <div className="text-center py-8 text-sm text-gray-400">{t('messages.not_found')}</div>
                             ) : (
                                 <div className="text-center py-10 flex flex-col items-center justify-center">
                                     <svg className="w-12 h-12 text-gray-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                                    <p className="text-sm text-gray-400">Cari kolega atau perusahaan untuk memulai obrolan.</p>
+                                    <p className="text-sm text-gray-400">{t('messages.search_prompt')}</p>
                                 </div>
                             )}
                         </div>
@@ -388,24 +390,24 @@ export default function Messages() {
             )}
 
             {/* SIDEBAR INBOX */}
-            <div className="w-full md:w-80 border-r border-gray-200 flex flex-col bg-white">
-                <div className="p-5 border-b border-gray-100 flex flex-col gap-3 bg-gray-50/50">
+            <div className="w-full md:w-80 border-r border-gray-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
+                <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex flex-col gap-3 bg-gray-50/50 dark:bg-slate-900/50">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-900">Pesan Masuk</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('messages.inbox')}</h2>
                         {currentUser?.role !== 'seeker' && (
-                            <button onClick={() => setIsComposeOpen(true)} className="p-2 bg-white border border-gray-200 text-gray-600 rounded-full hover:bg-purple-50 hover:text-[#8100D1] hover:border-purple-200 transition-all shadow-sm focus:outline-none" title="Tulis pesan baru">
+                            <button onClick={() => setIsComposeOpen(true)} className="p-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-[#8100D1] dark:hover:text-white hover:border-purple-200 transition-all shadow-sm focus:outline-none" title="Tulis pesan baru">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
                         )}
                     </div>
                     
                     {/* Toggle Arsip */}
-                    <div className="flex bg-gray-200 rounded-lg p-1">
-                        <button onClick={() => setShowArchived(false)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${!showArchived ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Utama</button>
-                        <button onClick={() => setShowArchived(true)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${showArchived ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Arsip</button>
+                    <div className="flex bg-gray-200 dark:bg-slate-800 rounded-lg p-1">
+                        <button onClick={() => setShowArchived(false)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${!showArchived ? 'bg-white dark:bg-slate-700 text-gray-800 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>{t('messages.main')}</button>
+                        <button onClick={() => setShowArchived(true)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${showArchived ? 'bg-white dark:bg-slate-700 text-gray-800 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>{t('messages.archived')}</button>
                     </div>
                 </div>
-                <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
+                <div className="flex-1 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800">
                     {isRoomsLoading ? (
                         <div className="text-center p-6 text-gray-400 text-sm animate-pulse">Memuat obrolan...</div>
                     ) : rooms.filter(r => showArchived ? r.is_archived : !r.is_archived).length > 0 ? (
@@ -416,16 +418,16 @@ export default function Messages() {
                             return new Date(b.time) - new Date(a.time);
                         })
                         .map(room => (
-                            <div key={room.id} className={`group relative flex items-center gap-4 p-5 cursor-pointer transition-colors text-left ${activeRoom?.id === room.id ? 'bg-purple-50/60 border-l-4 border-[#8100D1]' : 'hover:bg-gray-50'}`} onClick={() => setActiveRoom(room)}>
-                                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center font-bold text-[#8100D1] overflow-hidden flex-shrink-0 border border-purple-200 shadow-sm relative">
+                            <div key={room.id} className={`group relative flex items-center gap-4 p-5 cursor-pointer transition-colors text-left ${activeRoom?.id === room.id ? 'bg-purple-50/60 dark:bg-slate-800/80 border-l-4 border-[#8100D1]' : 'hover:bg-gray-50 dark:hover:bg-slate-800/50'}`} onClick={() => setActiveRoom(room)}>
+                                <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[#8100D1] overflow-hidden flex-shrink-0 border border-purple-200 dark:border-slate-700 shadow-sm relative">
                                     {room.avatar_url ? <img src={room.avatar_url} className="w-full h-full object-cover" alt="" /> : room.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0 pr-6 relative">
-                                    <h4 className="text-sm font-bold text-gray-900 truncate pr-8">
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate pr-8">
                                         {room.name}
                                     </h4>
                                     {room.is_pinned && (
-                                        <div className="absolute right-0 top-0 bg-gradient-to-br from-purple-100 to-purple-200 text-[#8100D1] p-1 rounded-full border border-purple-300 shadow-sm" title="Disematkan">
+                                        <div className="absolute right-0 top-0 bg-gradient-to-br from-purple-100 to-purple-200 text-[#8100D1] p-1 rounded-full border border-purple-300 dark:border-purple-800 shadow-sm" title="Disematkan">
                                             <svg className="w-3.5 h-3.5 transform rotate-45" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>
                                         </div>
                                     )}
@@ -459,23 +461,23 @@ export default function Messages() {
                         ))
                     ) : (
                         <div className="text-center p-8 flex flex-col items-center">
-                            <p className="text-gray-500 text-sm mb-4">{showArchived ? 'Belum ada obrolan yang diarsipkan.' : 'Belum ada obrolan.'}</p>
-                            {!showArchived && currentUser?.role !== 'seeker' && <button onClick={() => setIsComposeOpen(true)} className="px-4 py-2 bg-purple-100 text-[#8100D1] text-xs font-bold rounded-full hover:bg-purple-200 transition">Mulai Percakapan Baru</button>}
+                            <p className="text-gray-500 text-sm mb-4">{showArchived ? t('messages.empty_archived') : t('messages.empty_chats')}</p>
+                            {!showArchived && currentUser?.role !== 'seeker' && <button onClick={() => setIsComposeOpen(true)} className="px-4 py-2 bg-purple-100 text-[#8100D1] text-xs font-bold rounded-full hover:bg-purple-200 transition">{t('messages.start_chat')}</button>}
                         </div>
                     )}
                 </div>
             </div>
 
             {/* AREA OBROLAN */}
-            <div className="flex-1 flex flex-col bg-gray-50/50 relative">
+            <div className="flex-1 flex flex-col bg-gray-50/50 dark:bg-slate-900/50 relative">
                 {activeRoom ? (
                     <>
-                        <div className="bg-white p-5 border-b border-gray-200 flex items-center gap-4 shadow-sm z-10">
-                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center font-bold text-[#8100D1] overflow-hidden border border-purple-200">
+                        <div className="bg-white dark:bg-slate-900 p-5 border-b border-gray-200 dark:border-slate-800 flex items-center gap-4 shadow-sm z-10">
+                            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[#8100D1] overflow-hidden border border-purple-200 dark:border-slate-700">
                                 {activeRoom.avatar_url ? <img src={activeRoom.avatar_url} className="w-full h-full object-cover" alt="" /> : activeRoom.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <h3 className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     {activeRoom.name}
                                     {onlineUsers.includes(activeRoom.id) && (
                                         <span className="w-2.5 h-2.5 bg-green-500 rounded-full inline-block shadow-sm" title="Online"></span>
@@ -725,12 +727,14 @@ export default function Messages() {
                         )}
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                        <div className="w-24 h-24 bg-purple-50 text-[#8100D1] rounded-full flex items-center justify-center mb-5 shadow-inner">
-                            <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    <div className="flex-1 flex flex-col items-center justify-center p-10 bg-white m-4 rounded-3xl shadow-sm border border-gray-100">
+                        <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mb-6">
+                            <svg className="w-12 h-12 text-[#8100D1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800">Ruang Obrolan LockER</h3>
-                        <p className="text-gray-500 text-sm max-w-sm mx-auto mt-2 leading-relaxed">Pilih salah satu kontak di sisi kiri, atau ketuk ikon pena di atas untuk mencari pengguna baru dan memulai obrolan.</p>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('messages.empty_state_title')}</h2>
+                        <p className="text-gray-500 text-center max-w-sm">
+                            {t('messages.empty_state_desc')}
+                        </p>
                     </div>
                 )}
             </div>

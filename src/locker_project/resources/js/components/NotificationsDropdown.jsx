@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 // Internal component for swipeable list item
-const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo }) => {
+const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo, t }) => {
     const [translateX, setTranslateX] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const startXRef = useRef(null);
@@ -46,7 +47,7 @@ const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo }) => {
                 <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span className="text-[10px] font-medium">Hapus</span>
+                <span className="text-[10px] font-medium">{t('notifications.delete')}</span>
             </div>
 
             {/* Foreground Content */}
@@ -72,7 +73,7 @@ const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo }) => {
                 <button
                     onClick={(e) => { e.stopPropagation(); onDelete(notif.id); }}
                     className="absolute top-4 right-4 text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all hidden sm:block"
-                    title="Hapus"
+                    title={t('notifications.delete')}
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -81,14 +82,14 @@ const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo }) => {
 
                 <div className="flex items-center gap-2 pr-6">
                     <p className={`text-sm tracking-tight ${!notif.read_at ? 'text-gray-900 font-bold' : 'text-gray-500 font-medium'}`}>
-                        {notif.data?.title || (notif.data?.message ? 'Pesan Baru' : 'Notifikasi')}
+                        {notif.data?.title || (notif.data?.message ? t('notifications.new_message') : t('notifications.title'))}
                     </p>
                     {!notif.read_at && (
                         <span className="w-1.5 h-1.5 bg-[#8100D1] rounded-full"></span>
                     )}
                 </div>
                 <p className={`text-xs mt-1 line-clamp-2 pr-4 ${!notif.read_at ? 'text-gray-600' : 'text-gray-400'}`}>
-                    {notif.data?.message || 'Anda memiliki notifikasi baru.'}
+                    {notif.data?.message || t('notifications.default_message')}
                 </p>
                 <p className={`text-[11px] mt-2.5 ${!notif.read_at ? 'text-[#8100D1] font-semibold' : 'text-gray-400 font-medium'}`}>
                     {timeAgo(notif.created_at)}
@@ -103,6 +104,7 @@ export default function NotificationsDropdown() {
     const [unreadCount, setUnreadCount] = useState(0);
     const notifRef = useRef(null);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     useEffect(() => {
         fetchNotifications();
@@ -126,7 +128,7 @@ export default function NotificationsDropdown() {
                 setNotifications(res.data.notifications || []);
                 setUnreadCount(res.data.unread_count || 0);
             })
-            .catch(err => console.error("Gagal memuat notifikasi", err));
+            .catch(err => console.error("Failed to load notifications", err));
     };
 
     const handleMarkAsRead = (id = null) => {
@@ -140,7 +142,7 @@ export default function NotificationsDropdown() {
         setNotifications(prev => prev.filter(n => n.id !== id));
         axios.delete(`/api/notifications/${id}`)
             .then(() => fetchNotifications())
-            .catch(err => console.error("Gagal menghapus notifikasi", err));
+            .catch(err => console.error("Failed to delete notification", err));
     };
 
     const handleNotifClick = (notif) => {
@@ -172,13 +174,13 @@ export default function NotificationsDropdown() {
         const date = new Date(dateString);
         const now = new Date();
         const seconds = Math.floor((now - date) / 1000);
-        if (seconds < 60) return "Baru saja";
+        if (seconds < 60) return t('notifications.just_now');
         const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes} menit yang lalu`;
+        if (minutes < 60) return t('notifications.minutes_ago', { count: minutes });
         const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} jam yang lalu`;
+        if (hours < 24) return t('notifications.hours_ago', { count: hours });
         const days = Math.floor(hours / 24);
-        return `${days} hari yang lalu`;
+        return t('notifications.days_ago', { count: days });
     };
 
     return (
@@ -186,7 +188,7 @@ export default function NotificationsDropdown() {
             <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
                 className="relative w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-[#8100D1] hover:bg-purple-50 transition-colors focus:outline-none"
-                title="Notifikasi"
+                title={t('notifications.title')}
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -202,7 +204,7 @@ export default function NotificationsDropdown() {
             {isNotifOpen && (
                 <div className="absolute right-0 top-12 mt-2 w-80 bg-white border border-gray-100 rounded-xl shadow-xl z-50 animate-fade-in-down overflow-hidden flex flex-col max-h-96">
                     <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h3 className="font-bold text-gray-800 text-sm">Notifikasi</h3>
+                        <h3 className="font-bold text-gray-800 text-sm">{t('notifications.title')}</h3>
                     </div>
                     <div className="overflow-y-auto flex-1 p-0 overflow-x-hidden">
                         {notifications.length === 0 ? (
@@ -210,7 +212,7 @@ export default function NotificationsDropdown() {
                                 <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
                                     <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                 </div>
-                                <p className="text-gray-500 text-sm">Belum ada notifikasi baru.</p>
+                                <p className="text-gray-500 text-sm">{t('notifications.empty')}</p>
                             </div>
                         ) : (
                             notifications.map(notif => (
@@ -220,6 +222,7 @@ export default function NotificationsDropdown() {
                                     onClick={handleNotifClick}
                                     onDelete={handleDelete}
                                     timeAgo={timeAgo}
+                                    t={t}
                                 />
                             ))
                         )}
@@ -227,7 +230,7 @@ export default function NotificationsDropdown() {
                     {notifications.length > 0 && (
                         <div className="p-3 bg-gray-50 border-t border-gray-100 text-center flex justify-between items-center">
                             <button onClick={() => setIsNotifOpen(false)} className="text-xs font-semibold text-gray-600 hover:text-black">
-                                Tutup
+                                {t('notifications.close')}
                             </button>
                         </div>
                     )}

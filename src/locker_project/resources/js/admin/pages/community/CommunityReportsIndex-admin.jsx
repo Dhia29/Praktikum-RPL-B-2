@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function CommunityReportsIndexAdmin() {
+    const { t } = useTranslation();
     const { adminUser } = useOutletContext() || {};
     const [activeTab, setActiveTab] = useState('live_posts'); // 'live_posts' or 'reports'
     const [reports, setReports] = useState([]);
@@ -59,18 +61,18 @@ export default function CommunityReportsIndexAdmin() {
     }, [adminUser]);
 
     const handleDeletePost = async (postId) => {
-        if (!window.confirm('Yakin ingin menghapus postingan ini secara paksa? (Aksi ini tidak bisa dibatalkan)')) return;
+        if (!window.confirm(t('admin.community.confirm_delete_post'))) return;
         
         try {
             await axios.delete(`/api/admin/community/reports/${postId}/post`);
-            alert('Postingan berhasil dihapus.');
+            alert(t('admin.community.alert_delete_success'));
             if (activeTab === 'reports') {
                 fetchReports();
             } else {
                 fetchLivePosts();
             }
         } catch (error) {
-            alert('Gagal menghapus postingan.');
+            alert(t('admin.community.alert_delete_fail'));
         }
     };
 
@@ -106,8 +108,8 @@ export default function CommunityReportsIndexAdmin() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-gray-100 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">Pengawasan Komunitas</h3>
-                    <p className="text-sm text-gray-500 mt-1">Pantau seluruh aktivitas postingan atau kelola laporan yang masuk.</p>
+                    <h3 className="text-lg font-bold text-gray-800">{t('admin.community.title')}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('admin.community.desc')}</p>
                 </div>
                 
                 {/* Tabs */}
@@ -116,13 +118,13 @@ export default function CommunityReportsIndexAdmin() {
                         onClick={() => setActiveTab('live_posts')}
                         className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'live_posts' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
-                        Live Update Postingan
+                        {t('admin.community.tab_live')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('reports')}
                         className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === 'reports' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
-                        Laporan Masuk
+                        {t('admin.community.tab_reports')}
                     </button>
                 </div>
             </div>
@@ -134,7 +136,7 @@ export default function CommunityReportsIndexAdmin() {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-[#8100D1] focus:border-[#8100D1] block px-3 py-2 outline-none"
                     >
-                        <option value="all">Semua Status</option>
+                        <option value="all">{t('admin.community.filter_all')}</option>
                         <option value="pending">Pending</option>
                         <option value="under_review">Under Review</option>
                         <option value="resolved">Resolved</option>
@@ -149,21 +151,21 @@ export default function CommunityReportsIndexAdmin() {
                         <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
                             {activeTab === 'reports' ? (
                                 <>
-                                    <th className="p-4 border-b border-gray-100">ID Laporan / Alasan</th>
-                                    <th className="p-4 border-b border-gray-100">Pelapor</th>
-                                    <th className="p-4 border-b border-gray-100">Pemilik Postingan</th>
-                                    <th className="p-4 border-b border-gray-100">Tanggal</th>
-                                    <th className="p-4 border-b border-gray-100">Status</th>
-                                    <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.reports_col_id')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.reports_col_reporter')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.reports_col_owner')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.reports_col_date')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.reports_col_status')}</th>
+                                    <th className="p-4 border-b border-gray-100 text-right">{t('admin.community.reports_col_action')}</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="p-4 border-b border-gray-100 w-[40%]">Isi Konten</th>
-                                    <th className="p-4 border-b border-gray-100">Pemilik</th>
-                                    <th className="p-4 border-b border-gray-100">Lokasi</th>
-                                    <th className="p-4 border-b border-gray-100 text-center">Jlh Laporan</th>
-                                    <th className="p-4 border-b border-gray-100">Waktu</th>
-                                    <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                                    <th className="p-4 border-b border-gray-100 w-[40%]">{t('admin.community.posts_col_content')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.posts_col_owner')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.posts_col_location')}</th>
+                                    <th className="p-4 border-b border-gray-100 text-center">{t('admin.community.posts_col_reports')}</th>
+                                    <th className="p-4 border-b border-gray-100">{t('admin.community.posts_col_time')}</th>
+                                    <th className="p-4 border-b border-gray-100 text-right">{t('admin.community.posts_col_action')}</th>
                                 </>
                             )}
                         </tr>
@@ -171,12 +173,12 @@ export default function CommunityReportsIndexAdmin() {
                     <tbody className="text-sm divide-y divide-gray-100">
                         {loading ? (
                             <tr>
-                                <td colSpan="6" className="p-8 text-center text-gray-500">Memuat data...</td>
+                                <td colSpan="6" className="p-8 text-center text-gray-500">{t('admin.community.loading')}</td>
                             </tr>
                         ) : activeTab === 'reports' ? (
                             filteredReports.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="p-8 text-center text-gray-500">Belum ada laporan komunitas saat ini.</td>
+                                    <td colSpan="6" className="p-8 text-center text-gray-500">{t('admin.community.reports_empty')}</td>
                                 </tr>
                             ) : (
                                 filteredReports.map(report => (
@@ -201,7 +203,7 @@ export default function CommunityReportsIndexAdmin() {
                                         </td>
                                         <td className="p-4 text-right flex items-center justify-end gap-2">
                                             <Link to={`/community/reports/${report.id}`} className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                                Detail
+                                                {t('admin.community.reports_detail')}
                                             </Link>
                                         </td>
                                     </tr>
@@ -210,7 +212,7 @@ export default function CommunityReportsIndexAdmin() {
                         ) : (
                             posts.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="p-8 text-center text-gray-500">Belum ada postingan sama sekali.</td>
+                                    <td colSpan="6" className="p-8 text-center text-gray-500">{t('admin.community.posts_empty')}</td>
                                 </tr>
                             ) : (
                                 posts.map(post => (
@@ -218,7 +220,7 @@ export default function CommunityReportsIndexAdmin() {
                                         <td className="p-4">
                                             <p className="text-gray-800 text-sm line-clamp-2 mb-1">{post.konten}</p>
                                             {post.media_url && (
-                                                <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">Terdapat Media ({post.media_type})</span>
+                                                <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100">{t('admin.community.posts_has_media', { type: post.media_type })}</span>
                                             )}
                                         </td>
                                         <td className="p-4">
@@ -255,7 +257,7 @@ export default function CommunityReportsIndexAdmin() {
                                                 onClick={() => handleDeletePost(post.id)}
                                                 className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
                                             >
-                                                Hapus
+                                                {t('admin.community.posts_delete')}
                                             </button>
                                         </td>
                                     </tr>

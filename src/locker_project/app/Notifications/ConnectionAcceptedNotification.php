@@ -44,8 +44,8 @@ class ConnectionAcceptedNotification extends Notification implements ShouldBroad
     {
         return [
             'type' => 'connection_accepted',
-            'title' => 'Koneksi Diterima',
-            'message' => "{$this->accepterName} menerima permintaan koneksi Anda.",
+            'title' => 'Connection Accepted',
+            'message' => "{$this->accepterName} accepted your connection request.",
             'action_url' => "/profile"
         ];
     }

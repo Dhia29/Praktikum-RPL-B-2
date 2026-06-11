@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginAdmin() {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +26,7 @@ export default function LoginAdmin() {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
-                setError('Login failed. Please check your credentials.');
+                setError(t('admin.login.login_failed'));
             }
         } finally {
             setLoading(false);
@@ -37,7 +39,7 @@ export default function LoginAdmin() {
                 
                 <div className="text-center mb-8">
                     <h2 className="text-[32px] font-bold text-[#1a1f36] tracking-tight mb-2">LockER</h2>
-                    <p className="text-[#4f566b] text-base">Administrator Access Portal</p>
+                    <p className="text-[#4f566b] text-base">{t('admin.login.portal')}</p>
                 </div>
 
                 {error && (
@@ -48,18 +50,18 @@ export default function LoginAdmin() {
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label htmlFor="email" className="block text-[14px] font-semibold text-[#1a1f36] mb-2">Alamat Email</label>
-                        <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus placeholder="nama@email.com"
+                        <label htmlFor="email" className="block text-[14px] font-semibold text-[#1a1f36] mb-2">{t('admin.login.email_label')}</label>
+                        <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus placeholder={t('admin.login.email_placeholder')}
                             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all text-sm placeholder-gray-400" />
                     </div>
 
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label htmlFor="password" className="block text-[14px] font-semibold text-[#1a1f36]">Password</label>
-                            <a href="#" className="text-[13px] font-medium text-blue-600 hover:underline">Lupa password?</a>
+                            <label htmlFor="password" className="block text-[14px] font-semibold text-[#1a1f36]">{t('admin.login.password_label')}</label>
+                            <a href="#" className="text-[13px] font-medium text-blue-600 hover:underline">{t('admin.login.forgot_password')}</a>
                         </div>
                         <div className="relative">
-                            <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Masukkan password Anda"
+                            <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder={t('admin.login.password_placeholder')}
                                 className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition-all text-sm placeholder-gray-400 pr-10" />
                             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                                 {showPassword ? (
@@ -72,7 +74,7 @@ export default function LoginAdmin() {
                     </div>
 
                     <button type="submit" disabled={loading} className="w-full text-white font-semibold py-3.5 px-4 rounded-lg transition-colors mt-2 bg-[#1C5BFF] hover:bg-blue-700 disabled:opacity-50">
-                        {loading ? 'Memproses...' : 'Masuk'}
+                        {loading ? t('admin.login.processing') : t('admin.login.sign_in')}
                     </button>
                 </form>
 
@@ -83,10 +85,10 @@ export default function LoginAdmin() {
                 <div className="text-center">
                     <div className="inline-flex items-center justify-center gap-2 text-[14px] text-gray-500">
                         <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                        Secure Administrator Portal
+                        {t('admin.login.secure_portal')}
                     </div>
                     <div className="mt-4">
-                        <a href="/" className="text-sm font-medium text-blue-600 hover:underline">Kembali ke Beranda Utama</a>
+                        <a href="/" className="text-sm font-medium text-blue-600 hover:underline">{t('admin.login.back_home')}</a>
                     </div>
                 </div>
             </div>

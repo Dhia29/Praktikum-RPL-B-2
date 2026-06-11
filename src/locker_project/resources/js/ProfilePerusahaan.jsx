@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cropper from 'react-easy-crop';
+import PageHeader from './components/PageHeader';
 
 // --- FUNGSI UTILITY: MEMOTONG GAMBAR (CANVAS) ---
 const getCroppedImg = async (imageSrc, pixelCrop) => {
@@ -195,12 +196,7 @@ export default function ProfilePerusahaan() {
             {isUploading && (<div className="fixed inset-0 z-[150] flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm"><div className="w-12 h-12 border-4 border-gray-200 border-t-[#8100D1] rounded-full animate-spin mb-4"></div><span className="text-[#8100D1] font-bold text-lg">Memproses...</span></div>)}
 
             {/* --- HEADER NAV --- */}
-            <div className="sticky top-0 z-[60] bg-white border-b border-gray-200 flex items-center gap-4 px-4 sm:px-6 h-16 w-full">
-                <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-600 hover:text-[#8100D1] transition-colors rounded-full hover:bg-purple-50">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                </button>
-                <span className="text-xl font-black text-[#8100D1] tracking-tight">LockER</span>
-            </div>
+            <PageHeader />
 
             <main className="max-w-[900px] mx-auto w-full pt-6 px-4 pb-20 flex flex-col gap-6">
                 

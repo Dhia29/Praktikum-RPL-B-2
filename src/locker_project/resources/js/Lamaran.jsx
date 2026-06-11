@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import LamaranPerusahaan from './LamaranPerusahaan';
+import { useTranslation } from 'react-i18next';
 
 export default function Lamaran() {
     const navigate = useNavigate();
     const { currentUser } = useOutletContext() || {};
+    const { t, i18n } = useTranslation();
 
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +58,8 @@ export default function Lamaran() {
 
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        return new Date(dateString).toLocaleDateString('id-ID', options);
+        const locale = i18n.language === 'en' ? 'en-US' : 'id-ID';
+        return new Date(dateString).toLocaleDateString(locale, options);
     };
 
     const getStatusStyle = (status) => {
@@ -82,22 +85,28 @@ export default function Lamaran() {
 
             {/* Header Internal Card */}
             <div className="px-6 py-5 border-b border-gray-100 bg-white">
-                <h2 className="text-xl font-bold text-gray-900">Riwayat Lamaran</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('applications.history_title')}</h2>
             </div>
 
             <div className="p-6 md:p-8 flex-1 flex flex-col">
                 <div className="flex rounded-xl border border-gray-200 p-1 mb-8 overflow-x-auto hide-scrollbar">
-                    {['Semua', 'Antrian', 'Diproses', 'Interview', 'Arsip'].map((tab) => (
+                    {[
+                        { key: 'Semua', label: t('applications.tab_all') },
+                        { key: 'Antrian', label: t('applications.tab_queue') },
+                        { key: 'Diproses', label: t('applications.tab_processing') },
+                        { key: 'Interview', label: t('applications.tab_interview') },
+                        { key: 'Arsip', label: t('applications.tab_archive') },
+                    ].map((tab) => (
                         <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
                             className={`flex-1 min-w-[100px] text-sm font-bold py-3 text-center rounded-lg transition-all ${
-                                activeTab === tab
+                                activeTab === tab.key
                                     ? 'bg-[#9510d8] text-white shadow-sm'
                                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                             }`}
                         >
-                            {tab}
+                            {tab.label}
                         </button>
                     ))}
                 </div>
@@ -106,7 +115,7 @@ export default function Lamaran() {
                 {isLoading ? (
                     <div className="flex-1 flex flex-col items-center justify-center py-20">
                         <div className="w-10 h-10 border-4 border-gray-200 border-t-[#8100D1] rounded-full animate-spin mb-4"></div>
-                        <p className="text-gray-500 font-medium">Memuat riwayat lamaran...</p>
+                        <p className="text-gray-500 font-medium">{t('applications.loading')}</p>
                     </div>
                 ) : filteredApplications.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
@@ -123,9 +132,9 @@ export default function Lamaran() {
                                     <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#8100D1] transition-colors line-clamp-1">{app.job_title}</h3>
                                     <p className="text-sm font-medium text-gray-700 mt-1">{app.company_name}</p>
                                     <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                                        <span className="flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{app.job_location || 'Lokasi tidak ditentukan'}</span>
+                                        <span className="flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{app.job_location || t('applications.no_location')}</span>
                                         <span>•</span>
-                                        <span className="flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>Dilamar: {formatDate(app.submitted_at)}</span>
+                                        <span className="flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{t('applications.applied_on')} {formatDate(app.submitted_at)}</span>
                                     </div>
                                 </div>
                                 <div className="mt-2 sm:mt-0 self-start sm:self-center">
@@ -142,7 +151,7 @@ export default function Lamaran() {
                                 >
                                     <div className="flex items-center gap-2">
                                         <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
-                                        <span className="font-semibold text-gray-700 text-sm">Arsip Lamaran Ditolak ({filteredApplications.filter(app => app.status === 'Ditolak').length})</span>
+                                        <span className="font-semibold text-gray-700 text-sm">{t('applications.rejected_archive')} ({filteredApplications.filter(app => app.status === 'Ditolak').length})</span>
                                     </div>
                                     <svg className={`w-5 h-5 text-gray-400 transition-transform ${showRejected ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
@@ -180,12 +189,12 @@ export default function Lamaran() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">Belum Ada Lamaran</h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">{t('applications.empty_title')}</h3>
                         <p className="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
-                            Anda belum melamar pekerjaan apa pun di kategori ini. Mulai jelajahi lowongan yang sesuai dengan keahlian Anda sekarang!
+                            {t('applications.empty_desc')}
                         </p>
                         <button onClick={() => navigate('/loker')} className="px-8 py-3 bg-[#9510d8] text-white font-bold rounded-xl hover:bg-purple-800 transition shadow-sm">
-                            Cari Lowongan Kerja
+                            {t('applications.search_jobs')}
                         </button>
                     </div>
                 )}

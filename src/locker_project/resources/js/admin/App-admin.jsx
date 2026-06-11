@@ -4,7 +4,7 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
-import '../echo';
+import '../assets/echo';
 
 import AppLayoutAdmin from './layouts/AppLayout-admin';
 import LoginAdmin from './pages/Login-admin';

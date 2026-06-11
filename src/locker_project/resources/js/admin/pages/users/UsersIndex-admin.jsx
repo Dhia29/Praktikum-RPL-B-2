@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function UsersIndexAdmin() {
+    const { t } = useTranslation();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -27,18 +29,18 @@ export default function UsersIndexAdmin() {
             fetchUsers();
         } catch (error) {
             console.error("Failed to toggle status", error);
-            alert("Gagal mengubah status akun");
+            alert(t('admin.users.alert_toggle_fail'));
         }
     };
 
     const handleDelete = async (userId) => {
-        if (!window.confirm('Apakah Anda yakin ingin menghapus pengguna ini secara permanen?')) return;
+        if (!window.confirm(t('admin.users.confirm_delete'))) return;
         try {
             await axios.delete(`/api/admin/users/${userId}`);
             fetchUsers();
         } catch (error) {
             console.error("Failed to delete user", error);
-            alert("Gagal menghapus pengguna");
+            alert(t('admin.users.alert_delete_fail'));
         }
     };
 
@@ -46,8 +48,8 @@ export default function UsersIndexAdmin() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-gray-100 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">Daftar Pengguna (Pencari Kerja)</h3>
-                    <p className="text-sm text-gray-500 mt-1">Kelola akses dan status akun pencari kerja.</p>
+                    <h3 className="text-lg font-bold text-gray-800">{t('admin.users.title')}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('admin.users.desc')}</p>
                 </div>
             </div>
 
@@ -55,20 +57,20 @@ export default function UsersIndexAdmin() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                            <th className="p-4 border-b border-gray-100">Informasi Akun</th>
-                            <th className="p-4 border-b border-gray-100">Peran</th>
-                            <th className="p-4 border-b border-gray-100">Status & Verifikasi</th>
-                            <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.users.col_account')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.users.col_role')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.users.col_status')}</th>
+                            <th className="p-4 border-b border-gray-100 text-right">{t('admin.users.col_action')}</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm divide-y divide-gray-100">
                         {loading ? (
                             <tr>
-                                <td colSpan="4" className="p-8 text-center text-gray-500">Memuat data pengguna...</td>
+                                <td colSpan="4" className="p-8 text-center text-gray-500">{t('admin.users.loading')}</td>
                             </tr>
                         ) : users.length === 0 ? (
                             <tr>
-                                <td colSpan="4" className="p-8 text-center text-gray-500">Tidak ada pengguna yang ditemukan.</td>
+                                <td colSpan="4" className="p-8 text-center text-gray-500">{t('admin.users.empty')}</td>
                             </tr>
                         ) : (
                             users.map(user => (
@@ -88,18 +90,18 @@ export default function UsersIndexAdmin() {
                                     </td>
                                     <td className="p-4">
                                         <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
-                                            Pencari Kerja
+                                            {t('admin.users.role_seeker')}
                                         </span>
                                     </td>
                                     <td className="p-4">
                                         <div className="flex flex-col gap-1.5 items-start">
                                             {user.status === 'Aktif' || user.status === 'active' ? (
                                                 <span className="flex items-center gap-1 text-green-600 font-medium text-xs">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Aktif
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> {t('admin.users.status_active')}
                                                 </span>
                                             ) : (
                                                 <span className="flex items-center gap-1 text-red-600 font-medium text-xs">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Nonaktif
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> {t('admin.users.status_inactive')}
                                                 </span>
                                             )}
                                         </div>
@@ -107,7 +109,7 @@ export default function UsersIndexAdmin() {
                                     <td className="p-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
 
-                                            <button onClick={() => handleToggleStatus(user.id)} title={user.status === 'active' ? 'Nonaktifkan Akun' : 'Aktifkan Akun'} className={`p-1.5 ${user.status === 'active' ? 'text-orange-500 hover:bg-orange-50 hover:border-orange-200' : 'text-green-600 hover:bg-green-50 hover:border-green-200'} rounded-lg transition-colors border border-transparent`}>
+                                            <button onClick={() => handleToggleStatus(user.id)} title={user.status === 'active' ? t('admin.users.btn_deactivate') : t('admin.users.btn_activate')} className={`p-1.5 ${user.status === 'active' ? 'text-orange-500 hover:bg-orange-50 hover:border-orange-200' : 'text-green-600 hover:bg-green-50 hover:border-green-200'} rounded-lg transition-colors border border-transparent`}>
                                                 {user.status === 'active' ? (
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                                 ) : (
@@ -115,7 +117,7 @@ export default function UsersIndexAdmin() {
                                                 )}
                                             </button>
 
-                                            <button onClick={() => handleDelete(user.id)} title="Hapus Akun Permanen" className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200">
+                                            <button onClick={() => handleDelete(user.id)} title={t('admin.users.btn_delete')} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                             </button>
                                         </div>
@@ -128,10 +130,10 @@ export default function UsersIndexAdmin() {
             </div>
 
             <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500 bg-gray-50">
-                <span>Menampilkan {users.length} pengguna</span>
+                <span>{t('admin.users.showing', { count: users.length })}</span>
                 <div className="flex gap-1">
-                    <button className="px-3 py-1 bg-white border border-gray-200 rounded text-gray-400 cursor-not-allowed">Sebelumnya</button>
-                    <button className="px-3 py-1 bg-white border border-gray-200 rounded hover:bg-gray-50 text-gray-700">Selanjutnya</button>
+                    <button className="px-3 py-1 bg-white border border-gray-200 rounded text-gray-400 cursor-not-allowed">{t('admin.users.prev')}</button>
+                    <button className="px-3 py-1 bg-white border border-gray-200 rounded hover:bg-gray-50 text-gray-700">{t('admin.users.next')}</button>
                 </div>
             </div>
         </div>

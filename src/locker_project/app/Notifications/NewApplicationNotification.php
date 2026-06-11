@@ -48,8 +48,8 @@ class NewApplicationNotification extends Notification implements ShouldBroadcast
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Lamaran Baru Masuk',
-            'message' => "{$this->jobseekerName} telah melamar untuk posisi {$this->jobTitle}.",
+            'title' => 'New Application Received',
+            'message' => "{$this->jobseekerName} has applied for the {$this->jobTitle} position.",
             'action_url' => "/lamaran",
         ];
     }
