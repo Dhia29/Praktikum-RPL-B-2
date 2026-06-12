@@ -81,16 +81,18 @@ export default function LamaranPerusahaan() {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[65vh] flex flex-col">
+        <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden min-h-[65vh] flex flex-col relative animate-fade-in-up transition-colors duration-500">
+            {/* Background Decorative Glow (Optional, since this is wrapped in Layout) */}
+            <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
             {/* Header Internal Card */}
-            <div className="px-6 py-5 border-b border-gray-100 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-xl font-bold text-gray-900">Daftar Pelamar Masuk</h2>
+            <div className="px-6 py-5 border-b border-gray-100 dark:border-white/5 bg-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Daftar Pelamar Masuk</h2>
                 <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-500">Filter:</label>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Filter:</label>
                     <select 
                         value={filterJob}
                         onChange={(e) => setFilterJob(e.target.value)}
-                        className="text-sm border-gray-300 rounded-lg focus:ring-[#8100D1] focus:border-[#8100D1]"
+                        className="text-sm border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 rounded-lg focus:ring-[#8100D1] focus:border-[#8100D1]"
                     >
                         {uniqueJobs.map(job => (
                             <option key={job} value={job}>{job}</option>
@@ -108,10 +110,10 @@ export default function LamaranPerusahaan() {
                 ) : filteredApplications.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
                         {filteredApplications.map((app) => (
-                            <div key={app.id} className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 hover:border-purple-300 transition-all group flex flex-col sm:flex-row gap-5 items-start sm:items-center">
+                            <div key={app.id} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-500/30 transition-all group flex flex-col sm:flex-row gap-5 items-start sm:items-center cursor-pointer">
                                 <div 
                                     onClick={() => navigate(`/profile/${app.seeker_user_id}`)} 
-                                    className="w-16 h-16 bg-gray-100 rounded-full flex-shrink-0 flex items-center justify-center border border-gray-200 overflow-hidden cursor-pointer hover:ring-2 hover:ring-purple-200 hover:border-purple-300 transition-all"
+                                    className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-slate-700 overflow-hidden cursor-pointer hover:ring-2 hover:ring-purple-200 hover:border-purple-300 transition-all"
                                 >
                                     {app.seeker_avatar ? (
                                         <img src={app.seeker_avatar} alt="Avatar" className="w-full h-full object-cover" />
@@ -123,7 +125,7 @@ export default function LamaranPerusahaan() {
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-1">
                                         <h3 
                                             onClick={() => navigate(`/profile/${app.seeker_user_id}`)}
-                                            className="text-lg font-bold text-gray-900 line-clamp-1 cursor-pointer hover:text-[#8100D1] transition-colors"
+                                            className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1 cursor-pointer hover:text-[#8100D1] dark:hover:text-[#a055db] transition-colors"
                                         >
                                             {app.seeker_name}
                                         </h3>
@@ -131,9 +133,9 @@ export default function LamaranPerusahaan() {
                                             {app.status}
                                         </span>
                                     </div>
-                                    <p className="text-sm font-medium text-gray-700">Posisi: {app.job_title}</p>
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-400">Posisi: {app.job_title}</p>
                                     
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-slate-700">
                                         <div className="flex gap-2">
                                             <span className="font-semibold w-24">Melamar Tgl:</span>
                                             <span>{formatDate(app.submitted_at)}</span>
@@ -150,12 +152,12 @@ export default function LamaranPerusahaan() {
                                     
                                     <div className="mt-4 flex flex-wrap gap-2 items-center">
                                         {app.cv_snapshot_url && (
-                                            <a href={app.cv_snapshot_url} target="_blank" rel="noopener noreferrer" className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors border border-gray-200 flex items-center gap-1">
+                                            <a href={app.cv_snapshot_url} target="_blank" rel="noopener noreferrer" className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-colors border border-gray-200 dark:border-slate-600 flex items-center gap-1">
                                                 Lihat CV
                                             </a>
                                         )}
                                         {app.ijazah_url && (
-                                            <a href={`/storage/${app.ijazah_url}`} target="_blank" rel="noopener noreferrer" className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors border border-gray-200 flex items-center gap-1">
+                                            <a href={`/storage/${app.ijazah_url}`} target="_blank" rel="noopener noreferrer" className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-colors border border-gray-200 dark:border-slate-600 flex items-center gap-1">
                                                 Lihat Ijazah
                                             </a>
                                         )}
@@ -213,8 +215,8 @@ export default function LamaranPerusahaan() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">Belum Ada Pelamar</h3>
-                        <p className="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Belum Ada Pelamar</h3>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 text-sm leading-relaxed">
                             Lowongan Anda belum menerima lamaran apapun pada filter yang dipilih. Harap periksa kembali nanti.
                         </p>
                     </div>

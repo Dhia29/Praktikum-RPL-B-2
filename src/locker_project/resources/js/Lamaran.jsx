@@ -81,15 +81,17 @@ export default function Lamaran() {
 
     return (
         // LANGSUNG DIV KOTAK PUTIH, JANGAN ADA TAG <Layout>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[65vh] flex flex-col">
+        <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden min-h-[65vh] flex flex-col relative animate-fade-in-up transition-colors duration-500">
+            {/* Background Decorative Glow (Optional, since this is wrapped in Layout) */}
+            <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
 
             {/* Header Internal Card */}
-            <div className="px-6 py-5 border-b border-gray-100 bg-white">
-                <h2 className="text-xl font-bold text-gray-900">{t('applications.history_title')}</h2>
+            <div className="px-6 py-5 border-b border-gray-100 dark:border-white/5 bg-transparent">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('applications.history_title')}</h2>
             </div>
 
             <div className="p-6 md:p-8 flex-1 flex flex-col">
-                <div className="flex rounded-xl border border-gray-200 p-1 mb-8 overflow-x-auto hide-scrollbar">
+                <div className="flex rounded-xl border border-gray-200 dark:border-slate-800 p-1 mb-8 overflow-x-auto hide-scrollbar bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
                     {[
                         { key: 'Semua', label: t('applications.tab_all') },
                         { key: 'Antrian', label: t('applications.tab_queue') },
@@ -103,7 +105,7 @@ export default function Lamaran() {
                             className={`flex-1 min-w-[100px] text-sm font-bold py-3 text-center rounded-lg transition-all ${
                                 activeTab === tab.key
                                     ? 'bg-[#9510d8] text-white shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800'
                             }`}
                         >
                             {tab.label}
@@ -120,8 +122,8 @@ export default function Lamaran() {
                 ) : filteredApplications.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
                         {filteredApplications.filter(app => app.status !== 'Ditolak').map((app) => (
-                            <div key={app.id} className="bg-white rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group flex flex-col sm:flex-row gap-5 items-start sm:items-center cursor-pointer">
-                                <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 overflow-hidden">
+                            <div key={app.id} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-500/30 hover:shadow-md transition-all group flex flex-col sm:flex-row gap-5 items-start sm:items-center cursor-pointer">
+                                <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-slate-700 overflow-hidden">
                                     {app.company_logo ? (
                                         <img src={app.company_logo} alt="Logo" className="w-full h-full object-cover" />
                                     ) : (
@@ -129,9 +131,9 @@ export default function Lamaran() {
                                     )}
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#8100D1] transition-colors line-clamp-1">{app.job_title}</h3>
-                                    <p className="text-sm font-medium text-gray-700 mt-1">{app.company_name}</p>
-                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-[#8100D1] transition-colors line-clamp-1">{app.job_title}</h3>
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">{app.company_name}</p>
+                                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
                                         <span className="flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{app.job_location || t('applications.no_location')}</span>
                                         <span>•</span>
                                         <span className="flex items-center gap-1"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{t('applications.applied_on')} {formatDate(app.submitted_at)}</span>
@@ -144,14 +146,14 @@ export default function Lamaran() {
                         ))}
 
                         {filteredApplications.some(app => app.status === 'Ditolak') && (
-                            <div className="mt-4 border-t border-gray-100 pt-4">
+                            <div className="mt-4 border-t border-gray-100 dark:border-white/5 pt-4">
                                 <button 
                                     onClick={() => setShowRejected(!showRejected)}
-                                    className="flex items-center justify-between w-full p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200 focus:outline-none"
+                                    className="flex items-center justify-between w-full p-3 bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-colors border border-gray-200 dark:border-slate-700 focus:outline-none"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
-                                        <span className="font-semibold text-gray-700 text-sm">{t('applications.rejected_archive')} ({filteredApplications.filter(app => app.status === 'Ditolak').length})</span>
+                                        <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                                        <span className="font-semibold text-gray-700 dark:text-gray-300 text-sm">{t('applications.rejected_archive')} ({filteredApplications.filter(app => app.status === 'Ditolak').length})</span>
                                     </div>
                                     <svg className={`w-5 h-5 text-gray-400 transition-transform ${showRejected ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
@@ -159,9 +161,9 @@ export default function Lamaran() {
                                 {showRejected && (
                                     <div className="grid grid-cols-1 gap-3 mt-3">
                                         {filteredApplications.filter(app => app.status === 'Ditolak').map(app => (
-                                            <div key={app.id} className="bg-gray-50 rounded-xl p-4 shadow-sm border border-gray-200 opacity-60 hover:opacity-100 transition-opacity flex justify-between items-center group cursor-pointer">
+                                            <div key={app.id} className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-slate-800 opacity-60 hover:opacity-100 transition-opacity flex justify-between items-center group cursor-pointer">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-300 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+                                                    <div className="w-10 h-10 bg-gray-200 dark:bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-300 dark:border-slate-700 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
                                                         {app.company_logo ? (
                                                             <img src={app.company_logo} alt="Logo" className="w-full h-full object-cover" />
                                                         ) : (
@@ -169,8 +171,8 @@ export default function Lamaran() {
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <h3 className="text-sm font-bold text-gray-600 line-through group-hover:line-clamp-none line-clamp-1 group-hover:no-underline transition-all">{app.job_title}</h3>
-                                                        <p className="text-xs text-gray-500">{app.company_name}</p>
+                                                        <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 line-through group-hover:line-clamp-none line-clamp-1 group-hover:no-underline transition-all">{app.job_title}</h3>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-500">{app.company_name}</p>
                                                     </div>
                                                 </div>
                                                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusStyle(app.status)}`}>{app.status}</span>

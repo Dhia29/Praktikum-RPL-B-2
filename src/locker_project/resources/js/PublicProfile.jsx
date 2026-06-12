@@ -61,7 +61,12 @@ export default function PublicProfile() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans pb-12 relative overflow-x-hidden">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] font-sans pb-12 relative overflow-x-hidden transition-colors duration-500">
+            {/* Background Decorative Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[10%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute top-[60%] -left-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
 
             {/* --- MODAL POP-UP INFORMASI KONTAK (Read Only) --- */}
             {isContactModalOpen && (
@@ -118,10 +123,10 @@ export default function PublicProfile() {
 
 
             {/* HEADER NAVIGASI */}
-            <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+            <header className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/5 sticky top-0 z-50 transition-colors duration-500 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => navigate(-1)} className="p-2 text-gray-500 hover:text-[#8100D1] hover:bg-purple-50 rounded-full transition-all focus:outline-none"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button>
+                        <button onClick={() => navigate(-1)} className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#8100D1] dark:hover:text-[#a055db] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-full transition-all focus:outline-none"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button>
                         <h1 className="text-2xl font-extrabold text-[#8100D1] tracking-tight">LockER</h1>
                     </div>
                 </div>
@@ -129,65 +134,67 @@ export default function PublicProfile() {
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 space-y-6">
                 {/* BIO CARD */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
-                    <div className="relative h-40 sm:h-56 bg-gray-200">
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden relative animate-fade-in-up group">
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
+                    <div className="relative h-40 sm:h-56 bg-gray-200 dark:bg-slate-800">
                         {userData.banner_url ? (<img src={userData.banner_url} alt="Banner" className="w-full h-full object-cover" />) : (<div className="w-full h-full bg-gradient-to-r from-[#9a30db] via-[#8100D1] to-[#4b0082]"></div>)}
                     </div>
 
-                    <div className="px-6 sm:px-8 pb-8 relative">
+                    <div className="px-6 sm:px-8 pb-8 relative z-10">
                         <div className="relative inline-block -mt-16 sm:-mt-24 mb-4">
-                            <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white rounded-full p-1.5 shadow-md relative">
-                                <div className="w-full h-full bg-purple-100 rounded-full flex items-center justify-center overflow-hidden border border-gray-100">
-                                    {userData.avatar_url ? (<img src={userData.avatar_url} alt="Profile" className="w-full h-full object-cover" />) : (<span className="text-5xl sm:text-7xl font-extrabold text-[#8100D1]">{userData.name ? userData.name.charAt(0).toUpperCase() : '?'}</span>)}
+                            <div className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-slate-900 rounded-full p-1.5 shadow-md relative">
+                                <div className="w-full h-full bg-purple-100 dark:bg-slate-800 rounded-full flex items-center justify-center overflow-hidden border border-gray-100 dark:border-slate-700">
+                                    {userData.avatar_url ? (<img src={userData.avatar_url} alt="Profile" className="w-full h-full object-cover bg-white" />) : (<span className="text-5xl sm:text-7xl font-extrabold text-[#8100D1] dark:text-[#a055db]">{userData.name ? userData.name.charAt(0).toUpperCase() : '?'}</span>)}
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex flex-col md:flex-row justify-between items-start gap-6 mt-2">
                             <div className="flex-1">
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{userData.name}</h1>
-                                <p className="text-base sm:text-lg text-gray-800 mt-1.5 font-medium">{userData.headline || 'Belum ada headline'}</p>
-                                <p className="text-sm text-gray-500 mt-2 flex items-center gap-1.5">
+                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight">{userData.name}</h1>
+                                <p className="text-base sm:text-lg text-gray-800 dark:text-gray-300 mt-1.5 font-medium">{userData.headline || 'Belum ada headline'}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1.5">
                                     {userData.location || 'Lokasi belum diatur'}
                                     {hasContactInfo && (
                                         <>
                                             <span className="mx-1">•</span>
-                                            <button onClick={() => setIsContactModalOpen(true)} className="text-[#8100D1] font-semibold hover:underline focus:outline-none">Informasi kontak</button>
+                                            <button onClick={() => setIsContactModalOpen(true)} className="text-[#8100D1] dark:text-[#a055db] font-semibold hover:underline focus:outline-none">Informasi kontak</button>
                                         </>
                                     )}
                                 </p>
                             </div>
 
                             <div className="md:w-72 flex flex-col gap-3">
-                                <div className="flex items-start gap-3 group"><div className="w-8 h-8 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center text-gray-600"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div><p className="text-sm font-semibold text-gray-800 transition leading-tight group-hover:text-[#8100D1]">{userData.current_position || 'Belum ada jabatan'}</p></div>
-                                <div className="flex items-start gap-3 group"><div className="w-8 h-8 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center text-gray-600"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14v6" /></svg></div><p className="text-sm font-semibold text-gray-800 transition leading-tight group-hover:text-[#8100D1]">{userData.education || 'Belum ada instansi'}</p></div>
+                                <div className="flex items-start gap-3 group"><div className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded flex-shrink-0 flex items-center justify-center text-gray-600 dark:text-gray-400"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div><p className="text-sm font-semibold text-gray-800 dark:text-gray-300 transition leading-tight group-hover:text-[#8100D1] dark:group-hover:text-[#a055db]">{userData.current_position || 'Belum ada jabatan'}</p></div>
+                                <div className="flex items-start gap-3 group"><div className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded flex-shrink-0 flex items-center justify-center text-gray-600 dark:text-gray-400"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14v6" /></svg></div><p className="text-sm font-semibold text-gray-800 dark:text-gray-300 transition leading-tight group-hover:text-[#8100D1] dark:group-hover:text-[#a055db]">{userData.education || 'Belum ada instansi'}</p></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* PENGALAMAN CARD */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100">
-                        <h2 className="text-xl font-bold text-gray-900">Pengalaman</h2>
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.2s' }}>
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
+                    <div className="p-6 border-b border-gray-100 dark:border-slate-800">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Pengalaman</h2>
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 relative z-10">
                         {(!userData.experiences || userData.experiences.filter(exp => exp && exp.title).length === 0) ? (
-                            <p className="text-gray-500 text-sm">Belum ada pengalaman yang ditambahkan.</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">Belum ada pengalaman yang ditambahkan.</p>
                         ) : (
                             <div className="space-y-6">
                                 {userData.experiences.filter(exp => exp && exp.title).map((exp, index, arr) => (
-                                    <div key={exp.id || index} className={`flex gap-4 ${index !== arr.length - 1 ? 'border-b border-gray-100 pb-6' : ''}`}>
-                                        <div className="w-12 h-12 bg-gray-100 flex-shrink-0 flex items-center justify-center rounded-lg">
+                                    <div key={exp.id || index} className={`flex gap-4 ${index !== arr.length - 1 ? 'border-b border-gray-100 dark:border-slate-800 pb-6' : ''}`}>
+                                        <div className="w-12 h-12 bg-gray-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center rounded-lg">
                                             <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                                         </div>
                                         <div className="flex-1">
                                             <div>
-                                                <h3 className="font-bold text-gray-900">{exp.title}</h3>
-                                                <p className="text-sm text-gray-800">{exp.company_name}</p>
-                                                <p className="text-xs text-gray-500 mt-1">{exp.start_date} - {exp.end_date || 'Saat ini'} • {exp.location}</p>
+                                                <h3 className="font-bold text-gray-900 dark:text-white">{exp.title}</h3>
+                                                <p className="text-sm text-gray-800 dark:text-gray-300">{exp.company_name}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{exp.start_date} - {exp.end_date || 'Saat ini'} • {exp.location}</p>
                                             </div>
-                                            {exp.description && <p className="text-sm text-gray-700 mt-3 whitespace-pre-line">{exp.description}</p>}
+                                            {exp.description && <p className="text-sm text-gray-700 dark:text-gray-400 mt-3 whitespace-pre-line">{exp.description}</p>}
                                         </div>
                                     </div>
                                 ))}
@@ -197,27 +204,28 @@ export default function PublicProfile() {
                 </div>
 
                 {/* PENDIDIKAN CARD */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100">
-                        <h2 className="text-xl font-bold text-gray-900">Pendidikan</h2>
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.3s' }}>
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
+                    <div className="p-6 border-b border-gray-100 dark:border-slate-800">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Pendidikan</h2>
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 relative z-10">
                         {(!userData.educations || userData.educations.filter(edu => edu && (edu.school || edu.institusi)).length === 0) ? (
-                            <p className="text-gray-500 text-sm">Belum ada pendidikan yang ditambahkan.</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">Belum ada pendidikan yang ditambahkan.</p>
                         ) : (
                             <div className="space-y-6">
                                 {userData.educations.filter(edu => edu && (edu.school || edu.institusi)).map((edu, index, arr) => (
-                                    <div key={edu.id || index} className={`flex gap-4 ${index !== arr.length - 1 ? 'border-b border-gray-100 pb-6' : ''}`}>
-                                        <div className="w-12 h-12 bg-gray-100 flex-shrink-0 flex items-center justify-center rounded-lg">
+                                    <div key={edu.id || index} className={`flex gap-4 ${index !== arr.length - 1 ? 'border-b border-gray-100 dark:border-slate-800 pb-6' : ''}`}>
+                                        <div className="w-12 h-12 bg-gray-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center rounded-lg">
                                             <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path d="M12 14v6" /></svg>
                                         </div>
                                         <div className="flex-1">
                                             <div>
-                                                <h3 className="font-bold text-gray-900">{edu.school || edu.institusi}</h3>
-                                                <p className="text-sm text-gray-800">{edu.degree || edu.gelar}{edu.field_of_study ? `, ${edu.field_of_study}` : ''}</p>
-                                                <p className="text-xs text-gray-500 mt-1">{edu.start_date || edu.tahun_mulai} - {edu.end_date || edu.tahun_selesai || 'Saat ini'}</p>
+                                                <h3 className="font-bold text-gray-900 dark:text-white">{edu.school || edu.institusi}</h3>
+                                                <p className="text-sm text-gray-800 dark:text-gray-300">{edu.degree || edu.gelar}{edu.field_of_study ? `, ${edu.field_of_study}` : ''}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{edu.start_date || edu.tahun_mulai} - {edu.end_date || edu.tahun_selesai || 'Saat ini'}</p>
                                             </div>
-                                            {edu.description && <p className="text-sm text-gray-700 mt-3 whitespace-pre-line">{edu.description}</p>}
+                                            {edu.description && <p className="text-sm text-gray-700 dark:text-gray-400 mt-3 whitespace-pre-line">{edu.description}</p>}
                                         </div>
                                     </div>
                                 ))}
@@ -229,29 +237,30 @@ export default function PublicProfile() {
                 {/* SERTIFIKASI & CV GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* SERTIFIKASI & KEAHLIAN CARD */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full">
-                        <div className="p-6 border-b border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900">Sertifikasi & Keahlian</h2>
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden h-full relative animate-fade-in-up group" style={{ animationDelay: '0.4s' }}>
+                        <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
+                        <div className="p-6 border-b border-gray-100 dark:border-slate-800">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Sertifikasi & Keahlian</h2>
                         </div>
-                        <div className="p-6">
+                        <div className="p-6 relative z-10">
                             {(!userData.certifications || userData.certifications.filter(cert => cert && cert.name).length === 0) ? (
-                                <p className="text-gray-500 text-sm">Belum ada sertifikasi.</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">Belum ada sertifikasi.</p>
                             ) : (
                                 <div className="space-y-6">
                                     {userData.certifications.filter(cert => cert && cert.name).map((cert, index, arr) => (
-                                        <div key={cert.id || index} className={`flex gap-4 ${index !== arr.length - 1 ? 'border-b border-gray-100 pb-6' : ''}`}>
-                                            <div className="w-12 h-12 bg-gray-100 flex-shrink-0 flex items-center justify-center rounded-lg">
+                                        <div key={cert.id || index} className={`flex gap-4 ${index !== arr.length - 1 ? 'border-b border-gray-100 dark:border-slate-800 pb-6' : ''}`}>
+                                            <div className="w-12 h-12 bg-gray-100 dark:bg-slate-800 flex-shrink-0 flex items-center justify-center rounded-lg">
                                                 <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                                             </div>
                                             <div className="flex-1">
                                                 <div>
-                                                    <h3 className="font-bold text-gray-900">{cert.name}</h3>
-                                                    <p className="text-sm text-gray-800">{cert.organization}</p>
-                                                    <p className="text-xs text-gray-500 mt-1">Diterbitkan: {cert.issue_date || '-'}</p>
+                                                    <h3 className="font-bold text-gray-900 dark:text-white">{cert.name}</h3>
+                                                    <p className="text-sm text-gray-800 dark:text-gray-300">{cert.organization}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Diterbitkan: {cert.issue_date || '-'}</p>
                                                 </div>
-                                                {cert.description && <p className="text-sm text-gray-700 mt-3 whitespace-pre-line">{cert.description}</p>}
+                                                {cert.description && <p className="text-sm text-gray-700 dark:text-gray-400 mt-3 whitespace-pre-line">{cert.description}</p>}
                                                 {cert.file_url && (
-                                                    <a href={cert.file_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-[#8100D1] font-semibold hover:bg-purple-50 transition">
+                                                    <a href={cert.file_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-[#8100D1] dark:text-[#a055db] font-semibold hover:bg-purple-50 dark:hover:bg-slate-800 transition">
                                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                                                         Lihat Kredensial
                                                     </a>
@@ -265,28 +274,29 @@ export default function PublicProfile() {
                     </div>
 
                     {/* CV / RESUME CARD */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-full">
-                        <div className="p-6 border-b border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900">CV / Resume</h2>
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden h-full relative animate-fade-in-up group" style={{ animationDelay: '0.5s' }}>
+                        <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
+                        <div className="p-6 border-b border-gray-100 dark:border-slate-800">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">CV / Resume</h2>
                         </div>
-                        <div className="p-6">
+                        <div className="p-6 relative z-10">
                             {userData.cv_url ? (
-                                <div className="border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 gap-4">
+                                <div className="border border-gray-200 dark:border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-slate-800/50 gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center flex-shrink-0">
                                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11v6m-3-3h6" /></svg>
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900 text-sm">Resume/CV</p>
-                                            <p className="text-xs text-gray-500">Tersedia untuk diunduh</p>
+                                            <p className="font-bold text-gray-900 dark:text-white text-sm">Resume/CV</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Tersedia untuk diunduh</p>
                                         </div>
                                     </div>
-                                    <a href={userData.cv_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-[#8100D1] hover:text-purple-800 border border-[#8100D1] rounded-lg px-4 py-2 bg-white shadow-sm hover:bg-purple-50 transition w-full sm:w-auto text-center">
+                                    <a href={userData.cv_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-[#8100D1] dark:text-[#a055db] hover:text-purple-800 dark:hover:text-[#b47af1] border border-[#8100D1] dark:border-[#a055db] rounded-lg px-4 py-2 bg-white dark:bg-slate-800 shadow-sm hover:bg-purple-50 dark:hover:bg-slate-700 transition w-full sm:w-auto text-center">
                                         Buka CV
                                     </a>
                                 </div>
                             ) : (
-                                <p className="text-gray-500 text-sm">Belum ada CV yang diunggah.</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm">Belum ada CV yang diunggah.</p>
                             )}
                         </div>
                     </div>
