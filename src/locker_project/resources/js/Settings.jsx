@@ -59,14 +59,14 @@ export default function Settings() {
                 setUserData(meRes.data);
                 const finalTheme = fetchedSettings.theme || 'light';
                 const finalLanguage = fetchedSettings.language || 'id';
-                
-                setSettings(prev => ({ 
-                    ...prev, 
+
+                setSettings(prev => ({
+                    ...prev,
                     ...fetchedSettings,
                     theme: finalTheme,
                     language: finalLanguage,
                 }));
-                
+
                 // Sync DB settings to browser DOM and LocalStorage
                 document.documentElement.setAttribute('data-theme', finalTheme);
                 if (finalTheme === 'dark') {
@@ -75,7 +75,7 @@ export default function Settings() {
                     document.documentElement.classList.remove('dark');
                 }
                 localStorage.setItem('app_theme', finalTheme);
-                
+
                 i18n.changeLanguage(finalLanguage);
                 localStorage.setItem('app_language', finalLanguage);
 
@@ -252,8 +252,8 @@ export default function Settings() {
                         key={opt.value}
                         onClick={() => setVisibility(settingKey, opt.value)}
                         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${settings[settingKey] === opt.value
-                                ? 'bg-[#8100D1] text-white border-[#8100D1] shadow-sm'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-[#8100D1]/40 hover:text-[#8100D1]'
+                            ? 'bg-[#8100D1] text-white border-[#8100D1] shadow-sm'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-[#8100D1]/40 hover:text-[#8100D1]'
                             }`}
                     >
                         {opt.icon}
@@ -273,11 +273,16 @@ export default function Settings() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-950 font-sans">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] font-sans relative overflow-hidden transition-colors duration-500">
+            {/* Background Decorative Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute -top-[20%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute top-[40%] -left-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
             {/* Header */}
             <PageHeader />
 
-            <main className="max-w-[960px] mx-auto w-full px-4 sm:px-6 py-8">
+            <main className="max-w-[960px] mx-auto w-full px-4 sm:px-6 py-8 relative z-10">
                 {/* Status Message */}
                 {message.text && (
                     <div className={`mb-6 p-3 rounded-xl text-sm font-medium flex items-center gap-2 animate-fade-in-up ${message.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'
@@ -296,14 +301,15 @@ export default function Settings() {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* Sidebar Tabs */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-3 space-y-1 sticky top-24">
+                        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-4 space-y-1 sticky top-24 relative overflow-hidden group">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-[#8100D1] opacity-50 group-hover:opacity-100 transition-opacity"></div>
                             {tabs.map(tab => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${activeTab === tab.id
-                                            ? 'bg-gradient-to-r from-[#8100D1]/10 to-transparent text-[#8100D1] font-semibold shadow-sm border border-purple-100/50'
-                                            : 'text-gray-600 hover:bg-gray-50 border border-transparent'
+                                        ? 'bg-gradient-to-r from-[#8100D1]/10 to-transparent text-[#8100D1] font-semibold shadow-sm border border-purple-100/50'
+                                        : 'text-gray-600 hover:bg-gray-50 border border-transparent'
                                         }`}
                                 >
                                     <span className="shrink-0">{tab.icon}</span>
@@ -318,7 +324,7 @@ export default function Settings() {
 
                         {/* ===================== NOTIFIKASI ===================== */}
                         {activeTab === 'notifikasi' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden animate-fade-in-up">
+                            <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden animate-fade-in-up relative">
                                 <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-[#8100D1]/5 to-transparent">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Notifikasi</h3>
                                     <p className="text-sm text-gray-500 mt-1">Atur jenis notifikasi yang ingin Anda terima.</p>
@@ -334,7 +340,7 @@ export default function Settings() {
 
                         {/* ===================== VISIBILITAS ===================== */}
                         {activeTab === 'visibilitas' && (
-                            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden animate-fade-in-up">
+                            <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden animate-fade-in-up relative">
                                 <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-[#8100D1]/5 to-transparent">
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('user_settings.visibility.title')}</h3>
                                     <p className="text-sm text-gray-500 mt-1">{t('user_settings.visibility.desc')}</p>
@@ -354,7 +360,7 @@ export default function Settings() {
                         {activeTab === 'keamanan' && (
                             <div className="space-y-6 animate-fade-in-up">
                                 {/* Ubah Password */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+                                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden">
                                     <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-[#8100D1]/5 to-transparent">
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('user_settings.security.password_title')}</h3>
                                         <p className="text-sm text-gray-500 mt-1">{t('user_settings.security.password_desc')}</p>
@@ -397,7 +403,7 @@ export default function Settings() {
                                 </div>
 
                                 {/* Ubah Email */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+                                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden">
                                     <div className="p-6 border-b border-gray-100 dark:border-slate-800">
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('user_settings.security.email_title')}</h3>
                                         <p className="text-sm text-gray-500 mt-1">{t('user_settings.security.email_desc')}<span className="font-semibold text-gray-900 dark:text-gray-300">{userData?.user?.email}</span></p>
@@ -420,7 +426,7 @@ export default function Settings() {
                                 </div>
 
                                 {/* Data Blokir */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+                                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden">
                                     <div className="p-6 border-b border-gray-100 dark:border-slate-800">
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('user_settings.security.blocked_title')}</h3>
                                         <p className="text-sm text-gray-500 mt-1">{t('user_settings.security.blocked_desc')}</p>
@@ -454,7 +460,7 @@ export default function Settings() {
                                 </div>
 
                                 {/* Hapus Akun */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-red-200 dark:border-red-900/30 overflow-hidden">
+                                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-red-200/50 dark:border-red-900/30 overflow-hidden relative">
                                     <div className="p-6 border-b border-red-100 dark:border-red-900/30">
                                         <h3 className="text-lg font-bold text-red-700 dark:text-red-500">{t('user_settings.security.delete_title')}</h3>
                                         <p className="text-sm text-red-600 mt-1">{t('user_settings.security.delete_desc')}</p>
@@ -491,7 +497,7 @@ export default function Settings() {
                         {activeTab === 'tampilan' && (
                             <div className="space-y-6 animate-fade-in-up">
                                 {/* Bahasa */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+                                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden relative">
                                     <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-[#8100D1]/5 to-transparent">
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('user_settings.language_title', 'Bahasa')}</h3>
                                         <p className="text-sm text-gray-500 mt-1">{t('user_settings.language_desc', 'Pilih bahasa tampilan aplikasi.')}</p>
@@ -506,8 +512,8 @@ export default function Settings() {
                                                     key={lang.code}
                                                     onClick={() => handleLanguageChange(lang.code)}
                                                     className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${settings.language === lang.code
-                                                            ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
-                                                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                        ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
+                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
                                                         }`}
                                                 >
                                                     <span className="text-3xl">{lang.flag}</span>
@@ -525,7 +531,7 @@ export default function Settings() {
                                 </div>
 
                                 {/* Dark Mode */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+                                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden relative">
                                     <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-[#8100D1]/5 to-transparent">
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('user_settings.theme_title', 'Tampilan')}</h3>
                                         <p className="text-sm text-gray-500 mt-1">{t('user_settings.theme_desc', 'Pilih tema tampilan yang Anda sukai.')}</p>
@@ -536,8 +542,8 @@ export default function Settings() {
                                             <button
                                                 onClick={() => toggleTheme('light')}
                                                 className={`flex flex-col items-center p-5 rounded-xl border-2 transition-all ${settings.theme === 'light'
-                                                        ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
+                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
                                                     }`}
                                             >
                                                 {/* Light mode preview window */}
@@ -563,8 +569,8 @@ export default function Settings() {
                                             <button
                                                 onClick={() => { toggleTheme('dark'); document.documentElement.classList.add('dark'); }}
                                                 className={`flex flex-col items-center p-5 rounded-xl border-2 transition-all ${settings.theme === 'dark'
-                                                        ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
+                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
                                                     }`}
                                             >
                                                 {/* Dark mode preview window */}

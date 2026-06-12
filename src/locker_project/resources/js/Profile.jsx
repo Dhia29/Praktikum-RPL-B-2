@@ -425,7 +425,12 @@ export default function Profile() {
     if (isLoading) { return (<div className="min-h-screen bg-gray-50 flex justify-center items-center"> <span className="text-gray-400 font-medium animate-pulse">{t('profile.loading')}</span> </div>); }
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans pb-12 relative overflow-x-hidden">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] font-sans pb-12 relative overflow-x-hidden transition-colors duration-500">
+            {/* Background Decorative Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[10%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute top-[60%] -left-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
 
             {/* Hidden components */}
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/jpeg, image/png, image/jpg" className="hidden" />
@@ -649,7 +654,8 @@ export default function Profile() {
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 space-y-6">
                 {/* BIO CARD */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden relative animate-fade-in-up group">
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                     <div className="relative h-40 sm:h-56 bg-gray-200 group">
                         {userData.banner_url ? (<img src={userData.banner_url} alt="Banner" className="w-full h-full object-cover" />) : (<div className="w-full h-full bg-gradient-to-r from-[#9a30db] via-[#8100D1] to-[#4b0082]"></div>)}
                         <button onClick={() => handleCameraClick('Banner')} className="absolute top-4 right-4 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-sm backdrop-blur-sm transition-all focus:outline-none" disabled={isUploading}><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
@@ -692,7 +698,8 @@ export default function Profile() {
                 </div>
 
                 {/* KONEKSI & MUTUALS */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden mb-6">
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.1s' }}>
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                         <div className="flex border-b border-gray-200 dark:border-slate-800">
                             <button onClick={() => setActiveTab('mutuals')} className={`flex-1 py-4 font-bold text-sm transition-colors ${activeTab === 'mutuals' ? 'text-[#8100D1] border-b-2 border-[#8100D1]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
                                 {t('profile.my_connections')} ({connections.length + pendingRequests.length})
@@ -838,7 +845,9 @@ export default function Profile() {
 
                     
                 {/* PENGALAMAN CARD */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden mb-6">
+                {/* PENGALAMAN CARD */}
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.2s' }}>
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                     <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-slate-800">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.experience')}</h2>
                         <button onClick={openAddExp} className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#8100D1] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-full transition"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg></button>
@@ -872,7 +881,9 @@ export default function Profile() {
                 </div>
 
                 {/* PENDIDIKAN CARD */}
-                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden mb-6">
+                {/* PENDIDIKAN CARD */}
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.3s' }}>
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                     <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-slate-800">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.education')}</h2>
                         <button onClick={openAddEdu} className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#8100D1] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-full transition"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg></button>
@@ -907,7 +918,9 @@ export default function Profile() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     {/* SERTIFIKASI & KEAHLIAN CARD */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden h-full">
+                    {/* SERTIFIKASI & KEAHLIAN CARD */}
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden h-full relative animate-fade-in-up group" style={{ animationDelay: '0.4s' }}>
+                        <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                         <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-slate-800">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.certifications')}</h2>
                             <button onClick={openAddCert} className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#8100D1] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-full transition"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg></button>
@@ -947,7 +960,9 @@ export default function Profile() {
                     </div>
 
                     {/* CV / RESUME CARD */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden h-full">
+                    {/* CV / RESUME CARD */}
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden h-full relative animate-fade-in-up group" style={{ animationDelay: '0.5s' }}>
+                        <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                         <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-slate-800">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.resume')}</h2>
                             {!cvUrl && (

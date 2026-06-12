@@ -151,7 +151,12 @@ export default function ProfilePerusahaan() {
     if (isLoading) { return (<div className="min-h-screen bg-gray-50 flex justify-center items-center"> <span className="text-[#8100D1] font-medium animate-pulse">Memuat profil perusahaan...</span> </div>); }
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans pb-12 relative overflow-x-hidden">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] font-sans pb-12 relative overflow-x-hidden transition-colors duration-500">
+            {/* Background Decorative Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[10%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute top-[60%] -left-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
 
             {/* Hidden components */}
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/jpeg, image/png, image/jpg" className="hidden" />
@@ -201,7 +206,8 @@ export default function ProfilePerusahaan() {
             <main className="max-w-[900px] mx-auto w-full pt-6 px-4 pb-20 flex flex-col gap-6">
                 
                 {/* --- KARTU PROFIL UTAMA (LOCKER STYLE) --- */}
-                <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden relative">
+                <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden relative animate-fade-in-up group">
+                    <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                     {/* Banner Image */}
                     <div className="h-[180px] sm:h-[220px] w-full bg-gradient-to-r from-purple-500 to-[#8100D1] relative cursor-pointer group" onClick={() => handleCameraClick('banner')}>
                         {userData.banner_url && (
@@ -309,7 +315,8 @@ export default function ProfilePerusahaan() {
                 <div className="space-y-6">
                     {/* TAB TENTANG */}
                     {activeTab === 'tentang' && (
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-8 animate-fade-in-up">
+                        <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 p-6 sm:p-8 animate-fade-in-up relative group" style={{ animationDelay: '0.1s' }}>
+                            <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                             <h2 className="text-xl font-extrabold text-gray-900 mb-5">Gambaran Umum</h2>
                             {userData.description ? (
                                 <div className="text-[15px] text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -349,7 +356,8 @@ export default function ProfilePerusahaan() {
 
                     {/* TAB LOWONGAN */}
                     {activeTab === 'lowongan' && (
-                        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-8 animate-fade-in-up">
+                        <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 p-6 sm:p-8 animate-fade-in-up relative group" style={{ animationDelay: '0.2s' }}>
+                            <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-extrabold text-gray-900">Lowongan yang Dibuka</h2>
                                 <span className="bg-purple-100 text-[#8100D1] text-xs font-bold px-3 py-1 rounded-full">{recentJobs.length} Lowongan</span>

@@ -167,7 +167,7 @@ export default function Loker() {
             <div className="w-full md:w-[65%] lg:w-[70%] flex flex-col gap-4">
 
                 {isEmployer && (
-                    <div className="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 mb-2">
+                    <div className="flex justify-between items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-gray-100/50 dark:border-slate-800/50 mb-2">
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setViewMode('all')}
@@ -184,10 +184,11 @@ export default function Loker() {
                         </div>
                         <button
                             onClick={() => { setEditingJob(null); setIsModalOpen(true); }}
-                            className="bg-[#8100D1] hover:bg-purple-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 transition-colors"
+                            className="relative overflow-hidden bg-gradient-to-r from-[#8100D1] to-pink-500 text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-[0_0_20px_rgba(129,0,209,0.4)] flex items-center gap-2 transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(129,0,209,0.6)] group"
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                            {t('loker.create_job')}
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                            <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                            <span className="relative z-10">{t('loker.create_job')}</span>
                         </button>
                     </div>
                 )}
@@ -210,10 +211,13 @@ export default function Loker() {
                     </div>
                 ) : (
                     filteredJobs.map((job) => (
-                        <div key={job.id} className="bg-white dark:bg-slate-900 rounded-xl p-6 flex flex-col sm:flex-row gap-6 shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-md transition-shadow">
+                        <div key={job.id} className="group relative overflow-hidden bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-3xl p-6 flex flex-col sm:flex-row gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-white/5 hover:border-purple-300/50 dark:hover:border-purple-500/30 hover:shadow-[0_20px_40px_rgba(129,0,209,0.1)] dark:hover:shadow-[0_20px_40px_rgba(129,0,209,0.2)] transition-all duration-500 hover:-translate-y-1">
+                            {/* Animated Hover Background Gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                            
                             <div 
                                 onClick={() => navigate(`/profile/${job.company_user_id}`)}
-                                className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 dark:bg-slate-800 rounded-lg flex-shrink-0 flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold text-2xl border border-gray-200 dark:border-slate-700 cursor-pointer overflow-hidden hover:opacity-80 transition"
+                                className="w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-slate-800/80 rounded-2xl flex-shrink-0 flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold text-2xl border border-gray-100 dark:border-white/5 cursor-pointer overflow-hidden group-hover:scale-105 transition-transform duration-500 shadow-sm relative z-10"
                             >
                                 {job.logo_url ? (
                                     <img src={job.logo_url} alt="Logo" className="w-full h-full object-contain" />
@@ -224,8 +228,8 @@ export default function Loker() {
 
                             <div className="flex-1">
                                 <div className="flex justify-between items-start mb-1">
-                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">{job.role}</h3>
-                                    <span className="bg-purple-50 dark:bg-purple-900/30 text-[#8100D1] dark:text-[#c682ff] text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ml-2">
+                                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">{job.role}</h3>
+                                    <span className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 text-[#8100D1] dark:text-[#c682ff] text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-2 shadow-sm border border-purple-100/50 dark:border-purple-800/30">
                                         {job.type}
                                     </span>
                                 </div>
@@ -241,10 +245,10 @@ export default function Loker() {
                                 <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4 line-clamp-2">
                                     {job.description}
                                 </p>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 relative z-10">
                                     <button 
                                         onClick={() => handleViewDetails(job)}
-                                        className="text-sm font-semibold text-[#8100D1] hover:text-purple-900 transition-colors"
+                                        className="text-sm font-bold text-white bg-[#8100D1] hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500 px-6 py-2.5 rounded-full shadow-[0_0_15px_rgba(129,0,209,0.3)] hover:shadow-[0_0_25px_rgba(129,0,209,0.5)] transition-all transform hover:scale-105"
                                     >
                                         {t('loker.view_details')} &rarr;
                                     </button>
@@ -273,10 +277,11 @@ export default function Loker() {
             </div>
 
             {/* KONTAINER KANAN (Pencarian & Filter): Lebar 30%, STICKY akan membuatnya diam saat halaman di-scroll */}
-            <div className="w-full md:w-[35%] lg:w-[30%] flex flex-col gap-5 sticky top-28">
+            <div className="w-full md:w-[35%] lg:w-[30%] flex flex-col gap-6 sticky top-28">
 
-                <div className="bg-white dark:bg-slate-900 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-800">
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Pencarian</h3>
+                <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-3xl p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-white/5 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 className="font-extrabold text-gray-900 dark:text-white mb-5 text-sm tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#8100D1] to-indigo-500">{t('loker.search', 'Pencarian')}</h3>
                     <div className="relative">
                         <input
                             type="text"
@@ -291,8 +296,9 @@ export default function Loker() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-800">
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-sm">Filter & Urutkan</h3>
+                <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-3xl p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-white/5 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 className="font-extrabold text-gray-900 dark:text-white mb-5 text-sm tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500">{t('loker.filter_sort', 'Filter & Urutkan')}</h3>
                     <div className="flex flex-col gap-4">
 
                         <div>

@@ -220,7 +220,8 @@ export default function Community() {
                 onSuccess={loadFeedAndGroups}
             />
             {/* KOLOM KIRI: MENU SCOPE FEED & PENCARIAN KOMUNITAS */}
-            <div className="w-full lg:w-[280px] bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-4 flex flex-col gap-2 flex-shrink-0">
+            <div className="w-full lg:w-[280px] bg-white/60 dark:bg-[#0B0F19]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-purple-500/20 p-5 flex flex-col gap-3 flex-shrink-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_30px_rgba(129,0,209,0.15)] relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-[#8100D1] opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     <button
                         onClick={() => { setSelectedCommunity(null); setIsSavedTab(false); }}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl font-bold text-[15px] transition-colors ${!selectedCommunity && !isSavedTab ? 'bg-purple-50 dark:bg-purple-900/20 text-[#8100D1] dark:text-[#c682ff]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
@@ -280,10 +281,10 @@ export default function Community() {
                 </div>
 
                 {/* AREA TENGAH: FEED */}
-                <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden relative shadow-sm">
+                <div className="flex-1 flex flex-col bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl border border-gray-200/50 dark:border-white/5 overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)]">
 
                     {/* Header Feed */}
-                    <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-10 flex justify-between items-center">
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-white/5 bg-transparent sticky top-0 z-10 flex justify-between items-center backdrop-blur-md">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{selectedCommunity ? selectedCommunity.nama : 'Home'}</h2>
                         <div className="flex items-center gap-3 min-w-0">
                             {selectedCommunity && selectedCommunity.avatar_url && (
@@ -315,7 +316,7 @@ export default function Community() {
                         )}
                     </div>
 
-                    <div className="flex-1 overflow-y-auto divide-y divide-gray-100 p-0 space-y-0 relative">
+                    <div className="flex-1 overflow-y-auto divide-y divide-gray-100/50 dark:divide-white/5 p-0 space-y-0 relative">
 
                         {/* STATE TERKUNCI (JIKA BUKAN MEMBER) */}
                         {isLocked ? (
@@ -336,7 +337,8 @@ export default function Community() {
                             </div>
                         ) : posts.length > 0 ? (
                             posts.map(post => (
-                                <div key={post.id} className="px-6 pt-5 pb-4 flex flex-col text-left group hover:bg-gray-50/50 transition-colors">
+                                <div key={post.id} className="px-6 pt-5 pb-4 flex flex-col text-left group hover:bg-gray-50/50 dark:hover:bg-purple-900/10 transition-all duration-300 relative">
+                                    <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#8100D1] to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     {/* (Repost Indicator Removed) */}
 
                                     <div className="flex gap-4 items-start">

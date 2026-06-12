@@ -64,9 +64,18 @@ export default function Layout() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] font-sans flex flex-col transition-colors duration-500 relative">
+            
+            {/* --- WOW FACTOR: Animated Background Glows --- */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute -top-[20%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute top-[40%] -left-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
 
-            <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+            {/* Elegant Top Gradient Line */}
+            <div className="h-1 w-full bg-gradient-to-r from-indigo-400 via-[#8100D1] to-pink-500 relative z-50"></div>
+
+            <header className="bg-white/60 dark:bg-[#0B0F19]/60 backdrop-blur-2xl border-b border-gray-200/50 dark:border-white/5 sticky top-0 z-50 transition-all duration-300 shadow-sm dark:shadow-none">
                 <div className="max-w-7xl mx-auto px-6 sm:px-8">
 
                     <div className="flex justify-between items-center h-20">
@@ -75,11 +84,11 @@ export default function Layout() {
                             <Link
                                 to="/loker"
                                 onClick={handleLogoClick}
-                                className="text-3xl font-extrabold text-[#8100D1] tracking-tight hover:opacity-80 transition-opacity"
+                                className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8100D1] to-indigo-600 dark:from-[#c682ff] dark:to-indigo-400 tracking-tight hover:opacity-80 transition-opacity"
                             >
                                 LockER
                             </Link>
-                            <p className="text-gray-500 text-xs font-medium mt-1">{t('layout.tagline')}</p>
+                            <p className="text-gray-500 dark:text-slate-400 text-xs font-medium mt-1">{t('layout.tagline')}</p>
                         </div>
 
                         {/* 3. Notifications, Support, Profile */}
@@ -89,7 +98,7 @@ export default function Layout() {
 
                             <button
                                 onClick={() => setIsSupportModalOpen(true)}
-                                className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-[#8100D1] hover:bg-purple-50 transition-colors focus:outline-none"
+                                className="w-10 h-10 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-500 dark:text-slate-400 hover:text-[#8100D1] dark:hover:text-[#c682ff] hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors focus:outline-none"
                                 title="Customer Service"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -99,30 +108,30 @@ export default function Layout() {
                             </button>
 
                             <div className="relative flex items-center gap-4" ref={dropdownRef}>
-                                <span className="text-gray-700 font-medium text-sm border-l border-gray-200 pl-4">Hi, {userName}</span>
+                                <span className="text-gray-700 dark:text-slate-300 font-medium text-sm border-l border-gray-200 dark:border-slate-700 pl-4 transition-colors">Hi, {userName}</span>
 
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-[#8100D1] font-bold border border-purple-200 hover:ring-2 hover:ring-purple-300 transition-all focus:outline-none"
+                                    className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-[#8100D1] dark:text-[#c682ff] font-bold border border-purple-200 dark:border-purple-800/50 hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-700 transition-all focus:outline-none shadow-sm"
                                 >
                                     {userName !== '...' ? userName.charAt(0).toUpperCase() : '?'}
                                 </button>
 
                                 {isDropdownOpen && (
-                                    <div className="absolute right-0 top-12 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 animate-fade-in-down">
-                                        <Link to={currentUser?.role === 'company' ? '/profile-perusahaan' : '/profile'} className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
+                                    <div className="absolute right-0 top-12 mt-2 w-48 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] py-2 z-50 animate-fade-in-down">
+                                        <Link to={currentUser?.role === 'company' ? '/profile-perusahaan' : '/profile'} className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
                                             {t('nav.profile', 'Profil')}
                                         </Link>
-                                    <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
+                                    <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
                                         {t('nav.settings', 'Pengaturan')}
                                     </Link>
-                                    <Link to="/help" className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#8100D1] transition-colors">
+                                    <Link to="/help" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
                                         {t('nav.help', 'Bantuan')}
                                     </Link>
-                                    <div className="border-t border-gray-100 my-1"></div>
+                                    <div className="border-t border-gray-100 dark:border-slate-700 my-1"></div>
                                     <button
                                         onClick={handleSignOut}
-                                        className="block w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                                        className="block w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
                                     >
                                         {t('nav.logout', 'Sign Out')}
                                     </button>
@@ -144,8 +153,8 @@ export default function Layout() {
                                     key={path}
                                     to={path}
                                     className={`pb-4 px-2 border-b-[3px] transition-all duration-200 capitalize ${active
-                                        ? 'border-[#8100D1] text-[#8100D1]'
-                                        : 'border-transparent text-gray-500 hover:text-[#8100D1] hover:border-purple-200'
+                                        ? 'border-[#8100D1] dark:border-[#c682ff] text-[#8100D1] dark:text-[#c682ff]'
+                                        : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-[#8100D1] dark:hover:text-[#c682ff] hover:border-purple-200 dark:hover:border-purple-800'
                                         }`}
                                 >
                                     {label}
@@ -156,7 +165,7 @@ export default function Layout() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-7xl mx-auto w-full px-6 sm:px-8 py-8">
+            <main className="flex-1 max-w-7xl mx-auto w-full px-6 sm:px-8 py-8 relative z-10 animate-fade-in-up">
                 <Outlet context={{ currentUser }} />
             </main>
 
