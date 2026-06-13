@@ -74,7 +74,7 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
             if (onSuccess) onSuccess();
 
         } catch (err) {
-            alert('Gagal memposting. Periksa koneksi Anda.');
+            window.alert('Gagal memposting. Periksa koneksi Anda.');
         }
     };
 

@@ -227,21 +227,21 @@ export default function Settings() {
 
     // Toggle switch component
     const Toggle = ({ checked, onChange, label, desc }) => (
-        <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
+        <div className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-slate-800 last:border-0">
             <div className="flex-1 pr-4">
-                <p className="text-sm font-semibold text-gray-800">{label}</p>
-                {desc && <p className="text-xs text-gray-500 mt-0.5">{desc}</p>}
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{label}</p>
+                {desc && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{desc}</p>}
             </div>
-            <button onClick={onChange} className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${checked ? 'bg-[#8100D1]' : 'bg-gray-200'}`}>
+            <button onClick={onChange} className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${checked ? 'bg-[#8100D1]' : 'bg-gray-200 dark:bg-slate-700'}`}>
                 <span className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${checked ? 'translate-x-5' : ''}`} />
             </button>
         </div>
     );
 
     const VisibilityRow = ({ label, desc, settingKey }) => (
-        <div className="py-4 border-b border-gray-100 last:border-0">
-            <p className="text-sm font-semibold text-gray-800 mb-1">{label}</p>
-            {desc && <p className="text-xs text-gray-500 mb-3">{desc}</p>}
+        <div className="py-4 border-b border-gray-100 dark:border-slate-800 last:border-0">
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">{label}</p>
+            {desc && <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{desc}</p>}
             <div className="flex gap-2">
                 {[
                     { value: 'public', label: t('user_settings.visibility.options.public', 'Semua Orang'), icon: <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg> },
@@ -253,7 +253,7 @@ export default function Settings() {
                         onClick={() => setVisibility(settingKey, opt.value)}
                         className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${settings[settingKey] === opt.value
                             ? 'bg-[#8100D1] text-white border-[#8100D1] shadow-sm'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-[#8100D1]/40 hover:text-[#8100D1]'
+                            : 'bg-white/50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-[#8100D1]/40 dark:hover:border-[#a055db]/40 hover:text-[#8100D1] dark:hover:text-[#a055db]'
                             }`}
                     >
                         {opt.icon}
@@ -301,15 +301,15 @@ export default function Settings() {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {/* Sidebar Tabs */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-4 space-y-1 sticky top-24 relative overflow-hidden group">
+                        <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl border border-gray-200/50 dark:border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] p-4 space-y-1 sticky top-24 relative overflow-hidden group">
                             <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-[#8100D1] opacity-50 group-hover:opacity-100 transition-opacity"></div>
                             {tabs.map(tab => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all ${activeTab === tab.id
-                                        ? 'bg-gradient-to-r from-[#8100D1]/10 to-transparent text-[#8100D1] font-semibold shadow-sm border border-purple-100/50'
-                                        : 'text-gray-600 hover:bg-gray-50 border border-transparent'
+                                        ? 'bg-gradient-to-r from-[#8100D1]/10 to-transparent text-[#8100D1] dark:text-[#c682ff] font-semibold shadow-sm border border-purple-100/50 dark:border-purple-800/30'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50/50 dark:hover:bg-slate-800/50 border border-transparent'
                                         }`}
                                 >
                                     <span className="shrink-0">{tab.icon}</span>
@@ -369,8 +369,8 @@ export default function Settings() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('user_settings.security.current_password')}</label>
                                             <div className="relative">
-                                                <input type={showPasswords.current ? 'text' : 'password'} value={passwordForm.current_password} onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm pr-10" />
-                                                <button type="button" onClick={() => setShowPasswords(p => ({ ...p, current: !p.current }))} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                                                <input type={showPasswords.current ? 'text' : 'password'} value={passwordForm.current_password} onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })} required className="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm pr-10 shadow-sm" />
+                                                <button type="button" onClick={() => setShowPasswords(p => ({ ...p, current: !p.current }))} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={showPasswords.current ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
                                                 </button>
                                             </div>
@@ -378,8 +378,8 @@ export default function Settings() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('user_settings.security.new_password')}</label>
                                             <div className="relative">
-                                                <input type={showPasswords.new ? 'text' : 'password'} value={passwordForm.new_password} onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })} required minLength={8} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm pr-10" />
-                                                <button type="button" onClick={() => setShowPasswords(p => ({ ...p, new: !p.new }))} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                                                <input type={showPasswords.new ? 'text' : 'password'} value={passwordForm.new_password} onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })} required minLength={8} className="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm pr-10 shadow-sm" />
+                                                <button type="button" onClick={() => setShowPasswords(p => ({ ...p, new: !p.new }))} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={showPasswords.new ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
                                                 </button>
                                             </div>
@@ -388,8 +388,8 @@ export default function Settings() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('user_settings.security.confirm_password')}</label>
                                             <div className="relative">
-                                                <input type={showPasswords.confirm ? 'text' : 'password'} value={passwordForm.new_password_confirmation} onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirmation: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm pr-10" />
-                                                <button type="button" onClick={() => setShowPasswords(p => ({ ...p, confirm: !p.confirm }))} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                                                <input type={showPasswords.confirm ? 'text' : 'password'} value={passwordForm.new_password_confirmation} onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirmation: e.target.value })} required className="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm pr-10 shadow-sm" />
+                                                <button type="button" onClick={() => setShowPasswords(p => ({ ...p, confirm: !p.confirm }))} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={showPasswords.confirm ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
                                                 </button>
                                             </div>
@@ -411,11 +411,11 @@ export default function Settings() {
                                     <form onSubmit={handleChangeEmail} className="p-6 space-y-4">
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('user_settings.security.new_email')}</label>
-                                            <input type="email" value={emailForm.new_email} onChange={(e) => setEmailForm({ ...emailForm, new_email: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm" placeholder="email_baru@example.com" />
+                                            <input type="email" value={emailForm.new_email} onChange={(e) => setEmailForm({ ...emailForm, new_email: e.target.value })} required className="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm shadow-sm" placeholder="email_baru@example.com" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('user_settings.security.confirm_password_label')}</label>
-                                            <input type="password" value={emailForm.password} onChange={(e) => setEmailForm({ ...emailForm, password: e.target.value })} required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm" placeholder={t('user_settings.security.password_placeholder')} />
+                                            <input type="password" value={emailForm.password} onChange={(e) => setEmailForm({ ...emailForm, password: e.target.value })} required className="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition text-sm shadow-sm" placeholder={t('user_settings.security.password_placeholder')} />
                                         </div>
                                         <div className="flex justify-end pt-2">
                                             <button type="submit" disabled={saving} className="px-6 py-2.5 text-sm font-semibold text-white bg-[#8100D1] rounded-xl hover:bg-purple-800 transition shadow-sm disabled:opacity-50">
@@ -433,25 +433,25 @@ export default function Settings() {
                                     </div>
                                     <div className="p-6">
                                         {blockedUsers.length === 0 ? (
-                                            <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                                <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                    <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                            <div className="text-center py-8 bg-white/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">
+                                                <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-gray-100 dark:border-slate-700">
+                                                    <svg className="w-7 h-7 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                                 </div>
-                                                <p className="text-gray-500 font-medium text-sm">{t('user_settings.security.no_blocked')}</p>
-                                                <p className="text-xs text-gray-400 mt-1">{t('user_settings.security.no_blocked_desc')}</p>
+                                                <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">{t('user_settings.security.no_blocked')}</p>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('user_settings.security.no_blocked_desc')}</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-3">
                                                 {blockedUsers.map(user => (
-                                                    <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                                    <div key={user.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-800/50 rounded-xl border border-gray-100 dark:border-slate-700">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-[#8100D1] font-bold">{user.name?.charAt(0)}</div>
+                                                            <div className="w-10 h-10 bg-purple-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#8100D1] dark:text-[#a055db] font-bold border border-purple-200 dark:border-slate-700 shadow-sm">{user.name?.charAt(0)}</div>
                                                             <div>
-                                                                <p className="text-sm font-semibold text-gray-800">{user.name}</p>
-                                                                <p className="text-xs text-gray-500">{user.email}</p>
+                                                                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{user.name}</p>
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
                                                             </div>
                                                         </div>
-                                                        <button className="text-xs font-semibold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">{t('user_settings.security.btn_unblock')}</button>
+                                                        <button className="text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1.5 rounded-lg transition">{t('user_settings.security.btn_unblock')}</button>
                                                     </div>
                                                 ))}
                                             </div>
@@ -467,22 +467,22 @@ export default function Settings() {
                                     </div>
                                     <div className="p-6">
                                         {!showDeleteConfirm ? (
-                                            <button onClick={() => setShowDeleteConfirm(true)} className="px-5 py-2.5 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition flex items-center gap-2">
+                                            <button onClick={() => setShowDeleteConfirm(true)} className="px-5 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 transition flex items-center gap-2">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                 {t('user_settings.security.btn_delete')}
                                             </button>
                                         ) : (
                                             <div className="space-y-4">
-                                                <div className="p-4 bg-red-50 rounded-xl border border-red-200">
-                                                    <p className="text-sm text-red-700 font-medium">{t('user_settings.security.delete_warning')}</p>
+                                                <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-900/50">
+                                                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">{t('user_settings.security.delete_warning')}</p>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('user_settings.security.delete_password_label')}</label>
-                                                    <input type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none transition text-sm" placeholder={t('user_settings.security.password_placeholder')} />
+                                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t('user_settings.security.delete_password_label')}</label>
+                                                    <input type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} className="w-full px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900/50 focus:border-red-400 dark:focus:border-red-500 outline-none transition text-sm shadow-sm" placeholder={t('user_settings.security.password_placeholder')} />
                                                 </div>
                                                 <div className="flex gap-3">
-                                                    <button onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); }} className="px-5 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition">{t('user_settings.security.btn_cancel')}</button>
-                                                    <button onClick={handleDeleteAccount} disabled={!deletePassword || saving} className="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition shadow-sm disabled:opacity-50">
+                                                    <button onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); }} className="px-5 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-800 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition">{t('user_settings.security.btn_cancel')}</button>
+                                                    <button onClick={handleDeleteAccount} disabled={!deletePassword || saving} className="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 dark:bg-red-500 rounded-xl hover:bg-red-700 dark:hover:bg-red-600 transition shadow-sm disabled:opacity-50">
                                                         {saving ? t('user_settings.security.saving') : t('user_settings.security.btn_confirm_delete')}
                                                     </button>
                                                 </div>
@@ -513,16 +513,16 @@ export default function Settings() {
                                                     onClick={() => handleLanguageChange(lang.code)}
                                                     className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${settings.language === lang.code
                                                         ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                        : 'border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 bg-white/50 dark:bg-slate-800/50'
                                                         }`}
                                                 >
                                                     <span className="text-3xl">{lang.flag}</span>
                                                     <div>
-                                                        <p className={`text-sm font-bold ${settings.language === lang.code ? 'text-[#8100D1]' : 'text-gray-800'}`}>{lang.label}</p>
-                                                        <p className="text-xs text-gray-500">{lang.desc}</p>
+                                                        <p className={`text-sm font-bold ${settings.language === lang.code ? 'text-[#8100D1] dark:text-[#a055db]' : 'text-gray-800 dark:text-gray-200'}`}>{lang.label}</p>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">{lang.desc}</p>
                                                     </div>
                                                     {settings.language === lang.code && (
-                                                        <svg className="w-5 h-5 text-[#8100D1] ml-auto shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+                                                        <svg className="w-5 h-5 text-[#8100D1] dark:text-[#a055db] ml-auto shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                                                     )}
                                                 </button>
                                             ))}
@@ -543,7 +543,7 @@ export default function Settings() {
                                                 onClick={() => toggleTheme('light')}
                                                 className={`flex flex-col items-center p-5 rounded-xl border-2 transition-all ${settings.theme === 'light'
                                                     ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
-                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    : 'border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 bg-white/50 dark:bg-slate-800/50'
                                                     }`}
                                             >
                                                 {/* Light mode preview window */}
@@ -560,8 +560,8 @@ export default function Settings() {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <svg className={`w-5 h-5 ${settings.theme === 'light' ? 'text-yellow-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                                    <span className={`text-sm font-bold ${settings.theme === 'light' ? 'text-[#8100D1]' : 'text-gray-700'}`}>Light</span>
+                                                    <svg className={`w-5 h-5 ${settings.theme === 'light' ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                                    <span className={`text-sm font-bold ${settings.theme === 'light' ? 'text-[#8100D1] dark:text-[#a055db]' : 'text-gray-700 dark:text-gray-300'}`}>Light</span>
                                                 </div>
                                             </button>
 
@@ -570,7 +570,7 @@ export default function Settings() {
                                                 onClick={() => { toggleTheme('dark'); document.documentElement.classList.add('dark'); }}
                                                 className={`flex flex-col items-center p-5 rounded-xl border-2 transition-all ${settings.theme === 'dark'
                                                     ? 'border-[#8100D1] bg-[#8100D1]/5 shadow-sm'
-                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    : 'border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600 bg-white/50 dark:bg-slate-800/50'
                                                     }`}
                                             >
                                                 {/* Dark mode preview window */}
@@ -587,13 +587,13 @@ export default function Settings() {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <svg className={`w-5 h-5 ${settings.theme === 'dark' ? 'text-indigo-400' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                                                    <span className={`text-sm font-bold ${settings.theme === 'dark' ? 'text-[#8100D1]' : 'text-gray-700'}`}>Dark</span>
+                                                    <svg className={`w-5 h-5 ${settings.theme === 'dark' ? 'text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                                                    <span className={`text-sm font-bold ${settings.theme === 'dark' ? 'text-[#8100D1] dark:text-[#a055db]' : 'text-gray-700 dark:text-gray-300'}`}>Dark</span>
                                                 </div>
                                             </button>
                                         </div>
-                                        <div className="mt-6 pt-6 border-t border-gray-100">
-                                            <p className="text-xs text-gray-500 text-center">{t('user_settings.dark_mode_note', 'Mode gelap diterapkan menggunakan Tailwind dark variant.')}</p>
+                                        <div className="mt-6 pt-6 border-t border-gray-100 dark:border-slate-800">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">{t('user_settings.dark_mode_note', 'Mode gelap diterapkan menggunakan Tailwind dark variant.')}</p>
                                         </div>
                                     </div>
                                 </div>

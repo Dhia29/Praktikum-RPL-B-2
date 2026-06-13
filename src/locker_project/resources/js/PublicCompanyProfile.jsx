@@ -10,7 +10,7 @@ export default function PublicCompanyProfile({ userData }) {
     const [activeTab, setActiveTab] = useState('tentang');
     const [recentJobs, setRecentJobs] = useState([]);
     const [isJobsLoading, setIsJobsLoading] = useState(false);
-    
+
     // Follow State
     const [isFollowing, setIsFollowing] = useState(userData.is_following || false);
     const [followerCount, setFollowerCount] = useState(userData.follower_count || 0);
@@ -55,7 +55,7 @@ export default function PublicCompanyProfile({ userData }) {
         } catch (error) {
             console.error("Gagal follow/unfollow perusahaan", error);
             if (error.response?.status === 401) {
-                alert(t('company.login_to_follow'));
+                window.alert(t('company.login_to_follow'));
             }
         } finally {
             setIsFollowLoading(false);
@@ -79,13 +79,13 @@ export default function PublicCompanyProfile({ userData }) {
             </div>
 
             <main className="max-w-[900px] mx-auto w-full pt-6 px-4 pb-20 flex flex-col gap-6">
-                
+
                 {/* Job Details Modal */}
                 <JobDetailsModal
                     isOpen={isDetailsModalOpen}
                     onClose={() => { setIsDetailsModalOpen(false); setSelectedJob(null); }}
                     job={selectedJob}
-                    onSuccess={() => {}} // dummy success handler
+                    onSuccess={() => { }} // dummy success handler
                 />
 
                 {/* --- KARTU PROFIL UTAMA (LOCKER STYLE) --- */}
@@ -117,19 +117,18 @@ export default function PublicCompanyProfile({ userData }) {
 
                             {/* Action Buttons (Follow) */}
                             <div className="flex gap-2 self-end">
-                                <button 
+                                <button
                                     onClick={handleToggleFollow}
                                     disabled={isFollowLoading}
-                                    className={`flex items-center gap-2 px-6 py-2 rounded-xl font-semibold transition shadow-sm border ${
-                                        isFollowing 
-                                            ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:bg-gray-200 dark:hover:bg-slate-700' 
+                                    className={`flex items-center gap-2 px-6 py-2 rounded-xl font-semibold transition shadow-sm border ${isFollowing
+                                            ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:bg-gray-200 dark:hover:bg-slate-700'
                                             : 'bg-[#8100D1] text-white border-transparent hover:bg-purple-800'
-                                    } ${isFollowLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        } ${isFollowLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
                                     {isFollowLoading ? (
                                         <svg className="animate-spin -ml-1 mr-1 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                     ) : isFollowing ? (
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                                     ) : (
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"></path></svg>
                                     )}
@@ -143,13 +142,13 @@ export default function PublicCompanyProfile({ userData }) {
                             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2 leading-tight">
                                 {userData.name}
                                 <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 p-1 rounded-full" title="Verified Company">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
                                 </span>
                             </h1>
                             <p className="text-lg text-gray-600 dark:text-gray-300 mt-1.5 font-medium">
                                 {userData.headline || t('company.industry')}
                             </p>
-                            
+
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
                                 <div className="flex items-center gap-1.5">
                                     <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -169,7 +168,7 @@ export default function PublicCompanyProfile({ userData }) {
                         </div>
 
                         {/* Interactive Buttons */}
-                        <div className="pb-6 flex flex-wrap gap-3 border-b border-gray-100 dark:border-slate-800 mt-6">
+                        <div className="pb-6 flex flex-wrap gap-3 border-b border-gray-200/50 dark:border-slate-800 mt-6">
                             {userData.website_url && (
                                 <a href={userData.website_url} target="_blank" rel="noopener noreferrer" className="bg-purple-50 dark:bg-purple-900/30 text-[#8100D1] dark:text-[#a055db] hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-purple-100 dark:border-purple-800/30 px-6 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2">
                                     {t('company.visit_website')}
@@ -185,7 +184,7 @@ export default function PublicCompanyProfile({ userData }) {
                                     { id: 'tentang', label: t('company.tab_about') },
                                     { id: 'lowongan', label: t('company.tab_jobs') }
                                 ].map(tab => (
-                                    <button 
+                                    <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         className={`py-3 text-sm font-bold whitespace-nowrap transition-all relative outline-none ${activeTab === tab.id ? 'text-[#8100D1] dark:text-[#a055db]' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white'}`}
@@ -213,13 +212,13 @@ export default function PublicCompanyProfile({ userData }) {
                                     {userData.description}
                                 </div>
                             ) : (
-                                <div className="py-8 text-center bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700">
+                                <div className="py-8 text-center bg-gray-50/50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700">
                                     <p className="text-gray-500 dark:text-gray-400 font-medium">{t('company.no_description')}</p>
                                 </div>
                             )}
-                            
+
                             {(userData.website_url || userData.employee_count || userData.npwp) && (
-                                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                                <div className="mt-8 pt-6 border-t border-gray-200/50 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                                     {userData.website_url && (
                                         <div>
                                             <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">{t('company.website')}</p>
@@ -251,7 +250,7 @@ export default function PublicCompanyProfile({ userData }) {
                                 <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">{t('company.open_jobs')}</h2>
                                 <span className="bg-purple-100 dark:bg-purple-900/30 text-[#8100D1] dark:text-[#a055db] text-xs font-bold px-3 py-1 rounded-full">{recentJobs.length} {t('company.jobs_count')}</span>
                             </div>
-                            
+
                             {isJobsLoading ? (
                                 <div className="py-10 flex justify-center relative z-10">
                                     <div className="w-8 h-8 border-4 border-gray-200 dark:border-slate-700 border-t-[#8100D1] dark:border-t-[#a055db] rounded-full animate-spin"></div>
@@ -259,16 +258,16 @@ export default function PublicCompanyProfile({ userData }) {
                             ) : recentJobs.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
                                     {recentJobs.map(job => (
-                                        <div 
-                                            key={job.id} 
+                                        <div
+                                            key={job.id}
                                             onClick={() => {
                                                 setSelectedJob(job);
                                                 setIsDetailsModalOpen(true);
-                                            }} 
-                                            className="border border-gray-200 dark:border-slate-700 rounded-2xl p-5 cursor-pointer hover:shadow-md hover:border-[#8100D1]/30 dark:hover:border-purple-500/30 transition group bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm"
+                                            }}
+                                            className="border border-gray-200/50 dark:border-slate-800 bg-white/50 dark:bg-slate-800/30 rounded-2xl p-5 cursor-pointer hover:shadow-lg hover:shadow-purple-500/5 hover:border-[#8100D1]/30 dark:hover:border-purple-500/30 transition-all group backdrop-blur-sm"
                                         >
                                             <div className="flex gap-4">
-                                                <div className="w-14 h-14 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 overflow-hidden shrink-0 flex items-center justify-center p-1">
+                                                <div className="w-14 h-14 rounded-xl bg-white dark:bg-slate-900 border border-gray-200/50 dark:border-slate-700 overflow-hidden shrink-0 flex items-center justify-center p-1 shadow-sm">
                                                     {userData.avatar_url ? <img src={userData.avatar_url} alt="Logo" className="w-full h-full object-contain" /> : <div className="w-full h-full bg-gray-200 dark:bg-slate-700 rounded-lg"></div>}
                                                 </div>
                                                 <div className="flex-1">
@@ -286,8 +285,8 @@ export default function PublicCompanyProfile({ userData }) {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="py-12 text-center bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 relative z-10">
-                                    <div className="w-16 h-16 bg-gray-200 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <div className="py-12 text-center bg-gray-50/50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 relative z-10">
+                                    <div className="w-16 h-16 bg-gray-200 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3">
                                         <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                                     </div>
                                     <h3 className="text-gray-900 dark:text-white font-bold mb-1">{t('company.no_jobs_title')}</h3>

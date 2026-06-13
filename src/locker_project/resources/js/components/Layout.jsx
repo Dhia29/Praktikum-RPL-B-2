@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import SupportModal from './SupportModal';
+import LogoutConfirmModal from './LogoutConfirmModal';
 import NotificationsDropdown from './NotificationsDropdown';
 
 export default function Layout() {
@@ -11,8 +12,9 @@ export default function Layout() {
     const { t } = useTranslation();
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
     const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
     // State ini akan diisi secara dinamis dari database
     const [userName, setUserName] = useState('...');
@@ -65,7 +67,7 @@ export default function Layout() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] font-sans flex flex-col transition-colors duration-500 relative">
-            
+
             {/* --- WOW FACTOR: Animated Background Glows --- */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
                 <div className="absolute -top-[20%] -right-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
@@ -93,17 +95,17 @@ export default function Layout() {
 
                         {/* 3. Notifications, Support, Profile */}
                         <div className="flex items-center gap-4">
-                            
+
                             <NotificationsDropdown currentUser={currentUser} />
 
                             <button
                                 onClick={() => setIsSupportModalOpen(true)}
-                                className="w-10 h-10 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-500 dark:text-slate-400 hover:text-[#8100D1] dark:hover:text-[#c682ff] hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors focus:outline-none"
+                                className="relative w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#8100D1] dark:hover:text-[#c682ff] hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-full transition-all focus:outline-none"
                                 title="Customer Service"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                                    <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/>
-                                    <path d="M21 16v2a4 4 0 0 1-4 4h-5"/>
+                                    <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z" />
+                                    <path d="M21 16v2a4 4 0 0 1-4 4h-5" />
                                 </svg>
                             </button>
 
@@ -122,19 +124,19 @@ export default function Layout() {
                                         <Link to={currentUser?.role === 'company' ? '/profile-perusahaan' : '/profile'} className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
                                             {t('nav.profile', 'Profil')}
                                         </Link>
-                                    <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
-                                        {t('nav.settings', 'Pengaturan')}
-                                    </Link>
-                                    <Link to="/help" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
-                                        {t('nav.help', 'Bantuan')}
-                                    </Link>
-                                    <div className="border-t border-gray-100 dark:border-slate-700 my-1"></div>
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="block w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
-                                    >
-                                        {t('nav.logout', 'Sign Out')}
-                                    </button>
+                                        <Link to="/settings" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
+                                            {t('nav.settings', 'Pengaturan')}
+                                        </Link>
+                                        <Link to="/help" className="block px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-colors">
+                                            {t('nav.help', 'Bantuan')}
+                                        </Link>
+                                        <div className="border-t border-gray-100 dark:border-slate-700 my-1"></div>
+                                        <button
+                                            onClick={() => setIsLogoutModalOpen(true)}
+                                            className="block w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
+                                        >
+                                            {t('nav.logout', 'Sign Out')}
+                                        </button>
                                     </div>
                                 )}
                             </div>
@@ -165,7 +167,7 @@ export default function Layout() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-7xl mx-auto w-full px-6 sm:px-8 py-8 relative z-10 animate-fade-in-up">
+            <main className="flex-1 max-w-7xl mx-auto w-full px-6 sm:px-8 py-8 relative">
                 <Outlet context={{ currentUser }} />
             </main>
 
@@ -173,6 +175,12 @@ export default function Layout() {
                 isOpen={isSupportModalOpen}
                 onClose={() => setIsSupportModalOpen(false)}
                 currentUser={currentUser}
+            />
+
+            <LogoutConfirmModal
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={handleSignOut}
             />
         </div>
     );

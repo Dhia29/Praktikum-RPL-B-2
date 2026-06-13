@@ -29,7 +29,7 @@ export default function UsersIndexAdmin() {
             fetchUsers();
         } catch (error) {
             console.error("Failed to toggle status", error);
-            alert(t('admin.users.alert_toggle_fail'));
+            window.alert(t('admin.users.alert_toggle_fail'));
         }
     };
 
@@ -40,7 +40,7 @@ export default function UsersIndexAdmin() {
             fetchUsers();
         } catch (error) {
             console.error("Failed to delete user", error);
-            alert(t('admin.users.alert_delete_fail'));
+            window.alert(t('admin.users.alert_delete_fail'));
         }
     };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const isSeeker = currentUser?.role === 'seeker';
-    
+
     const [step, setStep] = useState(1);
     const [isApplying, setIsApplying] = useState(false);
     const [profileData, setProfileData] = useState(null);
@@ -31,7 +32,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
         }
 
         if (!isSeeker) {
-            alert(t('job_details.only_seekers'));
+            window.alert(t('job_details.only_seekers'));
             return;
         }
         setStep(2);
@@ -52,7 +53,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
         e.preventDefault();
 
         if (!nik || !tanggalLahir || !ijazahFile) {
-            alert(t('job_details.fill_all_fields'));
+            window.alert(t('job_details.fill_all_fields'));
             return;
         }
 
@@ -69,8 +70,8 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                 }
             });
 
-            alert(response.data.message || t('job_details.apply_success'));
-            
+            window.alert(response.data.message || t('job_details.apply_success'));
+
             // Reset state
             setStep(1);
             setNik('');
@@ -81,7 +82,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
             onClose();
         } catch (error) {
             const errorMsg = error.response?.data?.message || t('job_details.apply_fail');
-            alert(errorMsg);
+            window.alert(errorMsg);
         } finally {
             setIsApplying(false);
         }
@@ -113,12 +114,14 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
         onClose();
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl relative my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                
+    return createPortal(
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl w-full max-w-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] dark:shadow-[0_0_30px_rgba(255,255,255,0.03)] border border-white/40 dark:border-white/5 relative my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+
                 {/* Header (Banner + Action) */}
-                <div className="bg-gradient-to-r from-purple-50 to-white dark:from-slate-800 dark:to-slate-900 px-8 py-6 border-b border-gray-100 dark:border-slate-800 flex items-start justify-between">
+                <div className="bg-gradient-to-r from-purple-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-900/50 px-8 py-6 border-b border-gray-200/50 dark:border-white/5 flex items-start justify-between relative overflow-hidden">
+                    {/* Decorative glow */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-purple-400/10 dark:bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
                     <div className="flex gap-6 items-center">
                         <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
                             {getLogo()}
@@ -129,7 +132,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                                 <span className="font-semibold text-gray-800 dark:text-gray-200">{job.company}</span>
                                 <span className="text-gray-300 dark:text-gray-600">•</span>
                                 <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                     {job.location}
                                 </span>
                             </div>
@@ -143,9 +146,9 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                             </div>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={handleCloseModal}
-                        className="p-2 bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-full transition-colors border border-gray-100 dark:border-slate-700"
+                        className="p-2.5 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 text-gray-500 dark:text-gray-400 hover:text-[#8100D1] dark:hover:text-[#c682ff] rounded-full transition-all border border-gray-200/50 dark:border-slate-600 shadow-sm relative z-10"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -156,7 +159,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                         {/* Content Body */}
                         <div className="p-8 max-h-[50vh] overflow-y-auto">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                <svg className="w-5 h-5 text-[#8100D1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <svg className="w-5 h-5 text-[#8100D1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                 {t('job_details.description')}
                             </h3>
                             <div className="prose prose-sm prose-purple max-w-none text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
@@ -165,25 +168,25 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                         </div>
 
                         {/* Footer / Actions */}
-                        <div className="px-8 py-5 bg-gray-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                        <div className="px-8 py-5 bg-gray-50/50 dark:bg-slate-800/30 border-t border-gray-200/50 dark:border-white/5 flex items-center justify-between">
                             <p className="text-xs text-gray-500 dark:text-gray-400">
                                 {hasApplied ? t('job_details.already_applied_note') : t('job_details.update_profile_note')}
                             </p>
                             <div className="flex gap-3">
-                                <button 
+                                <button
                                     onClick={handleCloseModal}
-                                    className="px-5 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg transition-colors"
+                                    className="px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 bg-white/80 dark:bg-slate-800/80 border border-gray-200/50 dark:border-slate-600 rounded-xl transition-all shadow-sm"
                                 >
                                     {t('job_details.close')}
                                 </button>
-                                
-                                <button 
+
+                                <button
                                     onClick={handleNextStep}
                                     disabled={hasApplied}
-                                    className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center gap-2 shadow-sm
-                                        ${hasApplied 
-                                            ? 'bg-gray-300 text-white cursor-not-allowed' 
-                                            : 'bg-[#8100D1] hover:bg-purple-800 text-white'}`}
+                                    className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)]
+                                        ${hasApplied
+                                            ? 'bg-gray-300 text-white cursor-not-allowed shadow-none hover:shadow-none'
+                                            : 'bg-gradient-to-r from-[#8100D1] to-purple-600 hover:to-purple-700 text-white transform hover:-translate-y-0.5'}`}
                                 >
                                     {hasApplied ? (
                                         <>
@@ -203,7 +206,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                             {/* Content Body - Form */}
                             <div className="p-8 max-h-[60vh] overflow-y-auto">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-[#8100D1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <svg className="w-5 h-5 text-[#8100D1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                     {t('job_details.review_title')}
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{t('job_details.review_desc')}</p>
@@ -236,17 +239,17 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                                                     <span className="block text-sm font-semibold text-gray-900 dark:text-white">{profileData.education || '-'}</span>
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="mt-4 pt-4 border-t border-purple-100 dark:border-slate-700">
                                                 <span className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{t('job_details.cv')}</span>
                                                 {profileData.cv_url ? (
                                                     <a href={profileData.cv_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm font-medium text-[#8100D1] dark:text-purple-300 hover:bg-gray-50 dark:hover:bg-slate-600 hover:border-purple-200 dark:hover:border-purple-400 transition-colors">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                                         {t('job_details.view_cv')}
                                                     </a>
                                                 ) : (
                                                     <span className="inline-flex items-center gap-1.5 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                                                         {t('job_details.no_cv_warning')}
                                                     </span>
                                                 )}
@@ -260,8 +263,8 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                                 <div className="space-y-5">
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('job_details.nik_label')}</label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             required
                                             maxLength="16"
                                             value={nik}
@@ -270,11 +273,11 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                                             placeholder={t('job_details.nik_placeholder')}
                                         />
                                     </div>
-                                    
+
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('job_details.dob_label')}</label>
-                                        <input 
-                                            type="date" 
+                                        <input
+                                            type="date"
                                             required
                                             value={tanggalLahir}
                                             onChange={(e) => setTanggalLahir(e.target.value)}
@@ -307,8 +310,8 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                             </div>
 
                             {/* Footer / Actions */}
-                            <div className="px-8 py-5 bg-gray-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
-                                <button 
+                            <div className="px-8 py-5 bg-gray-50/50 dark:bg-slate-800/30 border-t border-gray-200/50 dark:border-white/5 flex items-center justify-between">
+                                <button
                                     type="button"
                                     onClick={() => setStep(1)}
                                     className="px-5 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -316,21 +319,21 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                                     &larr; {t('job_details.back')}
                                 </button>
                                 <div className="flex gap-3">
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={handleCloseModal}
-                                        className="px-5 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg transition-colors"
+                                        className="px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 bg-white/80 dark:bg-slate-800/80 border border-gray-200/50 dark:border-slate-600 rounded-xl transition-all shadow-sm"
                                     >
                                         {t('job_details.cancel')}
                                     </button>
-                                    
-                                    <button 
+
+                                    <button
                                         type="submit"
                                         disabled={isApplying}
-                                        className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all flex items-center gap-2 shadow-sm
-                                            ${isApplying 
-                                                ? 'bg-[#8100D1]/80 text-white cursor-wait' 
-                                                : 'bg-[#8100D1] hover:bg-purple-800 text-white'}`}
+                                        className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)]
+                                            ${isApplying
+                                                ? 'bg-[#8100D1]/80 text-white cursor-wait shadow-none'
+                                                : 'bg-gradient-to-r from-[#8100D1] to-purple-600 hover:to-purple-700 text-white transform hover:-translate-y-0.5'}`}
                                     >
                                         {isApplying ? (
                                             <>
@@ -347,6 +350,7 @@ export default function JobDetailsModal({ isOpen, onClose, job, onSuccess }) {
                     </>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

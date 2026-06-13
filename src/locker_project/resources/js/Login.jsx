@@ -32,12 +32,14 @@ export default function Login() {
             axios.defaults.withCredentials = true;
 
             const response = await axios.post('/login', formData);
-
             console.log('Login Sukses:', response.data);
-            alert('Berhasil masuk!');
-
-            // Arahkan ke Loker
-            navigate('/loker');
+            
+            // Show success skeleton loading transition instead of alert
+                        
+            // Arahkan ke Loker setelah delay singkat agar animasi terlihat mulus
+            setTimeout(() => {
+                                navigate('/loker');
+            }, 1200);
 
         } catch (error) {
             console.error('Login Error:', error);
@@ -60,13 +62,19 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0B0F19] py-10 px-4 relative overflow-hidden transition-colors duration-500">
+            {/* Background Decorative Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[10%] -left-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute bottom-[10%] -right-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
 
-                {/* Header (Versi UI milikmu) */}
+            <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 w-full max-w-md relative z-10 animate-fade-in-up">
+
+                {/* Header */}
                 <div className="text-center mb-6">
-                    <h2 className="text-3xl font-bold text-gray-800">LockER</h2>
-                    <p className="text-gray-500 text-sm mt-2">Perjalanan karir dimulai dari sekarang!</p>
+                    <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8100D1] to-pink-500 drop-shadow-sm">LockER</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Perjalanan karir dimulai dari sekarang!</p>
                 </div>
 
                 {/* Box Pesan Error (Ditambahkan agar UI komunikatif saat gagal login) */}
@@ -91,9 +99,9 @@ export default function Login() {
                     <button
                         type="button"
                         onClick={handleGoogleLogin}
-                        className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                        className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-200 font-bold py-2.5 px-4 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm group"
                     >
-                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -105,30 +113,30 @@ export default function Login() {
 
                 {/* Divider */}
                 <div className="relative flex items-center py-2 mb-6">
-                    <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">atau masuk dengan email</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
+                    <div className="flex-grow border-t border-gray-200 dark:border-slate-800"></div>
+                    <span className="flex-shrink-0 mx-4 text-gray-400 dark:text-gray-500 text-sm font-medium">atau masuk dengan email</span>
+                    <div className="flex-grow border-t border-gray-200 dark:border-slate-800"></div>
                 </div>
 
                 {/* Form Login (Terkoneksi dengan State & Axios) */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Alamat Email</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
+                            className="w-full px-4 py-2.5 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none transition-all shadow-sm"
                             placeholder="nama@email.com"
                         />
                     </div>
 
                     <div className="relative">
-                        <div className="flex justify-between items-center mb-1">
-                            <label className="block text-sm font-medium text-gray-700">Password</label>
-                            <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline font-medium">Lupa password?</Link>
+                        <div className="flex justify-between items-center mb-1.5">
+                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Password</label>
+                            <Link to="/forgot-password" className="text-xs text-[#8100D1] dark:text-[#c682ff] hover:underline font-bold transition">Lupa password?</Link>
                         </div>
                         <input
                             type={showPassword ? "text" : "password"}
@@ -136,7 +144,7 @@ export default function Login() {
                             value={formData.password}
                             onChange={handleChange}
                             required
-                            className="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
+                            className="w-full pl-4 pr-10 py-2.5 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none transition-all shadow-sm"
                             placeholder="Masukkan password Anda"
                         />
                         <button
@@ -155,23 +163,24 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`w-full text-white font-semibold py-3 px-4 rounded-lg transition-colors mt-2 shadow-sm ${isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        className={`w-full text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(129,0,209,0.3)] hover:shadow-[0_8px_25px_rgba(129,0,209,0.5)] transform hover:-translate-y-0.5 mt-4 group relative overflow-hidden ${isLoading ? 'bg-purple-400 cursor-not-allowed' : 'bg-gradient-to-r from-[#8100D1] to-pink-500'}`}
                     >
-                        {isLoading ? 'Memeriksa...' : 'Masuk'}
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                        <span className="relative z-10">{isLoading ? 'Memeriksa...' : 'Masuk'}</span>
                     </button>
                 </form>
 
                 {/* Footer Links */}
-                <div className="mt-8 text-center text-sm text-gray-600 space-y-4">
+                <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400 space-y-4">
                     <p>
                         Belum memiliki akun?{' '}
-                        <Link to="/register" className="text-blue-600 font-semibold hover:underline">
+                        <Link to="/register" className="text-[#8100D1] dark:text-[#c682ff] font-bold hover:underline transition">
                             Daftar di sini
                         </Link>
                     </p>
 
-                    <div className="pt-4 border-t border-gray-100">
-                        <a href="/admin/login" className="text-xs text-gray-500 hover:text-gray-800 flex items-center justify-center gap-1 transition-colors">
+                    <div className="pt-4 border-t border-gray-100 dark:border-slate-800/50">
+                        <a href="/admin/login" className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white flex items-center justify-center gap-1 transition-colors">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             Masuk sebagai Administrator
                         </a>

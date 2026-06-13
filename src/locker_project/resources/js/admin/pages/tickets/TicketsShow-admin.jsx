@@ -76,7 +76,7 @@ export default function TicketsShowAdmin() {
             fetchTicket();
         } catch (error) {
             console.error("Failed to assign admin", error);
-            alert(t('admin.tickets.alert_assign_fail'));
+            window.alert(t('admin.tickets.alert_assign_fail'));
         }
     };
 
@@ -87,7 +87,7 @@ export default function TicketsShowAdmin() {
             fetchTicket();
         } catch (error) {
             console.error("Failed to update status", error);
-            alert(t('admin.tickets.alert_status_fail'));
+            window.alert(t('admin.tickets.alert_status_fail'));
         }
     };
 
@@ -103,7 +103,7 @@ export default function TicketsShowAdmin() {
             fetchTicket();
         } catch (error) {
             console.error("Failed to send reply", error);
-            alert(t('admin.tickets.alert_reply_fail'));
+            window.alert(t('admin.tickets.alert_reply_fail'));
         }
     };
 

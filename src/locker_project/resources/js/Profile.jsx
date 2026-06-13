@@ -30,6 +30,7 @@ export default function Profile() {
     const [isCertModalOpen, setIsCertModalOpen] = useState(false);
     const [certForm, setCertForm] = useState({ id: '', name: '', organization: '', issue_date: '', file_url: '', description: '' });
     const [cvUrl, setCvUrl] = useState(null);
+    const [isCvModalOpen, setIsCvModalOpen] = useState(false);
     const cvInputRef = useRef(null);
     const certInputRef = useRef(null);
     const [isUploadingCv, setIsUploadingCv] = useState(false);
@@ -140,10 +141,10 @@ export default function Profile() {
     const handleConnect = async (userId) => {
         try {
             await axios.post('/api/connections/request', { receiver_id: userId });
-            alert("Permintaan terkirim!");
+            window.alert("Permintaan terkirim!");
             fetchConnections();
         } catch (error) {
-            alert(error.response?.data?.message || "Gagal mengirim permintaan");
+            window.alert(error.response?.data?.message || "Gagal mengirim permintaan");
         }
     };
 
@@ -152,7 +153,7 @@ export default function Profile() {
             await axios.post('/api/connections/respond', { connection_id: connId, action });
             fetchConnections();
         } catch (error) {
-            alert("Gagal merespon permintaan");
+            window.alert("Gagal merespon permintaan");
         }
     };
 
@@ -161,11 +162,11 @@ export default function Profile() {
     const handleChoosePhoto = () => { setShowOptionsModal(false); fileInputRef.current.click(); };
     const handleFileChange = async (event) => { const file = event.target.files[0]; if (!file) return; event.target.value = null; const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => { setImageSrc(reader.result); setShowCropModal(true); }; };
     const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => { setCroppedAreaPixels(croppedAreaPixels); }, []);
-    const handleSaveCroppedImage = async () => { try { setIsUploading(true); setShowCropModal(false); const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels); const formData = new FormData(); formData.append('image', croppedBlob); formData.append('type', uploadTarget); const response = await axios.post('/api/profile/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } }); if (uploadTarget === 'avatar') { setUserData(prev => ({ ...prev, avatar_url: response.data.url })); } else { setUserData(prev => ({ ...prev, banner_url: response.data.url })); } } catch (error) { alert('Gagal mengunggah gambar.'); } finally { setIsUploading(false); setImageSrc(null); } };
+    const handleSaveCroppedImage = async () => { try { setIsUploading(true); setShowCropModal(false); const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels); const formData = new FormData(); formData.append('image', croppedBlob); formData.append('type', uploadTarget); const response = await axios.post('/api/profile/upload-image', formData, { headers: { 'Content-Type': 'multipart/form-data' } }); if (uploadTarget === 'avatar') { setUserData(prev => ({ ...prev, avatar_url: response.data.url })); } else { setUserData(prev => ({ ...prev, banner_url: response.data.url })); } } catch (error) { window.alert('Gagal mengunggah gambar.'); } finally { setIsUploading(false); setImageSrc(null); } };
 
     // --- FUNGSI ALUR INTRO ---
     const openEditModal = () => { setFormData({ name: userData.name, headline: userData.headline, location: userData.location, current_position: userData.current_position, education: userData.education }); setIsEditModalOpen(true); };
-    const handleSaveIntro = async (e) => { e.preventDefault(); try { await axios.post('/api/profile/intro', formData); setUserData(prev => ({ ...prev, ...formData })); setIsEditModalOpen(false); } catch (error) { alert('Gagal menyimpan intro.'); } };
+    const handleSaveIntro = async (e) => { e.preventDefault(); try { await axios.post('/api/profile/intro', formData); setUserData(prev => ({ ...prev, ...formData })); setIsEditModalOpen(false); } catch (error) { window.alert('Gagal menyimpan intro.'); } };
 
     // --- FUNGSI ALUR KONTAK ---
     const openContactModal = () => { setIsContactModalOpen(true); setActivePlatform(null); setShowActionPrompt(false); };
@@ -211,7 +212,7 @@ export default function Profile() {
             setUserData(prev => ({ ...prev, ...response.data.data }));
             setActivePlatform(null);
         } catch (error) {
-            alert('Gagal memperbarui kontak. Periksa kembali kecocokan format input.');
+            window.alert('Gagal memperbarui kontak. Periksa kembali kecocokan format input.');
         } finally {
             setIsUploading(false);
         }
@@ -243,7 +244,7 @@ export default function Profile() {
 
     const handleShareProfile = () => {
         if (!userData || !userData.user_id) {
-            alert('Data profil belum lengkap untuk dibagikan.');
+            window.alert('Data profil belum lengkap untuk dibagikan.');
             return;
         }
         const profileUrl = `${window.location.origin}/profile/${userData.user_id}`;
@@ -259,10 +260,10 @@ export default function Profile() {
             });
         } else {
             navigator.clipboard.writeText(profileUrl).then(() => {
-                alert(t('profile.link_copied'));
+                window.alert(t('profile.link_copied'));
             }).catch(err => {
                 console.error('Gagal menyalin tautan:', err);
-                alert('Gagal menyalin tautan profil.');
+                window.alert('Gagal menyalin tautan profil.');
             });
         }
     };
@@ -283,19 +284,19 @@ export default function Profile() {
             setExperiences(updatedExps);
             setIsExpModalOpen(false);
         } catch (error) {
-            alert('Gagal menyimpan pengalaman');
+            window.alert('Gagal menyimpan pengalaman');
         }
     };
 
     const handleDeleteExperience = async (id) => {
-        if (!confirm('Hapus pengalaman ini?')) return;
+        if (!window.confirm('Hapus pengalaman ini?')) return;
         const updatedExps = experiences.filter(ex => ex.id !== id);
         try {
             await axios.put('/api/profile/experiences', { experiences: updatedExps });
             setExperiences(updatedExps);
             setIsExpModalOpen(false);
         } catch (error) {
-            alert('Gagal menghapus pengalaman');
+            window.alert('Gagal menghapus pengalaman');
         }
     };
 
@@ -314,19 +315,19 @@ export default function Profile() {
             setEducations(updatedEdus);
             setIsEduModalOpen(false);
         } catch (error) {
-            alert('Gagal menyimpan pendidikan');
+            window.alert('Gagal menyimpan pendidikan');
         }
     };
 
     const handleDeleteEducation = async (id) => {
-        if (!confirm('Hapus pendidikan ini?')) return;
+        if (!window.confirm('Hapus pendidikan ini?')) return;
         const updatedEdus = educations.filter(ed => ed.id !== id);
         try {
             await axios.put('/api/profile/educations', { educations: updatedEdus });
             setEducations(updatedEdus);
             setIsEduModalOpen(false);
         } catch (error) {
-            alert(t('profile.edu_delete_failed'));
+            window.alert(t('profile.edu_delete_failed'));
         }
     };
 
@@ -334,8 +335,8 @@ export default function Profile() {
     const handleCVUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { alert(t('profile.cv_size_limit')); return; }
-        if (file.type !== 'application/pdf') { alert(t('profile.cv_format_invalid')); return; }
+        if (file.size > 5 * 1024 * 1024) { window.alert(t('profile.cv_size_limit')); return; }
+        if (file.type !== 'application/pdf') { window.alert(t('profile.cv_format_invalid')); return; }
 
         const formData = new FormData();
         formData.append('cv', file);
@@ -345,7 +346,7 @@ export default function Profile() {
             const res = await axios.post('/api/profile/cv', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             setCvUrl(res.data.url);
         } catch (error) {
-            alert(t('profile.cv_upload_failed'));
+            window.alert(t('profile.cv_upload_failed'));
         } finally {
             setIsUploadingCv(false);
             if (cvInputRef.current) cvInputRef.current.value = '';
@@ -353,12 +354,12 @@ export default function Profile() {
     };
 
     const handleDeleteCV = async () => {
-        if (!confirm(t('profile.confirm_delete_cv'))) return;
+        if (!window.confirm(t('profile.confirm_delete_cv'))) return;
         try {
             await axios.delete('/api/profile/cv');
             setCvUrl(null);
         } catch (error) {
-            alert(t('profile.cv_delete_failed'));
+            window.alert(t('profile.cv_delete_failed'));
         }
     };
 
@@ -366,7 +367,7 @@ export default function Profile() {
     const handleUploadCertFile = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { alert(t('profile.cert_size_limit')); return; }
+        if (file.size > 5 * 1024 * 1024) { window.alert(t('profile.cert_size_limit')); return; }
 
         const formData = new FormData();
         formData.append('file', file);
@@ -376,7 +377,7 @@ export default function Profile() {
             const res = await axios.post('/api/profile/certifications/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             setCertForm({ ...certForm, file_url: res.data.url });
         } catch (error) {
-            alert(t('profile.cert_upload_failed'));
+            window.alert(t('profile.cert_upload_failed'));
         } finally {
             setIsUploadingCert(false);
         }
@@ -397,19 +398,19 @@ export default function Profile() {
             setCertifications(updatedCerts);
             setIsCertModalOpen(false);
         } catch (error) {
-            alert(t('profile.cert_save_failed'));
+            window.alert(t('profile.cert_save_failed'));
         }
     };
 
     const handleDeleteCertification = async (id) => {
-        if (!confirm(t('profile.confirm_delete_cert'))) return;
+        if (!window.confirm(t('profile.confirm_delete_cert'))) return;
         const updatedCerts = certifications.filter(c => c.id !== id);
         try {
             await axios.put('/api/profile/certifications', { certifications: updatedCerts });
             setCertifications(updatedCerts);
             setIsCertModalOpen(false);
         } catch (error) {
-            alert(t('profile.cert_delete_failed'));
+            window.alert(t('profile.cert_delete_failed'));
         }
     };
 
@@ -436,35 +437,35 @@ export default function Profile() {
             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/jpeg, image/png, image/jpg" className="hidden" />
 
             {/* Modal Edit Intro */}
-            {isEditModalOpen && (<div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"><div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col"><div className="flex justify-between items-center p-5 border-b border-gray-200"><h3 className="text-xl font-bold text-gray-900">{t('profile.edit_profile')}</h3><button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div className="overflow-y-auto p-5"><form id="edit-intro-form" onSubmit={handleSaveIntro} className="flex flex-col gap-4"><div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.full_name')} *</label><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div><div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.headline')} *</label><input type="text" placeholder={t('profile.headline_placeholder')} value={formData.headline} onChange={(e) => setFormData({ ...formData, headline: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div><div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.location')} *</label><input type="text" placeholder={t('profile.location_placeholder')} value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div><div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.current_position')}</label><input type="text" value={formData.current_position} onChange={(e) => setFormData({ ...formData, current_position: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div><div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.institution')}</label><input type="text" value={formData.education} onChange={(e) => setFormData({ ...formData, education: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div></form></div><div className="p-5 border-t border-gray-100 flex justify-end gap-3 bg-gray-50"><button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2 text-gray-600 font-semibold rounded-full hover:bg-gray-200">{t('profile.cancel')}</button><button type="submit" form="edit-intro-form" className="px-5 py-2 bg-[#8100D1] text-white font-semibold rounded-full hover:bg-purple-800">{t('profile.save')}</button></div></div></div>)}
+            {isEditModalOpen && (<div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-md p-4"><div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/40 dark:border-white/5 w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col"><div className="flex justify-between items-center p-5 border-b border-gray-200/50 dark:border-slate-800"><h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.edit_profile')}</h3><button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div className="overflow-y-auto p-5"><form id="edit-intro-form" onSubmit={handleSaveIntro} className="flex flex-col gap-4"><div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.full_name')} *</label><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div><div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.headline')} *</label><input type="text" placeholder={t('profile.headline_placeholder')} value={formData.headline} onChange={(e) => setFormData({ ...formData, headline: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div><div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.location')} *</label><input type="text" placeholder={t('profile.location_placeholder')} value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div><div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.current_position')}</label><input type="text" value={formData.current_position} onChange={(e) => setFormData({ ...formData, current_position: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div><div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.institution')}</label><input type="text" value={formData.education} onChange={(e) => setFormData({ ...formData, education: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div></form></div><div className="p-5 border-t border-gray-200/50 dark:border-slate-800 flex justify-end gap-3 bg-gray-50/50 dark:bg-slate-800/30"><button type="button" onClick={() => setIsEditModalOpen(false)} className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-bold rounded-xl bg-white/80 dark:bg-slate-800/80 hover:bg-gray-100 dark:hover:bg-slate-700 shadow-sm transition-all">{t('profile.cancel')}</button><button type="submit" form="edit-intro-form" className="px-5 py-2.5 bg-gradient-to-r from-[#8100D1] to-purple-600 text-white font-bold rounded-xl hover:to-purple-700 shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)] transition-all">{t('profile.save')}</button></div></div></div>)}
 
             {/* Modal Experience */}
             {isExpModalOpen && (
-                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col">
-                        <div className="flex justify-between items-center mb-6 border-b p-5">
-                            <h3 className="text-xl font-bold text-gray-900">{expForm.id ? t('profile.edit_exp') : t('profile.add_exp')}</h3>
-                            <button onClick={() => { setIsExpModalOpen(false); setExpForm({ title: '', company_name: '', location: '', start_date: '', end_date: '', description: '' }); }} className="text-gray-400 hover:text-gray-600 transition bg-gray-100 hover:bg-gray-200 p-1.5 rounded-full"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-md p-4">
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/40 dark:border-white/5 w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col">
+                        <div className="flex justify-between items-center mb-2 border-b border-gray-200/50 dark:border-slate-800 p-5">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{expForm.id ? t('profile.edit_exp') : t('profile.add_exp')}</h3>
+                            <button onClick={() => { setIsExpModalOpen(false); setExpForm({ title: '', company_name: '', location: '', start_date: '', end_date: '', description: '' }); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-full shadow-sm"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                         </div>
-                        <div className="overflow-y-auto p-5">
+                        <div className="overflow-y-auto p-5 pt-2">
                             <form id="exp-form" onSubmit={handleSaveExperience} className="flex flex-col gap-4">
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.job_title')} *</label><input type="text" value={expForm.title} onChange={(e) => setExpForm({ ...expForm, title: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div>
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.company_name')} *</label><input type="text" value={expForm.company_name} onChange={(e) => setExpForm({ ...expForm, company_name: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div>
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.location')}</label><input type="text" value={expForm.location} onChange={(e) => setExpForm({ ...expForm, location: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.job_title')} *</label><input type="text" value={expForm.title} onChange={(e) => setExpForm({ ...expForm, title: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.company_name')} *</label><input type="text" value={expForm.company_name} onChange={(e) => setExpForm({ ...expForm, company_name: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.location')}</label><input type="text" value={expForm.location} onChange={(e) => setExpForm({ ...expForm, location: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.start_date')}</label><input type="text" placeholder={t('profile.date_placeholder')} value={expForm.start_date} onChange={(e) => setExpForm({ ...expForm, start_date: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div>
-                                    <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.end_date')}</label><input type="text" placeholder={t('profile.date_placeholder')} value={expForm.end_date} onChange={(e) => setExpForm({ ...expForm, end_date: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div>
+                                    <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.start_date')}</label><input type="text" placeholder={t('profile.date_placeholder')} value={expForm.start_date} onChange={(e) => setExpForm({ ...expForm, start_date: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div>
+                                    <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.end_date')}</label><input type="text" placeholder={t('profile.date_placeholder')} value={expForm.end_date} onChange={(e) => setExpForm({ ...expForm, end_date: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div>
                                 </div>
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.description')}</label><textarea value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} rows="4" className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none"></textarea></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.description')}</label><textarea value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} rows="4" className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm resize-none"></textarea></div>
                             </form>
                         </div>
-                        <div className="p-5 border-t border-gray-100 flex justify-between gap-3 bg-gray-50">
+                        <div className="p-5 border-t border-gray-200/50 dark:border-slate-800 flex justify-between gap-3 bg-gray-50/50 dark:bg-slate-800/30">
                             {expForm.id ? (
-                                <button type="button" onClick={() => handleDeleteExperience(expForm.id)} className="px-5 py-2 text-red-600 font-semibold rounded-full hover:bg-red-50">{t('profile.delete')}</button>
+                                <button type="button" onClick={() => handleDeleteExperience(expForm.id)} className="px-5 py-2.5 text-red-500 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors bg-white/80 dark:bg-slate-800/80 shadow-sm border border-red-100 dark:border-red-900/30">{t('profile.delete')}</button>
                             ) : <div></div>}
                             <div className="flex gap-3">
-                                <button type="button" onClick={() => setIsExpModalOpen(false)} className="px-5 py-2 text-gray-600 font-semibold rounded-full hover:bg-gray-200">{t('profile.cancel')}</button>
-                                <button type="submit" form="exp-form" className="px-5 py-2 bg-[#8100D1] text-white font-semibold rounded-full hover:bg-purple-800">{t('profile.save')}</button>
+                                <button type="button" onClick={() => setIsExpModalOpen(false)} className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors bg-white/80 dark:bg-slate-800/80 shadow-sm">{t('profile.cancel')}</button>
+                                <button type="submit" form="exp-form" className="px-5 py-2.5 bg-gradient-to-r from-[#8100D1] to-purple-600 text-white font-bold rounded-xl hover:to-purple-700 shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)] transition-all transform hover:-translate-y-0.5">{t('profile.save')}</button>
                             </div>
                         </div>
                     </div>
@@ -473,31 +474,31 @@ export default function Profile() {
 
             {/* Modal Education */}
             {isEduModalOpen && (
-                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col">
-                        <div className="flex justify-between items-center mb-6 border-b p-5">
-                            <h3 className="text-xl font-bold text-gray-900">{eduForm.id ? t('profile.edit_edu') : t('profile.add_edu')}</h3>
-                            <button onClick={() => { setIsEduModalOpen(false); setEduForm({ school: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' }); }} className="text-gray-400 hover:text-gray-600 transition bg-gray-100 hover:bg-gray-200 p-1.5 rounded-full"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-md p-4">
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/40 dark:border-white/5 w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col">
+                        <div className="flex justify-between items-center mb-2 border-b border-gray-200/50 dark:border-slate-800 p-5">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{eduForm.id ? t('profile.edit_edu') : t('profile.add_edu')}</h3>
+                            <button onClick={() => { setIsEduModalOpen(false); setEduForm({ school: '', degree: '', field_of_study: '', start_date: '', end_date: '', description: '' }); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-full shadow-sm"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                         </div>
-                        <div className="overflow-y-auto p-5">
+                        <div className="overflow-y-auto p-5 pt-2">
                             <form id="edu-form" onSubmit={handleSaveEducation} className="flex flex-col gap-4">
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.institution')} *</label><input type="text" value={eduForm.school} onChange={(e) => setEduForm({ ...eduForm, school: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div>
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.degree')}</label><input type="text" placeholder={t('profile.degree_placeholder')} value={eduForm.degree} onChange={(e) => setEduForm({ ...eduForm, degree: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div>
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.field_of_study')}</label><input type="text" placeholder={t('profile.field_placeholder')} value={eduForm.field_of_study} onChange={(e) => setEduForm({ ...eduForm, field_of_study: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.institution')} *</label><input type="text" value={eduForm.school} onChange={(e) => setEduForm({ ...eduForm, school: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.degree')}</label><input type="text" placeholder={t('profile.degree_placeholder')} value={eduForm.degree} onChange={(e) => setEduForm({ ...eduForm, degree: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.field_of_study')}</label><input type="text" placeholder={t('profile.field_placeholder')} value={eduForm.field_of_study} onChange={(e) => setEduForm({ ...eduForm, field_of_study: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.start_year')}</label><input type="text" placeholder="2020" value={eduForm.start_date} onChange={(e) => setEduForm({ ...eduForm, start_date: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" required /></div>
-                                    <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.end_year')}</label><input type="text" placeholder="2024" value={eduForm.end_date} onChange={(e) => setEduForm({ ...eduForm, end_date: e.target.value })} className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none" /></div>
+                                    <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.start_year')}</label><input type="text" placeholder="2020" value={eduForm.start_date} onChange={(e) => setEduForm({ ...eduForm, start_date: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" required /></div>
+                                    <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.end_year')}</label><input type="text" placeholder="2024" value={eduForm.end_date} onChange={(e) => setEduForm({ ...eduForm, end_date: e.target.value })} className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm" /></div>
                                 </div>
-                                <div><label className="block text-sm font-semibold text-gray-700 mb-1">{t('profile.description')}</label><textarea value={eduForm.description} onChange={(e) => setEduForm({ ...eduForm, description: e.target.value })} rows="4" className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#8100D1] outline-none"></textarea></div>
+                                <div><label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('profile.description')}</label><textarea value={eduForm.description} onChange={(e) => setEduForm({ ...eduForm, description: e.target.value })} rows="4" className="w-full bg-gray-50/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-2.5 focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none shadow-sm resize-none"></textarea></div>
                             </form>
                         </div>
-                        <div className="p-5 border-t border-gray-100 flex justify-between gap-3 bg-gray-50">
+                        <div className="p-5 border-t border-gray-200/50 dark:border-slate-800 flex justify-between gap-3 bg-gray-50/50 dark:bg-slate-800/30">
                             {eduForm.id ? (
-                                <button type="button" onClick={() => handleDeleteEducation(eduForm.id)} className="px-5 py-2 text-red-600 font-semibold rounded-full hover:bg-red-50">{t('profile.delete')}</button>
+                                <button type="button" onClick={() => handleDeleteEducation(eduForm.id)} className="px-5 py-2.5 text-red-500 font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors bg-white/80 dark:bg-slate-800/80 shadow-sm border border-red-100 dark:border-red-900/30">{t('profile.delete')}</button>
                             ) : <div></div>}
                             <div className="flex gap-3">
-                                <button type="button" onClick={() => setIsEduModalOpen(false)} className="px-5 py-2 text-gray-600 font-semibold rounded-full hover:bg-gray-200">{t('profile.cancel')}</button>
-                                <button type="submit" form="edu-form" className="px-5 py-2 bg-[#8100D1] text-white font-semibold rounded-full hover:bg-purple-800">{t('profile.save')}</button>
+                                <button type="button" onClick={() => setIsEduModalOpen(false)} className="px-5 py-2.5 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors bg-white/80 dark:bg-slate-800/80 shadow-sm">{t('profile.cancel')}</button>
+                                <button type="submit" form="edu-form" className="px-5 py-2.5 bg-gradient-to-r from-[#8100D1] to-purple-600 text-white font-bold rounded-xl hover:to-purple-700 shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)] transition-all transform hover:-translate-y-0.5">{t('profile.save')}</button>
                             </div>
                         </div>
                     </div>
@@ -506,7 +507,7 @@ export default function Profile() {
 
 
             {/* Modal Image Options (Pilih Foto) */}
-            {showOptionsModal && (<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"><div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in-up"><div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50"><h3 className="font-bold text-gray-800">{t('profile.edit_photo_target', { target: uploadTarget })}</h3><button onClick={() => setShowOptionsModal(false)} className="text-gray-500 hover:text-gray-800"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div className="flex flex-col"><button onClick={handleChoosePhoto} className="flex items-center gap-3 p-4 hover:bg-gray-50 transition border-b border-gray-100 text-gray-800 font-medium"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{t('profile.choose_new_photo')}</button><button className="p-4 hover:bg-red-50 text-red-600 font-medium flex items-center gap-3"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>{t('profile.delete_photo')}</button></div></div></div>)}
+            {showOptionsModal && (<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-md p-4"><div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/40 dark:border-white/5 w-full max-w-sm overflow-hidden animate-fade-in-up"><div className="p-5 border-b border-gray-200/50 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/30"><h3 className="font-bold text-gray-900 dark:text-white">{t('profile.edit_photo_target', { target: uploadTarget })}</h3><button onClick={() => setShowOptionsModal(false)} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div className="flex flex-col"><button onClick={handleChoosePhoto} className="flex items-center gap-3 p-5 hover:bg-gray-50 dark:hover:bg-slate-800 transition border-b border-gray-200/50 dark:border-slate-800 text-gray-900 dark:text-white font-bold"><svg className="w-5 h-5 text-[#8100D1] dark:text-[#c682ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{t('profile.choose_new_photo')}</button><button className="p-5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 font-bold flex items-center gap-3 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>{t('profile.delete_photo')}</button></div></div></div>)}
 
             {/* Modal Crop */}
             {showCropModal && (<div className="fixed inset-0 z-[110] bg-black flex flex-col"><div className="flex justify-between items-center p-4 bg-black/80 text-white z-10"><button onClick={() => setShowCropModal(false)} className="px-4 py-2 text-sm font-semibold rounded-full hover:bg-white/10">{t('profile.cancel')}</button><h3 className="font-semibold text-sm">{t('profile.crop')}</h3><button onClick={handleSaveCroppedImage} className="px-4 py-2 text-sm font-bold text-[#c682ff] rounded-full hover:bg-white/10">{t('profile.select')}</button></div><div className="relative flex-1 bg-black"><Cropper image={imageSrc} crop={crop} zoom={zoom} aspect={uploadTarget === 'avatar' ? 1 : 4 / 1} cropShape={uploadTarget === 'avatar' ? 'round' : 'rect'} onCropChange={setCrop} onCropComplete={onCropComplete} onZoomChange={setZoom} showGrid={false} /></div><div className="p-6 bg-black/80 flex items-center gap-4 z-10 pb-10"><input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(e.target.value)} className="w-full h-1 rounded-lg accent-[#8100D1]" /></div></div>)}
@@ -516,15 +517,15 @@ export default function Profile() {
 
             {/* --- MODAL POP-UP INFORMASI KONTAK --- */}
             {isContactModalOpen && (
-                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col relative">
+                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-md p-4">
+                    <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/40 dark:border-white/5 w-full max-w-lg overflow-hidden animate-fade-in-up max-h-[90vh] flex flex-col relative">
 
-                        <div className="flex justify-between items-center p-5 border-b border-gray-200">
-                            <h3 className="text-xl font-bold text-gray-900">
+                        <div className="flex justify-between items-center p-5 border-b border-gray-200/50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
+                            <h3 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8100D1] to-purple-600 dark:from-[#c682ff] dark:to-purple-400">
                                 {activePlatform && !showActionPrompt ? `${t('profile.connect')} ${activePlatform.toUpperCase()}` : userData.name}
                             </h3>
-                            <button onClick={() => { setIsContactModalOpen(false); setActivePlatform(null); }} className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            <button onClick={() => { setIsContactModalOpen(false); setActivePlatform(null); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-full shadow-sm">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
 
@@ -565,9 +566,9 @@ export default function Profile() {
                                         </div>
                                     )}
 
-                                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                        <button type="button" onClick={() => setActivePlatform(null)} className="px-5 py-2 text-sm text-gray-600 font-semibold rounded-full hover:bg-gray-100">{t('profile.cancel')}</button>
-                                        <button type="submit" className="px-5 py-2 text-sm bg-[#8100D1] text-white font-semibold rounded-full hover:bg-purple-800">{t('profile.save_link')}</button>
+                                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-200/50 dark:border-slate-800">
+                                        <button type="button" onClick={() => setActivePlatform(null)} className="px-5 py-2.5 text-sm text-gray-600 dark:text-gray-300 font-bold rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all">{t('profile.cancel')}</button>
+                                        <button type="submit" className="px-5 py-2.5 text-sm bg-gradient-to-r from-[#8100D1] to-purple-600 text-white font-bold rounded-xl hover:to-purple-700 shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)] transition-all transform hover:-translate-y-0.5">{t('profile.save_link')}</button>
                                     </div>
                                 </form>
                             ) : activePlatform && showActionPrompt ? (
@@ -592,12 +593,12 @@ export default function Profile() {
                             ) : (
                                 // --- MODE LIHAT KONTAK (DAFTAR TAUTAN) ---
                                 <div className="space-y-8">
-                                    <h4 className="text-lg font-bold text-gray-900 border-l-4 border-[#8100D1] pl-3">{t('profile.direct_links')}</h4>
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white border-l-4 border-[#8100D1] pl-3">{t('profile.direct_links')}</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
 
                                         {/* WHATSAPP */}
                                         <div onClick={() => handlePlatformCardClick('whatsapp', userData.wa_number)} className={`flex items-center gap-4 group cursor-pointer ${!userData.wa_number ? 'opacity-50 hover:opacity-100' : ''}`}>
-                                            <div className={`p-3 rounded-lg transition ${userData.wa_number ? 'bg-green-50 text-green-600 group-hover:bg-green-100' : 'bg-gray-100 text-gray-400 group-hover:text-green-500'}`}><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L3.2 480l117.7-30.9c32.7 17.7 68.9 27.1 106.1 27.1h.1c122.4 0 222-99.6 222-222 0-59.3-23.1-115.1-65.1-157.1zM223.9 448h-.1c-33.1 0-65.7-8.9-93.9-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-82.7 184.6-184.5 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-11.3-5.7-22.1-10.4-31.5-18.7-14.8-13.2-24.8-29.4-27.7-34.4-2.8-5.1-.3-7.8 2.5-10.5 2.5-2.5 5.5-6.5 8.2-9.7 2.8-3.2 3.7-5.5 5.6-9.2 1.9-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.7 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" /></svg></div>
+                                            <div className={`p-3 rounded-2xl transition-all shadow-sm border ${userData.wa_number ? 'bg-green-50/80 dark:bg-green-900/20 text-green-600 border-green-200 dark:border-green-800 group-hover:bg-green-100 dark:group-hover:bg-green-900/40 group-hover:scale-105' : 'bg-gray-50 dark:bg-slate-800 text-gray-400 border-gray-200 dark:border-slate-700 group-hover:text-green-500 group-hover:border-green-300 dark:group-hover:border-green-700 group-hover:scale-105'}`}><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L3.2 480l117.7-30.9c32.7 17.7 68.9 27.1 106.1 27.1h.1c122.4 0 222-99.6 222-222 0-59.3-23.1-115.1-65.1-157.1zM223.9 448h-.1c-33.1 0-65.7-8.9-93.9-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-82.7 184.6-184.5 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-11.3-5.7-22.1-10.4-31.5-18.7-14.8-13.2-24.8-29.4-27.7-34.4-2.8-5.1-.3-7.8 2.5-10.5 2.5-2.5 5.5-6.5 8.2-9.7 2.8-3.2 3.7-5.5 5.6-9.2 1.9-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.7 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" /></svg></div>
                                             <div className="flex-1">
                                                 <p className={`text-sm font-semibold transition ${userData.wa_number ? 'text-gray-900 group-hover:text-green-700' : 'text-gray-500'}`}>WhatsApp Chat</p>
                                                 <p className="text-xs text-gray-500 mt-0.5">{userData.wa_number ? `+${userData.wa_number}` : t('profile.not_set')}</p>
@@ -648,6 +649,29 @@ export default function Profile() {
                 </div>
             )}
 
+
+            {/* MODAL CV */}
+            {isCvModalOpen && cvUrl && createPortal(
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-8">
+                    <div className="bg-white dark:bg-[#0B0F19] rounded-2xl w-full max-w-5xl h-full flex flex-col overflow-hidden shadow-2xl animate-fade-in-up">
+                        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-900">
+                            <h3 className="font-bold text-gray-900 dark:text-white">{t('profile.my_resume')}</h3>
+                            <div className="flex gap-2">
+                                <a href={cvUrl} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-[#8100D1] text-white rounded-lg text-sm font-semibold hover:bg-purple-800 transition">{t('profile.view_doc')}</a>
+                                <button onClick={() => { setIsCvModalOpen(false); cvInputRef.current?.click(); }} className="px-4 py-2 bg-gray-200 dark:bg-slate-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition">{t('profile.update')}</button>
+                                <button onClick={() => { setIsCvModalOpen(false); handleDeleteCV(); }} className="px-4 py-2 bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded-lg text-sm font-semibold transition">{t('profile.delete')}</button>
+                                <button onClick={() => setIsCvModalOpen(false)} className="p-2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white bg-gray-200 dark:bg-slate-800 hover:bg-gray-300 dark:hover:bg-slate-700 rounded-lg transition ml-2">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex-1 w-full bg-gray-100 dark:bg-black relative">
+                            <iframe src={`${cvUrl}#toolbar=0`} className="absolute inset-0 w-full h-full border-none" title="CV Full View" />
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {/* HEADER NAVIGASI */}
             <PageHeader backUrl="/loker" maxWidth="max-w-7xl" zIndex="z-50" />
@@ -700,150 +724,150 @@ export default function Profile() {
                 {/* KONEKSI & MUTUALS */}
                 <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.1s' }}>
                     <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
-                        <div className="flex border-b border-gray-200 dark:border-slate-800">
-                            <button onClick={() => setActiveTab('mutuals')} className={`flex-1 py-4 font-bold text-sm transition-colors ${activeTab === 'mutuals' ? 'text-[#8100D1] border-b-2 border-[#8100D1]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
-                                {t('profile.my_connections')} ({connections.length + pendingRequests.length})
-                            </button>
-                            <button onClick={() => setActiveTab('explore')} className={`flex-1 py-4 font-bold text-sm transition-colors ${activeTab === 'explore' ? 'text-[#8100D1] border-b-2 border-[#8100D1]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
-                                {t('profile.explore')}
-                            </button>
+                    <div className="flex border-b border-gray-200 dark:border-slate-800">
+                        <button onClick={() => setActiveTab('mutuals')} className={`flex-1 py-4 font-bold text-sm transition-colors ${activeTab === 'mutuals' ? 'text-[#8100D1] border-b-2 border-[#8100D1]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
+                            {t('profile.my_connections')} ({connections.length + pendingRequests.length})
+                        </button>
+                        <button onClick={() => setActiveTab('explore')} className={`flex-1 py-4 font-bold text-sm transition-colors ${activeTab === 'explore' ? 'text-[#8100D1] border-b-2 border-[#8100D1]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
+                            {t('profile.explore')}
+                        </button>
+                    </div>
+
+                    <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex items-center gap-3">
+                        <div className="relative flex-1">
+                            <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <input
+                                type="text"
+                                placeholder={t('profile.search_placeholder')}
+                                value={searchConnQuery}
+                                onChange={(e) => setSearchConnQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-[#8100D1] text-sm dark:text-white"
+                            />
                         </div>
+                    </div>
 
-                        <div className="p-6 border-b border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex items-center gap-3">
-                            <div className="relative flex-1">
-                                <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                <input
-                                    type="text"
-                                    placeholder={t('profile.search_placeholder')}
-                                    value={searchConnQuery}
-                                    onChange={(e) => setSearchConnQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-[#8100D1] text-sm dark:text-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="p-6">
-                            {isConnLoading ? (
-                                <div className="flex justify-center py-8"><span className="animate-pulse text-gray-400 font-medium">{t('profile.loading_connections')}</span></div>
-                            ) : activeTab === 'mutuals' ? (
-                                <div className="space-y-6">
-                                    {pendingRequests.length > 0 && !searchConnQuery && (
-                                        <div>
-                                            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-[#8100D1] pl-2">{t('profile.pending_requests')}</h4>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {pendingRequests.map(req => (
-                                                    <div key={req.connection_id} className="flex items-center gap-4 p-4 border border-gray-100 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-800">
-                                                        <div onClick={() => navigate('/profile/' + req.user_id)} className="w-12 h-12 rounded-full overflow-hidden bg-purple-100 flex-shrink-0 flex items-center justify-center cursor-pointer hover:opacity-80 transition">
-                                                            {req.avatar_url ? <img src={req.avatar_url} className="w-full h-full object-cover" /> : <span className="font-bold text-[#8100D1] text-lg">{req.name.charAt(0)}</span>}
-                                                        </div>
-                                                        <div className="flex-1 overflow-hidden">
-                                                            <h5 onClick={() => navigate('/profile/' + req.user_id)} className="font-bold text-gray-900 dark:text-white text-sm truncate cursor-pointer hover:text-[#8100D1] transition">{req.name}</h5>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{req.headline || t('profile.job_seeker')}</p>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button onClick={() => handleRespond(req.connection_id, 'accept')} className="p-2 bg-[#8100D1] text-white rounded-full hover:bg-purple-800 transition"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg></button>
-                                                            <button onClick={() => handleRespond(req.connection_id, 'reject')} className="p-2 bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-300 transition"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
+                    <div className="p-6">
+                        {isConnLoading ? (
+                            <div className="flex justify-center py-8"><span className="animate-pulse text-gray-400 font-medium">{t('profile.loading_connections')}</span></div>
+                        ) : activeTab === 'mutuals' ? (
+                            <div className="space-y-6">
+                                {pendingRequests.length > 0 && !searchConnQuery && (
                                     <div>
-                                        {pendingRequests.length > 0 && !searchConnQuery && <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-[#8100D1] pl-2 mt-6">{t('profile.active_connections')}</h4>}
-                                        {filteredConnections.length > 0 ? (
-                                            <div className="flex overflow-x-auto gap-4 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                                {filteredConnections.map(conn => (
-                                                    <div key={conn.connection_id} className="snap-start flex-shrink-0 w-48 sm:w-56 flex flex-col border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition bg-white dark:bg-slate-900 relative">
-                                                        <div
-                                                            onClick={() => navigate('/profile/' + conn.user_id)}
-                                                            className="h-20 w-full bg-gradient-to-r from-purple-200 to-purple-400 cursor-pointer relative"
-                                                            style={conn.banner_url ? { backgroundImage: `url(${conn.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-                                                        >
-                                                        </div>
-
-                                                        <div className="px-4 pb-4 flex flex-col items-center flex-1 relative">
-                                                            <div
-                                                                onClick={() => navigate('/profile/' + conn.user_id)}
-                                                                className="w-16 h-16 rounded-full overflow-hidden bg-white dark:bg-slate-900 p-1 -mt-8 mb-2 shadow-sm cursor-pointer z-10"
-                                                            >
-                                                                <div className="w-full h-full rounded-full overflow-hidden bg-purple-100 flex items-center justify-center">
-                                                                    {conn.avatar_url ? <img src={conn.avatar_url} className="w-full h-full object-cover" /> : <span className="font-bold text-[#8100D1] text-2xl">{conn.name.charAt(0)}</span>}
-                                                                </div>
-                                                            </div>
-
-                                                            <h5
-                                                                onClick={() => navigate('/profile/' + conn.user_id)}
-                                                                className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1 cursor-pointer hover:text-[#8100D1] transition text-center w-full"
-                                                            >
-                                                                {conn.name}
-                                                            </h5>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 min-h-[32px] text-center w-full">{conn.headline || t('profile.job_seeker')}</p>
-
-                                                            <button className="mt-4 w-full py-1.5 bg-white dark:bg-slate-800 border border-[#8100D1] text-[#8100D1] dark:text-[#a055db] text-xs font-bold rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 transition shadow-sm">
-                                                                {t('profile.send_message')}
-                                                            </button>
-                                                        </div>
+                                        <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-[#8100D1] pl-2">{t('profile.pending_requests')}</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {pendingRequests.map(req => (
+                                                <div key={req.connection_id} className="flex items-center gap-4 p-4 border border-gray-100 dark:border-slate-800 rounded-lg bg-gray-50 dark:bg-slate-800">
+                                                    <div onClick={() => navigate('/profile/' + req.user_id)} className="w-12 h-12 rounded-full overflow-hidden bg-purple-100 flex-shrink-0 flex items-center justify-center cursor-pointer hover:opacity-80 transition">
+                                                        {req.avatar_url ? <img src={req.avatar_url} className="w-full h-full object-cover" /> : <span className="font-bold text-[#8100D1] text-lg">{req.name.charAt(0)}</span>}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="text-center py-8">
-                                                <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{t('profile.no_connections')}</p>
-                                                {!searchConnQuery && <button onClick={() => setActiveTab('explore')} className="px-5 py-2 bg-purple-50 dark:bg-purple-900/20 text-[#8100D1] text-sm font-bold rounded-full hover:bg-purple-100 transition">{t('profile.start_explore')}</button>}
-                                            </div>
-                                        )}
+                                                    <div className="flex-1 overflow-hidden">
+                                                        <h5 onClick={() => navigate('/profile/' + req.user_id)} className="font-bold text-gray-900 dark:text-white text-sm truncate cursor-pointer hover:text-[#8100D1] transition">{req.name}</h5>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{req.headline || t('profile.job_seeker')}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => handleRespond(req.connection_id, 'accept')} className="p-2 bg-[#8100D1] text-white rounded-full hover:bg-purple-800 transition"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg></button>
+                                                        <button onClick={() => handleRespond(req.connection_id, 'reject')} className="p-2 bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-300 transition"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            ) : (
+                                )}
+
                                 <div>
-                                    {filteredSuggestions.length > 0 ? (
+                                    {pendingRequests.length > 0 && !searchConnQuery && <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-[#8100D1] pl-2 mt-6">{t('profile.active_connections')}</h4>}
+                                    {filteredConnections.length > 0 ? (
                                         <div className="flex overflow-x-auto gap-4 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                            {filteredSuggestions.map(user => (
-                                                <div key={user.user_id} className="snap-start flex-shrink-0 w-48 sm:w-56 flex flex-col border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition bg-white dark:bg-slate-900 relative">
+                                            {filteredConnections.map(conn => (
+                                                <div key={conn.connection_id} className="snap-start flex-shrink-0 w-48 sm:w-56 flex flex-col border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition bg-white dark:bg-slate-900 relative">
                                                     <div
-                                                        onClick={() => navigate('/profile/' + user.user_id)}
-                                                        className="h-20 w-full bg-gradient-to-r from-gray-300 to-gray-400 cursor-pointer relative"
-                                                        style={user.banner_url ? { backgroundImage: `url(${user.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                                                        onClick={() => navigate('/profile/' + conn.user_id)}
+                                                        className="h-20 w-full bg-gradient-to-r from-purple-200 to-purple-400 cursor-pointer relative"
+                                                        style={conn.banner_url ? { backgroundImage: `url(${conn.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                                                     >
-                                                        {user.is_mutual == 1 && <div className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 text-[10px] font-bold text-green-600 rounded-full shadow-sm">2nd</div>}
                                                     </div>
 
                                                     <div className="px-4 pb-4 flex flex-col items-center flex-1 relative">
                                                         <div
-                                                            onClick={() => navigate('/profile/' + user.user_id)}
+                                                            onClick={() => navigate('/profile/' + conn.user_id)}
                                                             className="w-16 h-16 rounded-full overflow-hidden bg-white dark:bg-slate-900 p-1 -mt-8 mb-2 shadow-sm cursor-pointer z-10"
                                                         >
-                                                            <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                                                                {user.avatar_url ? <img src={user.avatar_url} className="w-full h-full object-cover" /> : <span className="font-bold text-gray-400 text-2xl">{user.name.charAt(0)}</span>}
+                                                            <div className="w-full h-full rounded-full overflow-hidden bg-purple-100 flex items-center justify-center">
+                                                                {conn.avatar_url ? <img src={conn.avatar_url} className="w-full h-full object-cover" /> : <span className="font-bold text-[#8100D1] text-2xl">{conn.name.charAt(0)}</span>}
                                                             </div>
                                                         </div>
 
                                                         <h5
-                                                            onClick={() => navigate('/profile/' + user.user_id)}
+                                                            onClick={() => navigate('/profile/' + conn.user_id)}
                                                             className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1 cursor-pointer hover:text-[#8100D1] transition text-center w-full"
                                                         >
-                                                            {user.name}
+                                                            {conn.name}
                                                         </h5>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 min-h-[32px] text-center w-full">{user.headline || t('profile.job_seeker')}</p>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 min-h-[32px] text-center w-full">{conn.headline || t('profile.job_seeker')}</p>
 
-                                                        <button onClick={() => handleConnect(user.user_id)} className="mt-4 w-full py-1.5 bg-white dark:bg-slate-800 border border-[#8100D1] text-[#8100D1] dark:text-[#a055db] text-xs font-bold rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 transition shadow-sm">
-                                                            + {t('profile.connect_btn')}
+                                                        <button className="mt-4 w-full py-1.5 bg-white dark:bg-slate-800 border border-[#8100D1] text-[#8100D1] dark:text-[#a055db] text-xs font-bold rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 transition shadow-sm">
+                                                            {t('profile.send_message')}
                                                         </button>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">{t('profile.no_suggestions')}</div>
+                                        <div className="text-center py-8">
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">{t('profile.no_connections')}</p>
+                                            {!searchConnQuery && <button onClick={() => setActiveTab('explore')} className="px-5 py-2 bg-purple-50 dark:bg-purple-900/20 text-[#8100D1] text-sm font-bold rounded-full hover:bg-purple-100 transition">{t('profile.start_explore')}</button>}
+                                        </div>
                                     )}
                                 </div>
-                            )}
-                        </div>
-                    </div>
+                            </div>
+                        ) : (
+                            <div>
+                                {filteredSuggestions.length > 0 ? (
+                                    <div className="flex overflow-x-auto gap-4 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                        {filteredSuggestions.map(user => (
+                                            <div key={user.user_id} className="snap-start flex-shrink-0 w-48 sm:w-56 flex flex-col border border-gray-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition bg-white dark:bg-slate-900 relative">
+                                                <div
+                                                    onClick={() => navigate('/profile/' + user.user_id)}
+                                                    className="h-20 w-full bg-gradient-to-r from-gray-300 to-gray-400 cursor-pointer relative"
+                                                    style={user.banner_url ? { backgroundImage: `url(${user.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                                                >
+                                                    {user.is_mutual == 1 && <div className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 text-[10px] font-bold text-green-600 rounded-full shadow-sm">2nd</div>}
+                                                </div>
 
-                    
+                                                <div className="px-4 pb-4 flex flex-col items-center flex-1 relative">
+                                                    <div
+                                                        onClick={() => navigate('/profile/' + user.user_id)}
+                                                        className="w-16 h-16 rounded-full overflow-hidden bg-white dark:bg-slate-900 p-1 -mt-8 mb-2 shadow-sm cursor-pointer z-10"
+                                                    >
+                                                        <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                            {user.avatar_url ? <img src={user.avatar_url} className="w-full h-full object-cover" /> : <span className="font-bold text-gray-400 text-2xl">{user.name.charAt(0)}</span>}
+                                                        </div>
+                                                    </div>
+
+                                                    <h5
+                                                        onClick={() => navigate('/profile/' + user.user_id)}
+                                                        className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1 cursor-pointer hover:text-[#8100D1] transition text-center w-full"
+                                                    >
+                                                        {user.name}
+                                                    </h5>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 min-h-[32px] text-center w-full">{user.headline || t('profile.job_seeker')}</p>
+
+                                                    <button onClick={() => handleConnect(user.user_id)} className="mt-4 w-full py-1.5 bg-white dark:bg-slate-800 border border-[#8100D1] text-[#8100D1] dark:text-[#a055db] text-xs font-bold rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 transition shadow-sm">
+                                                        + {t('profile.connect_btn')}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">{t('profile.no_suggestions')}</div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+
                 {/* PENGALAMAN CARD */}
                 {/* PENGALAMAN CARD */}
                 <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden mb-6 relative animate-fade-in-up group" style={{ animationDelay: '0.2s' }}>
@@ -965,25 +989,36 @@ export default function Profile() {
                         <div className="absolute inset-0 pointer-events-none rounded-3xl border border-transparent group-hover:border-purple-500/10 transition-colors duration-500 z-50"></div>
                         <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-slate-800">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('profile.resume')}</h2>
-                            {!cvUrl && (
-                                <button onClick={() => cvInputRef.current?.click()} className="p-2 text-gray-500 dark:text-gray-400 hover:text-[#8100D1] hover:bg-purple-50 dark:hover:bg-slate-800 rounded-full transition"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg></button>
-                            )}
                         </div>
                         <div className="p-6">
                             {cvUrl ? (
-                                <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between bg-gray-50">
+                                <div 
+                                    onClick={() => setIsCvModalOpen(true)}
+                                    className="group/cv w-full flex items-center justify-between p-5 border border-purple-100 dark:border-slate-700 rounded-2xl bg-white/50 dark:bg-slate-800/50 hover:bg-purple-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                                >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11v6m-3-3h6" /></svg>
+                                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-[#8100D1] dark:text-[#c682ff] rounded-xl flex items-center justify-center group-hover/cv:scale-105 transition-transform">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900 text-sm">{t('profile.my_resume')}</p>
-                                            <a href={cvUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[#8100D1] font-semibold hover:underline">{t('profile.view_doc')}</a>
+                                            <p className="font-bold text-gray-900 dark:text-white group-hover/cv:text-[#8100D1] transition-colors">{t('profile.my_resume')}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Klik untuk melihat detail dokumen</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => cvInputRef.current?.click()} className="text-sm font-semibold text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg px-3 py-1.5 bg-white shadow-sm hover:bg-gray-50 transition">{t('profile.update')}</button>
-                                        <button onClick={handleDeleteCV} className="text-sm font-semibold text-red-600 hover:text-red-700 border border-red-200 rounded-lg px-3 py-1.5 bg-red-50 hover:bg-red-100 transition">{t('profile.delete')}</button>
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); cvInputRef.current?.click(); }}
+                                            className="px-3 py-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-[#8100D1] dark:hover:text-[#c682ff] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:border-[#8100D1] dark:hover:border-[#c682ff] rounded-lg shadow-sm transition-all z-10"
+                                        >
+                                            {t('profile.update')}
+                                        </button>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteCV(); }}
+                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors z-10"
+                                            title={t('profile.delete')}
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
                                     </div>
                                 </div>
                             ) : (
@@ -1004,56 +1039,56 @@ export default function Profile() {
                 </div>
 
                 {/* MODAL SERTIFIKASI */}
-                    {isCertModalOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                            <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
-                                <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                                    <h3 className="font-bold text-gray-800 text-lg">{certForm.id ? t('profile.edit_cert') : t('profile.add_cert')}</h3>
-                                    <button onClick={() => setIsCertModalOpen(false)} className="text-gray-400 hover:text-gray-700 transition"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                                </div>
-                                <div className="p-6 overflow-y-auto custom-scrollbar">
-                                    <form id="certForm" onSubmit={handleSaveCertification} className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('profile.cert_name')} *</label>
-                                            <input type="text" value={certForm.name} onChange={e => setCertForm({ ...certForm, name: e.target.value })} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Organisasi Penerbit *</label>
-                                            <input type="text" value={certForm.organization} onChange={e => setCertForm({ ...certForm, organization: e.target.value })} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Diterbitkan</label>
-                                            <input type="text" placeholder="Bulan Tahun (cth: Jan 2024)" value={certForm.issue_date} onChange={e => setCertForm({ ...certForm, issue_date: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">File Sertifikat (Opsional, PDF/Gambar)</label>
-                                            <input type="file" ref={certInputRef} onChange={handleUploadCertFile} accept=".pdf,image/*" className="hidden" />
-                                            <div className="flex items-center gap-3">
-                                                <button type="button" onClick={() => certInputRef.current?.click()} disabled={isUploadingCert} className="px-4 py-2 border border-[#8100D1] text-[#8100D1] font-semibold text-sm rounded-lg hover:bg-purple-50 transition">
-                                                    {isUploadingCert ? 'Mengunggah...' : 'Pilih File'}
-                                                </button>
-                                                {certForm.file_url && <a href={certForm.file_url} target="_blank" rel="noopener noreferrer" className="text-sm text-green-600 font-semibold hover:underline">Lihat File Tersimpan</a>}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Keterangan / ID Kredensial</label>
-                                            <textarea value={certForm.description} onChange={e => setCertForm({ ...certForm, description: e.target.value })} rows="3" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm"></textarea>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div className="p-6 border-t border-gray-100 flex justify-between bg-gray-50">
-                                    {certForm.id ? (
-                                        <button type="button" onClick={() => handleDeleteCertification(certForm.id)} className="px-5 py-2 text-red-600 font-semibold rounded-full hover:bg-red-50 text-sm">Hapus</button>
-                                    ) : <div></div>}
-                                    <div className="flex gap-2">
-                                        <button type="button" onClick={() => setIsCertModalOpen(false)} className="px-5 py-2 text-gray-600 font-semibold rounded-full hover:bg-gray-100 text-sm">Batal</button>
-                                        <button type="submit" form="certForm" className="px-5 py-2 bg-[#8100D1] text-white font-bold rounded-full hover:bg-purple-800 text-sm shadow-sm transition">Simpan</button>
+                {isCertModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                        <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+                            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                                <h3 className="font-bold text-gray-800 text-lg">{certForm.id ? t('profile.edit_cert') : t('profile.add_cert')}</h3>
+                                <button onClick={() => setIsCertModalOpen(false)} className="text-gray-400 hover:text-gray-700 transition"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                            </div>
+                            <div className="p-6 overflow-y-auto custom-scrollbar">
+                                <form id="certForm" onSubmit={handleSaveCertification} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('profile.cert_name')} *</label>
+                                        <input type="text" value={certForm.name} onChange={e => setCertForm({ ...certForm, name: e.target.value })} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm" />
                                     </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Organisasi Penerbit *</label>
+                                        <input type="text" value={certForm.organization} onChange={e => setCertForm({ ...certForm, organization: e.target.value })} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tanggal Diterbitkan</label>
+                                        <input type="text" placeholder="Bulan Tahun (cth: Jan 2024)" value={certForm.issue_date} onChange={e => setCertForm({ ...certForm, issue_date: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">File Sertifikat (Opsional, PDF/Gambar)</label>
+                                        <input type="file" ref={certInputRef} onChange={handleUploadCertFile} accept=".pdf,image/*" className="hidden" />
+                                        <div className="flex items-center gap-3">
+                                            <button type="button" onClick={() => certInputRef.current?.click()} disabled={isUploadingCert} className="px-4 py-2 border border-[#8100D1] text-[#8100D1] font-semibold text-sm rounded-lg hover:bg-purple-50 transition">
+                                                {isUploadingCert ? 'Mengunggah...' : 'Pilih File'}
+                                            </button>
+                                            {certForm.file_url && <a href={certForm.file_url} target="_blank" rel="noopener noreferrer" className="text-sm text-green-600 font-semibold hover:underline">Lihat File Tersimpan</a>}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Keterangan / ID Kredensial</label>
+                                        <textarea value={certForm.description} onChange={e => setCertForm({ ...certForm, description: e.target.value })} rows="3" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] outline-none text-sm"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div className="p-6 border-t border-gray-100 flex justify-between bg-gray-50">
+                                {certForm.id ? (
+                                    <button type="button" onClick={() => handleDeleteCertification(certForm.id)} className="px-5 py-2 text-red-600 font-semibold rounded-full hover:bg-red-50 text-sm">Hapus</button>
+                                ) : <div></div>}
+                                <div className="flex gap-2">
+                                    <button type="button" onClick={() => setIsCertModalOpen(false)} className="px-5 py-2 text-gray-600 font-semibold rounded-full hover:bg-gray-100 text-sm">Batal</button>
+                                    <button type="submit" form="certForm" className="px-5 py-2 bg-[#8100D1] text-white font-bold rounded-full hover:bg-purple-800 text-sm shadow-sm transition">Simpan</button>
                                 </div>
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
+        </div>
     );
 }

@@ -35,7 +35,7 @@ export default function CommunityReportsShowAdmin() {
             fetchReport();
         } catch (error) {
             console.error("Failed to update report status", error);
-            alert(t('admin.community.alert_status_fail'));
+            window.alert(t('admin.community.alert_status_fail'));
         }
     };
 
@@ -48,7 +48,7 @@ export default function CommunityReportsShowAdmin() {
             fetchReport();
         } catch (error) {
             console.error("Failed to delete post", error);
-            alert(t('admin.community.alert_delete_post_fail'));
+            window.alert(t('admin.community.alert_delete_post_fail'));
         }
     };
 

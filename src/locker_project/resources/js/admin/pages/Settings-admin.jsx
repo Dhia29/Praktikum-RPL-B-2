@@ -91,9 +91,9 @@ export default function SettingsAdmin() {
         } catch (error) {
             console.error("Failed to save settings", error);
             if (error.response?.data?.message) {
-                alert(t('admin.settings.common.fail_msg') + error.response.data.message);
+                window.alert(t('admin.settings.common.fail_msg') + error.response.data.message);
             } else {
-                alert(t('admin.settings.common.fail_msg'));
+                window.alert(t('admin.settings.common.fail_msg'));
             }
         }
     };

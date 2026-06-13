@@ -39,7 +39,7 @@ export default function JobsIndexAdmin() {
             fetchJobs();
         } catch (error) {
             console.error("Failed to verify job", error);
-            alert(t('admin.jobs.alert_verify_fail'));
+            window.alert(t('admin.jobs.alert_verify_fail'));
         }
     };
 
@@ -50,7 +50,7 @@ export default function JobsIndexAdmin() {
             fetchJobs();
         } catch (error) {
             console.error("Failed to delete job", error);
-            alert(t('admin.jobs.alert_delete_fail'));
+            window.alert(t('admin.jobs.alert_delete_fail'));
         }
     };
 

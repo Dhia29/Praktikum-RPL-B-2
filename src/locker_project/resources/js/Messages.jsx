@@ -35,6 +35,7 @@ export default function Messages() {
 
     const [isComposeOpen, setIsComposeOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [inboxSearchQuery, setInboxSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
@@ -164,7 +165,7 @@ export default function Messages() {
     };
 
     const handleChatAction = async (contactId, action) => {
-        if (action === 'delete_history' && !confirm('Yakin ingin menghapus riwayat pesan pada obrolan ini?')) return;
+        if (action === 'delete_history' && !window.confirm('Yakin ingin menghapus riwayat pesan pada obrolan ini?')) return;
 
         try {
             await axios.post(`/api/messages/settings/${contactId}`, { action });
@@ -181,7 +182,7 @@ export default function Messages() {
             setOpenRoomMenuId(null);
         } catch (error) {
             console.error("Gagal memperbarui pengaturan chat", error);
-            alert("Gagal memproses aksi.");
+            window.alert("Gagal memproses aksi.");
         }
     };
 
@@ -193,7 +194,7 @@ export default function Messages() {
             fetchRooms();
         } catch (error) {
             console.error("Gagal menghapus pesan", error);
-            alert("Gagal menghapus pesan.");
+            window.alert("Gagal menghapus pesan.");
         }
     };
 
@@ -204,7 +205,7 @@ export default function Messages() {
             fetchRooms();
         } catch (error) {
             console.error("Gagal merespons jadwal", error);
-            alert(error.response?.data?.message || "Gagal merespons jadwal.");
+            window.alert(error.response?.data?.message || "Gagal merespons jadwal.");
         }
     };
 
@@ -251,7 +252,7 @@ export default function Messages() {
         if (!file) return;
 
         if (file.size > 100 * 1024 * 1024) {
-            alert("Ukuran file maksimal 100MB");
+            window.alert("Ukuran file maksimal 100MB");
             return;
         }
 
@@ -315,15 +316,13 @@ export default function Messages() {
             scrollToBottom();
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Gagal mengirim pesan.';
-            alert(errorMessage);
+            window.alert(errorMessage);
             setTypedMessage(currentMessage);
         }
     };
 
     return (
-        <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden h-[75vh] flex">
-            <input type="file" ref={fileInputRef} onChange={handleMediaChange} className="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.rar" />
-            
+        <>
             <AppointmentModal 
                 isOpen={isAppointmentModalOpen}
                 onClose={() => setIsAppointmentModalOpen(false)}
@@ -344,18 +343,18 @@ export default function Messages() {
             />
 
             {isComposeOpen && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-fade-in-up">
-                        <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50">
-                            <h3 className="font-bold text-gray-900">{t('messages.new_message')}</h3>
-                            <button onClick={() => { setIsComposeOpen(false); setSearchQuery(''); }} className="text-gray-400 hover:text-gray-700 transition">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/5 dark:bg-black/20 backdrop-blur-xl p-4">
+                    <div className="bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/50 dark:border-white/10 w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-fade-in-up">
+                        <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-white/5 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-900/10 dark:to-indigo-900/10">
+                            <h3 className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8100D1] to-indigo-600 dark:from-[#c682ff] dark:to-indigo-400">{t('messages.new_message')}</h3>
+                            <button onClick={() => { setIsComposeOpen(false); setSearchQuery(''); }} className="text-gray-400 hover:text-red-500 bg-white/50 dark:bg-slate-800/50 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-full transition-all shadow-sm border border-transparent hover:border-red-100 dark:hover:border-red-900/30">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
-                        <div className="p-4 border-b border-gray-100">
-                            <div className="relative">
-                                <svg className="w-5 h-5 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                <input type="text" autoFocus placeholder={t('messages.search_placeholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-[#8100D1] focus:bg-white outline-none transition" />
+                        <div className="p-5 border-b border-gray-100 dark:border-white/5">
+                            <div className="relative group">
+                                <svg className="w-5 h-5 absolute left-3.5 top-3.5 text-purple-400 dark:text-purple-500 group-focus-within:text-[#8100D1] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                <input type="text" autoFocus placeholder={t('messages.search_placeholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white/50 dark:bg-slate-800/50 border border-purple-100 dark:border-slate-700 dark:text-white rounded-xl py-3.5 pl-11 pr-4 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-[#8100D1]/50 focus:border-[#8100D1] outline-none transition-all shadow-inner placeholder-gray-400" />
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2">
@@ -365,13 +364,13 @@ export default function Messages() {
                                 <div className="space-y-1">
                                     <p className="px-3 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('messages.search_results')}</p>
                                     {searchResults.map((user) => (
-                                        <div key={user.id} onClick={() => handleSelectNewContact(user)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-purple-50 cursor-pointer transition">
-                                            <div className="w-12 h-12 rounded-full bg-purple-100 text-[#8100D1] flex items-center justify-center font-bold flex-shrink-0 overflow-hidden">
+                                        <div key={user.id} onClick={() => handleSelectNewContact(user)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer transition">
+                                            <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-slate-800 text-[#8100D1] dark:text-[#a055db] flex items-center justify-center font-bold flex-shrink-0 overflow-hidden border border-purple-200 dark:border-slate-700">
                                                 {user.avatar_url ? <img src={user.avatar_url} className="w-full h-full object-cover" alt="" /> : user.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="text-sm font-bold text-gray-900 truncate">{user.name}</h4>
-                                                <p className="text-xs text-gray-500 truncate mt-0.5">{user.description || (user.role === 'seeker' ? 'Pencari Kerja' : 'Perusahaan')}</p>
+                                                <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.name}</h4>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{user.description || (user.role === 'seeker' ? 'Pencari Kerja' : 'Perusahaan')}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -389,29 +388,50 @@ export default function Messages() {
                 </div>
             )}
 
+            <div className="relative bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 overflow-hidden h-[75vh] flex w-full">
+                <input type="file" ref={fileInputRef} onChange={handleMediaChange} className="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.rar" />
+
             {/* SIDEBAR INBOX */}
-            <div className="w-full md:w-80 border-r border-gray-200 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900">
-                <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex flex-col gap-3 bg-gray-50/50 dark:bg-slate-900/50">
+            <div className="w-full md:w-80 border-r border-gray-200/50 dark:border-white/5 flex flex-col bg-transparent">
+                <div className="p-5 border-b border-gray-100 dark:border-white/5 flex flex-col gap-4 bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl relative">
+                    {/* Elegant Top Gradient Accent */}
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-indigo-400 via-[#8100D1] to-pink-500 opacity-80"></div>
+                    
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('messages.inbox')}</h2>
-                        {currentUser?.role !== 'seeker' && (
-                            <button onClick={() => setIsComposeOpen(true)} className="p-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-[#8100D1] dark:hover:text-white hover:border-purple-200 transition-all shadow-sm focus:outline-none" title="Tulis pesan baru">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                            </button>
-                        )}
+                        <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8100D1] to-indigo-600 dark:from-[#c682ff] dark:to-indigo-400 tracking-tight">{t('messages.inbox')}</h2>
+                        <button onClick={() => setIsComposeOpen(true)} className="p-2.5 bg-white dark:bg-[#0B0F19] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 rounded-full hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-[#8100D1] dark:hover:text-[#c682ff] transition-all shadow-sm focus:outline-none flex items-center justify-center group" title="Tulis pesan baru">
+                            <svg className="w-5 h-5 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        </button>
                     </div>
                     
                     {/* Toggle Arsip */}
-                    <div className="flex bg-gray-200 dark:bg-slate-800 rounded-lg p-1">
-                        <button onClick={() => setShowArchived(false)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${!showArchived ? 'bg-white dark:bg-slate-700 text-gray-800 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>{t('messages.main')}</button>
-                        <button onClick={() => setShowArchived(true)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${showArchived ? 'bg-white dark:bg-slate-700 text-gray-800 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}>{t('messages.archived')}</button>
+                    <div className="flex bg-gray-100/80 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl p-1 shadow-inner border border-gray-200/50 dark:border-white/5">
+                        <button 
+                            onClick={() => setShowArchived(false)} 
+                            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!showArchived ? 'bg-white dark:bg-slate-700/80 text-[#8100D1] dark:text-[#c682ff] shadow-[0_2px_8px_rgba(129,0,209,0.1)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.4)] border border-gray-200/50 dark:border-white/10' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/40 dark:hover:bg-slate-700/30'}`}
+                        >
+                            {t('messages.main')}
+                        </button>
+                        <button 
+                            onClick={() => setShowArchived(true)} 
+                            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${showArchived ? 'bg-white dark:bg-slate-700/80 text-[#8100D1] dark:text-[#c682ff] shadow-[0_2px_8px_rgba(129,0,209,0.1)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.4)] border border-gray-200/50 dark:border-white/10' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/40 dark:hover:bg-slate-700/30'}`}
+                        >
+                            {t('messages.archived')}
+                        </button>
+                    </div>
+                    
+                    {/* Inbox Search Bar */}
+                    <div className="relative group mt-1">
+                        <svg className="w-4 h-4 absolute left-3.5 top-3 text-gray-400 group-focus-within:text-[#8100D1] dark:group-focus-within:text-[#c682ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <input type="text" placeholder={t('messages.search_placeholder', 'Cari obrolan...')} value={inboxSearchQuery} onChange={(e) => setInboxSearchQuery(e.target.value)} className="w-full bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl py-2 pl-10 pr-4 text-sm focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-[#8100D1]/50 focus:border-[#8100D1] outline-none transition-all shadow-inner placeholder-gray-400" />
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800">
                     {isRoomsLoading ? (
                         <div className="text-center p-6 text-gray-400 text-sm animate-pulse">Memuat obrolan...</div>
-                    ) : rooms.filter(r => showArchived ? r.is_archived : !r.is_archived).length > 0 ? (
+                    ) : rooms.filter(r => showArchived ? r.is_archived : !r.is_archived).filter(r => r.name.toLowerCase().includes(inboxSearchQuery.toLowerCase())).length > 0 ? (
                         rooms.filter(r => showArchived ? r.is_archived : !r.is_archived)
+                        .filter(r => r.name.toLowerCase().includes(inboxSearchQuery.toLowerCase()))
                         .sort((a, b) => {
                             if (a.is_pinned && !b.is_pinned) return -1;
                             if (!a.is_pinned && b.is_pinned) return 1;
@@ -461,19 +481,19 @@ export default function Messages() {
                         ))
                     ) : (
                         <div className="text-center p-8 flex flex-col items-center">
-                            <p className="text-gray-500 text-sm mb-4">{showArchived ? t('messages.empty_archived') : t('messages.empty_chats')}</p>
-                            {!showArchived && currentUser?.role !== 'seeker' && <button onClick={() => setIsComposeOpen(true)} className="px-4 py-2 bg-purple-100 text-[#8100D1] text-xs font-bold rounded-full hover:bg-purple-200 transition">{t('messages.start_chat')}</button>}
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">{showArchived ? t('messages.empty_archived') : t('messages.empty_chats')}</p>
+                            {!showArchived && <button onClick={() => setIsComposeOpen(true)} className="px-5 py-2.5 bg-purple-100 dark:bg-purple-900/30 text-[#8100D1] dark:text-[#a055db] border border-purple-200 dark:border-purple-800 text-xs font-bold rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/50 transition">{t('messages.start_chat')}</button>}
                         </div>
                     )}
                 </div>
             </div>
 
             {/* AREA OBROLAN */}
-            <div className="flex-1 flex flex-col bg-gray-50/50 dark:bg-slate-900/50 relative">
+            <div className="flex-1 flex flex-col bg-white/40 dark:bg-[#0B0F19]/40 relative">
                 {activeRoom ? (
                     <>
-                        <div className="bg-white dark:bg-slate-900 p-5 border-b border-gray-200 dark:border-slate-800 flex items-center gap-4 shadow-sm z-10">
-                            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[#8100D1] overflow-hidden border border-purple-200 dark:border-slate-700">
+                        <div className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl p-5 border-b border-gray-200/50 dark:border-white/5 flex items-center gap-4 shadow-sm z-10">
+                            <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[#8100D1] dark:text-[#a055db] overflow-hidden border border-purple-200 dark:border-slate-700 shadow-sm relative">
                                 {activeRoom.avatar_url ? <img src={activeRoom.avatar_url} className="w-full h-full object-cover" alt="" /> : activeRoom.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
@@ -648,16 +668,16 @@ export default function Messages() {
 
                         {/* KOTAK INPUT (DENGAN TOMBOL ATTACHMENT & CALENDAR) */}
                         {activeRoom.is_blocked ? (
-                            <div className="bg-white p-6 border-t border-gray-200 flex flex-col items-center justify-center text-center gap-2 relative z-10">
-                                <p className="text-red-500 text-sm font-bold">Anda telah memblokir pengguna ini.</p>
-                                <button onClick={() => handleChatAction(activeRoom.id, 'unblock')} className="text-xs text-[#8100D1] hover:underline font-bold">Buka Blokir</button>
+                            <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-6 border-t border-gray-200/50 dark:border-white/5 flex flex-col items-center justify-center text-center gap-2 relative z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+                                <p className="text-red-500 dark:text-red-400 text-sm font-bold">Anda telah memblokir pengguna ini.</p>
+                                <button onClick={() => handleChatAction(activeRoom.id, 'unblock')} className="text-xs text-[#8100D1] dark:text-[#a055db] hover:underline font-bold">Buka Blokir</button>
                             </div>
                         ) : activeRoom.is_blocked_by_contact ? (
-                            <div className="bg-white p-6 border-t border-gray-200 flex items-center justify-center text-center relative z-10">
-                                <p className="text-gray-500 text-sm font-bold bg-gray-100 py-2 px-4 rounded-full">Anda tidak dapat mengirim pesan ke pengguna ini.</p>
+                            <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-6 border-t border-gray-200/50 dark:border-white/5 flex items-center justify-center text-center relative z-10">
+                                <p className="text-gray-500 dark:text-gray-400 text-sm font-bold bg-gray-100 dark:bg-slate-800 py-2 px-4 rounded-full shadow-sm border border-gray-200 dark:border-slate-700">Anda tidak dapat mengirim pesan ke pengguna ini.</p>
                             </div>
                         ) : (
-                            <form onSubmit={handleSendMessage} className="bg-white p-4 border-t border-gray-200 flex gap-3 items-center relative z-10">
+                            <form onSubmit={handleSendMessage} className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-4 border-t border-gray-200/50 dark:border-white/5 flex gap-3 items-center relative z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
                                 {/* Tombol Attachment (Paperclip) */}
                                 <button
                                     type="button"
@@ -700,19 +720,19 @@ export default function Messages() {
                                 </div>
 
                                 <textarea
-                                    placeholder="Ketik pesan..."
+                                    placeholder={t('messages.type_message')}
                                     value={typedMessage}
                                     onChange={handleTypeMessage}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && !e.shiftKey) {
                                             e.preventDefault();
-                                            if (typedMessage.trim() || attachments.length > 0) {
+                                            if (typedMessage.trim() || selectedMedia) {
                                                 handleSendMessage(e);
                                             }
                                         }
                                     }}
                                     rows="1"
-                                    className="flex-1 border border-gray-300 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-[#8100D1] outline-none transition-all resize-none overflow-hidden"
+                                    className="flex-1 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-[#8100D1] outline-none transition-all resize-none overflow-hidden placeholder-gray-400 dark:placeholder-gray-500"
                                     style={{ minHeight: '46px', maxHeight: '120px' }}
                                     onInput={(e) => {
                                         e.target.style.height = 'auto';
@@ -720,24 +740,25 @@ export default function Messages() {
                                     }}
                                 />
 
-                                <button type="submit" className="bg-[#8100D1] hover:bg-purple-800 text-white p-3 rounded-xl shadow-md transition-colors flex items-center justify-center focus:outline-none flex-shrink-0">
+                                <button type="submit" className="bg-[#8100D1] hover:bg-purple-800 dark:bg-[#a055db] dark:hover:bg-purple-600 text-white p-3 rounded-xl shadow-[0_4px_15px_rgba(129,0,209,0.2)] hover:shadow-[0_4px_20px_rgba(129,0,209,0.4)] transition-all flex items-center justify-center focus:outline-none flex-shrink-0">
                                     <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 19l9-7-9-7v14z" /></svg>
                                 </button>
                             </form>
                         )}
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center p-10 bg-white m-4 rounded-3xl shadow-sm border border-gray-100">
-                        <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mb-6">
-                            <svg className="w-12 h-12 text-[#8100D1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    <div className="flex-1 flex flex-col items-center justify-center p-10 bg-white/50 dark:bg-slate-900/30 m-4 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-100 dark:border-white/5 backdrop-blur-md">
+                        <div className="w-24 h-24 bg-purple-50 dark:bg-purple-900/30 rounded-full flex items-center justify-center mb-6 shadow-sm border border-purple-100 dark:border-purple-800/30">
+                            <svg className="w-12 h-12 text-[#8100D1] dark:text-[#a055db]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('messages.empty_state_title')}</h2>
-                        <p className="text-gray-500 text-center max-w-sm">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('messages.empty_state_title')}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
                             {t('messages.empty_state_desc')}
                         </p>
                     </div>
                 )}
             </div>
         </div>
+        </>
     );
 }

@@ -65,14 +65,14 @@ export default function CommunityReportsIndexAdmin() {
         
         try {
             await axios.delete(`/api/admin/community/reports/${postId}/post`);
-            alert(t('admin.community.alert_delete_success'));
+            window.alert(t('admin.community.alert_delete_success'));
             if (activeTab === 'reports') {
                 fetchReports();
             } else {
                 fetchLivePosts();
             }
         } catch (error) {
-            alert(t('admin.community.alert_delete_fail'));
+            window.alert(t('admin.community.alert_delete_fail'));
         }
     };
 

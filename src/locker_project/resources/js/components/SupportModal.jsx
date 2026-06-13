@@ -86,7 +86,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
             setNewTicket({ subject: '', category: '', message: '' });
         } catch (error) {
             console.error('Failed to create ticket', error);
-            alert(t('support.send_fail'));
+            window.alert(t('support.send_fail'));
         } finally {
             setSubmitting(false);
         }

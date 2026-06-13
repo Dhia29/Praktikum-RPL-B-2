@@ -40,24 +40,23 @@ const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo, t }) => 
     };
 
     return (
-        <div className="relative border-b border-gray-50 overflow-hidden group">
+        <div className="relative border-b border-gray-100/50 dark:border-slate-800/50 overflow-hidden group">
             {/* Background Delete Button */}
-            <div className="absolute inset-y-0 right-0 w-[100px] bg-red-500 flex flex-col items-center justify-center text-white cursor-pointer"
+            <div className={`absolute inset-y-0 right-0 w-[100px] flex flex-col items-center justify-center text-red-500 hover:bg-red-50/50 dark:hover:bg-red-900/20 cursor-pointer transition-opacity duration-300 ${translateX < 0 ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => onDelete(notif.id)}>
                 <svg className="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                <span className="text-[10px] font-medium">{t('notifications.delete')}</span>
+                <span className="text-[10px] font-bold tracking-wide">{t('notifications.delete')}</span>
             </div>
 
             {/* Foreground Content */}
             <div
-                className={`relative p-4 pl-5 cursor-pointer transition-transform duration-200 bg-white
-                    ${!notif.read_at ? 'hover:bg-[#fcf8ff]' : 'hover:bg-gray-50'} 
-                    ${isDragging ? 'duration-0' : ''}`}
+                className={`relative p-4 pl-5 cursor-pointer transition-all duration-300 bg-white dark:bg-[#0f1523]
+                    ${!notif.read_at ? 'hover:bg-purple-50 dark:hover:bg-[#1a1f35]' : 'hover:bg-gray-50 dark:hover:bg-[#161d2b]'} 
+                    ${isDragging ? 'duration-0 shadow-[-5px_0_15px_rgba(0,0,0,0.1)] dark:shadow-[-5px_0_15px_rgba(0,0,0,0.3)]' : ''}`}
                 style={{ transform: `translateX(${translateX}px)` }}
                 onClick={(e) => {
-                    // Prevent triggering click if user was just swiping
                     if (translateX === 0) onClick(notif);
                 }}
                 onTouchStart={handleTouchStart}
@@ -66,13 +65,17 @@ const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo, t }) => 
             >
                 {/* Unread Indicator Line */}
                 {!notif.read_at && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#8100D1]"></div>
+                    <div className="absolute left-0 top-0 bottom-0 w-1 group-hover:w-1.5 bg-gradient-to-b from-[#8100D1] to-purple-500 shadow-[0_0_8px_rgba(129,0,209,0.5)] group-hover:shadow-[0_0_12px_rgba(129,0,209,0.8)] transition-all duration-300"></div>
+                )}
+                {/* Read Indicator Line (Hover only) */}
+                {notif.read_at && (
+                    <div className="absolute left-0 top-0 bottom-0 w-0 group-hover:w-1 bg-gray-200 dark:bg-slate-700 transition-all duration-300"></div>
                 )}
 
                 {/* Desktop hover delete button */}
                 <button
                     onClick={(e) => { e.stopPropagation(); onDelete(notif.id); }}
-                    className="absolute top-4 right-4 text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all hidden sm:block"
+                    className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded-full opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 hidden sm:block"
                     title={t('notifications.delete')}
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,17 +84,17 @@ const SwipeableNotificationItem = ({ notif, onClick, onDelete, timeAgo, t }) => 
                 </button>
 
                 <div className="flex items-center gap-2 pr-6">
-                    <p className={`text-sm tracking-tight ${!notif.read_at ? 'text-gray-900 font-bold' : 'text-gray-500 font-medium'}`}>
+                    <p className={`text-sm tracking-tight ${!notif.read_at ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-600 dark:text-gray-400 font-medium'}`}>
                         {notif.data?.title || (notif.data?.message ? t('notifications.new_message') : t('notifications.title'))}
                     </p>
                     {!notif.read_at && (
-                        <span className="w-1.5 h-1.5 bg-[#8100D1] rounded-full"></span>
+                        <span className="w-1.5 h-1.5 bg-[#8100D1] dark:bg-[#c682ff] shadow-[0_0_5px_rgba(129,0,209,0.8)] rounded-full"></span>
                     )}
                 </div>
-                <p className={`text-xs mt-1 line-clamp-2 pr-4 ${!notif.read_at ? 'text-gray-600' : 'text-gray-400'}`}>
+                <p className={`text-xs mt-1 line-clamp-2 pr-4 ${!notif.read_at ? 'text-gray-600 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
                     {notif.data?.message || t('notifications.default_message')}
                 </p>
-                <p className={`text-[11px] mt-2.5 ${!notif.read_at ? 'text-[#8100D1] font-semibold' : 'text-gray-400 font-medium'}`}>
+                <p className={`text-[11px] mt-2.5 ${!notif.read_at ? 'text-[#8100D1] dark:text-[#c682ff] font-semibold' : 'text-gray-400 dark:text-gray-500 font-medium'}`}>
                     {timeAgo(notif.created_at)}
                 </p>
             </div>
@@ -187,7 +190,7 @@ export default function NotificationsDropdown() {
         <div className="relative" ref={notifRef}>
             <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-[#8100D1] hover:bg-purple-50 transition-colors focus:outline-none"
+                className="relative w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-[#8100D1] dark:hover:text-[#c682ff] hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-full transition-all focus:outline-none"
                 title={t('notifications.title')}
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -195,24 +198,24 @@ export default function NotificationsDropdown() {
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
                 {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 border-2 border-white text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-gradient-to-br from-red-500 to-pink-600 border border-white dark:border-slate-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
             </button>
 
             {isNotifOpen && (
-                <div className="absolute right-0 top-12 mt-2 w-80 bg-white border border-gray-100 rounded-xl shadow-xl z-50 animate-fade-in-down overflow-hidden flex flex-col max-h-96">
-                    <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h3 className="font-bold text-gray-800 text-sm">{t('notifications.title')}</h3>
+                <div className="absolute right-0 top-12 mt-2 w-80 bg-white/90 dark:bg-[#0B0F19]/90 border border-gray-200/50 dark:border-white/10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)] z-50 animate-fade-in-down overflow-hidden flex flex-col max-h-[28rem] backdrop-blur-2xl">
+                    <div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02] backdrop-blur-md">
+                        <h3 className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8100D1] to-indigo-600 dark:from-[#c682ff] dark:to-indigo-400 text-sm">{t('notifications.title')}</h3>
                     </div>
-                    <div className="overflow-y-auto flex-1 p-0 overflow-x-hidden">
+                    <div className="overflow-y-auto flex-1 p-0 overflow-x-hidden divide-y divide-gray-50/50 dark:divide-slate-800/50">
                         {notifications.length === 0 ? (
-                            <div className="p-8 flex flex-col items-center justify-center text-center">
-                                <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
-                                    <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                            <div className="p-10 flex flex-col items-center justify-center text-center">
+                                <div className="w-14 h-14 rounded-full bg-gray-50 dark:bg-slate-800/50 flex items-center justify-center mb-4 border border-gray-100 dark:border-slate-700/50">
+                                    <svg className="w-7 h-7 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                 </div>
-                                <p className="text-gray-500 text-sm">{t('notifications.empty')}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{t('notifications.empty')}</p>
                             </div>
                         ) : (
                             notifications.map(notif => (
@@ -228,8 +231,8 @@ export default function NotificationsDropdown() {
                         )}
                     </div>
                     {notifications.length > 0 && (
-                        <div className="p-3 bg-gray-50 border-t border-gray-100 text-center flex justify-between items-center">
-                            <button onClick={() => setIsNotifOpen(false)} className="text-xs font-semibold text-gray-600 hover:text-black">
+                        <div className="p-3 bg-gray-50/50 dark:bg-white/[0.01] border-t border-gray-100 dark:border-white/5 text-center flex justify-between items-center backdrop-blur-md">
+                            <button onClick={() => setIsNotifOpen(false)} className="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors w-full text-center">
                                 {t('notifications.close')}
                             </button>
                         </div>

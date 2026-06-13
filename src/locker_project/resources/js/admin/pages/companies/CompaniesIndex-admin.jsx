@@ -34,7 +34,7 @@ export default function CompaniesIndexAdmin() {
             fetchCompanies();
         } catch (error) {
             console.error("Failed to verify company", error);
-            alert(t('admin.companies.alert_verify_fail'));
+            window.alert(t('admin.companies.alert_verify_fail'));
         }
     };
 
@@ -46,7 +46,7 @@ export default function CompaniesIndexAdmin() {
 
     const handleReject = async () => {
         if (!rejectReason.trim()) {
-            alert(t('admin.companies.reject_reason_required'));
+            window.alert(t('admin.companies.reject_reason_required'));
             return;
         }
 
@@ -59,7 +59,7 @@ export default function CompaniesIndexAdmin() {
             fetchCompanies();
         } catch (error) {
             console.error("Failed to reject company", error);
-            alert(t('admin.companies.alert_reject_fail'));
+            window.alert(t('admin.companies.alert_reject_fail'));
         }
     };
 
@@ -69,7 +69,7 @@ export default function CompaniesIndexAdmin() {
             fetchCompanies();
         } catch (error) {
             console.error("Failed to toggle status", error);
-            alert(t('admin.companies.alert_toggle_fail'));
+            window.alert(t('admin.companies.alert_toggle_fail'));
         }
     };
 
@@ -80,7 +80,7 @@ export default function CompaniesIndexAdmin() {
             fetchCompanies();
         } catch (error) {
             console.error("Failed to delete company", error);
-            alert(t('admin.companies.alert_delete_fail'));
+            window.alert(t('admin.companies.alert_delete_fail'));
         }
     };
 

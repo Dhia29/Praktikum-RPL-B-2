@@ -125,7 +125,7 @@ export default function Community() {
             await axios.post('/api/community/join', { community_id: selectedCommunity.id });
             setSelectedCommunity({ ...selectedCommunity, is_member: true });
             loadFeedAndGroups();
-        } catch (err) { alert(t('community.join_fail')); }
+        } catch (err) { window.alert(t('community.join_fail')); }
     };
 
     const handleLeaveCommunity = async () => {
@@ -136,7 +136,7 @@ export default function Community() {
             await axios.post('/api/community/leave', { community_id: selectedCommunity.id });
             setSelectedCommunity({ ...selectedCommunity, is_member: false });
             loadFeedAndGroups();
-        } catch (err) { alert(t('community.leave_fail')); }
+        } catch (err) { window.alert(t('community.leave_fail')); }
     };
     // ----------------------------------------
 
@@ -165,13 +165,13 @@ export default function Community() {
 
     const handleDeletePost = async (e, postId) => {
         e.stopPropagation();
-        if (!confirm(t('community.delete_confirm'))) return;
+        if (!window.confirm(t('community.delete_confirm'))) return;
 
         try {
             await axios.delete(`/api/community/posts/${postId}`);
             setPosts(posts.filter(p => p.id !== postId));
         } catch (err) {
-            alert(t('community.delete_fail'));
+            window.alert(t('community.delete_fail'));
         }
     };
 
@@ -203,7 +203,7 @@ export default function Community() {
             setNewCommunityName(''); setNewCommunityDesc(''); setNewCommunityAvatar(null); setAvatarPreview(null);
             setIsCreateGroupOpen(false);
             loadFeedAndGroups();
-        } catch (err) { alert(t('community.create_fail')); }
+        } catch (err) { window.alert(t('community.create_fail')); }
     };
 
     const filteredCommunities = communities.filter(g =>
@@ -331,9 +331,23 @@ export default function Community() {
                                 </button>
                             </div>
                         ) : isLoading ? (
-                            <div className="text-center py-20 text-gray-400 text-sm flex flex-col items-center">
-                                <div className="w-8 h-8 border-4 border-gray-100 border-t-[#8100D1] rounded-full animate-spin mb-4"></div>
-                                {t('community.loading_timeline')}
+                            <div className="w-full flex flex-col space-y-4 p-6">
+                                {[1, 2, 3].map((n) => (
+                                    <div key={n} className="flex gap-4 items-start animate-pulse border-b border-gray-100/50 dark:border-slate-800 pb-6 mb-2">
+                                        <div className="w-11 h-11 bg-gray-200/50 dark:bg-slate-800/50 rounded-full flex-shrink-0"></div>
+                                        <div className="flex-1 space-y-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-4 bg-gray-200/50 dark:bg-slate-800/50 rounded-md w-32"></div>
+                                                <div className="h-3 bg-gray-200/50 dark:bg-slate-800/50 rounded-md w-16"></div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="h-3 bg-gray-200/50 dark:bg-slate-800/50 rounded-md w-full"></div>
+                                                <div className="h-3 bg-gray-200/50 dark:bg-slate-800/50 rounded-md w-4/5"></div>
+                                            </div>
+                                            <div className="h-32 bg-gray-200/50 dark:bg-slate-800/50 rounded-2xl w-full mt-3"></div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : posts.length > 0 ? (
                             posts.map(post => (
@@ -351,11 +365,11 @@ export default function Community() {
                                         <div className="flex-1 min-w-0 pb-1">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-1.5">
-                                                    <h4 className="text-[15px] font-bold text-gray-900 hover:underline cursor-pointer truncate">
+                                                    <h4 className="text-[15px] font-bold text-gray-900 dark:text-white hover:underline cursor-pointer truncate">
                                                         {post.repost_of ? post.original_post?.author.name : post.author.name}
                                                     </h4>
                                                     <span className="text-[14px] text-gray-400 font-normal">·</span>
-                                                    <span className="text-[14px] text-gray-500 font-normal hover:underline cursor-pointer whitespace-nowrap">
+                                                    <span className="text-[14px] text-gray-500 dark:text-gray-400 font-normal hover:underline cursor-pointer whitespace-nowrap">
                                                         {new Date(post.repost_of ? post.original_post?.created_at : post.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                                                     </span>
                                                 </div>
@@ -370,32 +384,32 @@ export default function Community() {
                                                     </button>
 
                                                     {openDropdownId === post.id && (
-                                                        <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 z-10 py-1 overflow-hidden">
+                                                        <div className="absolute right-0 mt-1 w-48 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100/50 dark:border-slate-800 z-10 py-1 overflow-hidden">
                                                             {/* Analytics / Views */}
-                                                            <div className="px-4 py-3 text-sm font-medium flex flex-col gap-2.5 border-b border-gray-50 bg-gray-50/50">
-                                                                <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">{t('community.post_analytics')}</div>
-                                                                <div className="flex justify-between items-center text-gray-700">
+                                                            <div className="px-4 py-3 text-sm font-medium flex flex-col gap-2.5 border-b border-gray-100/50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30">
+                                                                <div className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-1">{t('community.post_analytics')}</div>
+                                                                <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                                                     <div className="flex items-center gap-2">
                                                                         <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                                                                         {t('community.views')}
                                                                     </div>
                                                                     <span className="font-bold">{post.views_count}</span>
                                                                 </div>
-                                                                <div className="flex justify-between items-center text-gray-700">
+                                                                <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                                                     <div className="flex items-center gap-2">
                                                                         <svg className="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                                                                         {t('community.likes')}
                                                                     </div>
                                                                     <span className="font-bold">{post.likes_count}</span>
                                                                 </div>
-                                                                <div className="flex justify-between items-center text-gray-700">
+                                                                <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                                                     <div className="flex items-center gap-2">
                                                                         <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                                                                         {t('community.comments')}
                                                                     </div>
                                                                     <span className="font-bold">{post.replies_count}</span>
                                                                 </div>
-                                                                <div className="flex justify-between items-center text-gray-700">
+                                                                <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
                                                                     <div className="flex items-center gap-2">
                                                                         <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                                                                         {t('community.saved_stat')}
@@ -408,7 +422,7 @@ export default function Community() {
                                                             {post.is_me && (
                                                                 <button
                                                                     onClick={(e) => { setOpenDropdownId(null); handleDeletePost(e, post.id); }}
-                                                                    className="w-full text-left px-4 py-2 text-sm text-red-600 font-semibold hover:bg-red-50 transition flex items-center gap-3"
+                                                                    className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 font-semibold hover:bg-red-50 dark:hover:bg-red-900/30 transition flex items-center gap-3"
                                                                 >
                                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                                     {t('community.delete')}
@@ -418,9 +432,9 @@ export default function Community() {
                                                             {/* Laporkan Postingan (Sekarang muncul untuk semua orang agar bisa di-test) */}
                                                             <button
                                                                 onClick={(e) => handleReportPost(e, post.id)}
-                                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 font-semibold hover:bg-gray-100 transition flex items-center gap-3"
+                                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-slate-800 transition flex items-center gap-3"
                                                             >
-                                                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
+                                                                <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
                                                                 {t('community.report_post')}
                                                             </button>
                                                         </div>
@@ -428,12 +442,12 @@ export default function Community() {
                                                 </div>
                                             </div>
 
-                                            <p className="text-[15px] text-gray-800 mt-0.5 leading-relaxed whitespace-pre-wrap font-normal">
+                                            <p className="text-[15px] text-gray-800 dark:text-gray-200 mt-0.5 leading-relaxed whitespace-pre-wrap font-normal">
                                                 {post.repost_of ? post.original_post?.konten : post.konten}
                                             </p>
 
                                             {((post.media_url || post.original_post?.media_url)) && (
-                                                <div className="mt-3 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 max-h-96 flex items-center justify-center">
+                                                <div className="mt-3 rounded-2xl overflow-hidden border border-gray-200/50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 max-h-96 flex items-center justify-center">
                                                     {(post.media_type === 'image' || post.original_post?.media_type === 'image') ? (
                                                         <img src={post.repost_of ? post.original_post.media_url : post.media_url} className="w-full h-full object-cover" />
                                                     ) : (
@@ -452,18 +466,18 @@ export default function Community() {
                                                             setSelectedPostToComment(post);
                                                             setIsCommentModalOpen(true);
                                                         }}
-                                                        className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-blue-500 transition focus:outline-none group/btn"
+                                                        className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition focus:outline-none group/btn"
                                                         title="Komentar"
                                                     >
-                                                        <div className="p-2 -ml-2 rounded-full group-hover/btn:bg-blue-50 transition">
+                                                        <div className="p-2 -ml-2 rounded-full group-hover/btn:bg-blue-50 dark:group-hover/btn:bg-blue-900/30 transition">
                                                             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                                                         </div>
                                                         <span className="min-w-[32px] text-left block">{post.replies_count > 0 ? post.replies_count : ''}</span>
                                                     </button>
 
                                                     {/* Like */}
-                                                    <button onClick={(e) => toggleLike(e, post.id)} className={`flex items-center gap-1.5 text-[13px] font-semibold transition focus:outline-none group/btn ${post.has_liked ? 'text-pink-600' : 'text-gray-500 hover:text-pink-600'}`} title="Suka">
-                                                        <div className={`p-2 -ml-2 rounded-full transition ${post.has_liked ? 'bg-pink-50' : 'group-hover/btn:bg-pink-50'}`}>
+                                                    <button onClick={(e) => toggleLike(e, post.id)} className={`flex items-center gap-1.5 text-[13px] font-semibold transition focus:outline-none group/btn ${post.has_liked ? 'text-pink-600 dark:text-pink-400' : 'text-gray-500 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400'}`} title="Suka">
+                                                        <div className={`p-2 -ml-2 rounded-full transition ${post.has_liked ? 'bg-pink-50 dark:bg-pink-900/30' : 'group-hover/btn:bg-pink-50 dark:group-hover/btn:bg-pink-900/30'}`}>
                                                             <svg className="w-[18px] h-[18px]" fill={post.has_liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                                                         </div>
                                                         <span className="min-w-[32px] text-left block">{post.likes_count > 0 ? post.likes_count : ''}</span>
@@ -471,13 +485,13 @@ export default function Community() {
 
                                                     {/* Save & Share */}
                                                     <div className="flex items-center gap-1 ml-auto">
-                                                        <button onClick={(e) => toggleSave(e, post.id)} className={`flex items-center gap-1.5 text-[13px] font-semibold transition focus:outline-none group/btn ${post.has_saved ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'}`} title="Simpan">
-                                                            <div className={`p-2 rounded-full transition ${post.has_saved ? 'bg-blue-50' : 'group-hover/btn:bg-blue-50'}`}>
+                                                        <button onClick={(e) => toggleSave(e, post.id)} className={`flex items-center gap-1.5 text-[13px] font-semibold transition focus:outline-none group/btn ${post.has_saved ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}`} title="Simpan">
+                                                            <div className={`p-2 rounded-full transition ${post.has_saved ? 'bg-blue-50 dark:bg-blue-900/30' : 'group-hover/btn:bg-blue-50 dark:group-hover/btn:bg-blue-900/30'}`}>
                                                                 <svg className="w-[18px] h-[18px]" fill={post.has_saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                                                             </div>
                                                         </button>
-                                                        <button className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 hover:text-[#8100D1] transition focus:outline-none group/btn" title="Bagikan">
-                                                            <div className="p-2 rounded-full group-hover/btn:bg-purple-50 transition">
+                                                        <button className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-500 dark:text-gray-400 hover:text-[#8100D1] dark:hover:text-[#a055db] transition focus:outline-none group/btn" title="Bagikan">
+                                                            <div className="p-2 rounded-full group-hover/btn:bg-purple-50 dark:group-hover/btn:bg-purple-900/30 transition">
                                                                 <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                                                             </div>
                                                         </button>
@@ -514,13 +528,13 @@ export default function Community() {
 
                 {/* MODAL BUAT KOMUNITAS INTERNAL (Dengan Upload Avatar) */}
                 {isCreateGroupOpen && (
-                    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-fade-in-up">
-                            <div className="p-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
+                    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm p-4">
+                        <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/40 dark:border-white/5 w-full max-w-sm overflow-hidden animate-fade-in-up">
+                            <div className="p-5 border-b border-gray-200/50 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/30">
                                 <h3 className="font-bold text-gray-900 dark:text-white text-lg">{t('community.create_group_title')}</h3>
-                                <button onClick={() => { setIsCreateGroupOpen(false); setAvatarPreview(null); setNewCommunityAvatar(null); }} className="text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 p-1.5 rounded-full transition"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                                <button onClick={() => { setIsCreateGroupOpen(false); setAvatarPreview(null); setNewCommunityAvatar(null); }} className="text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-full transition shadow-sm"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                             </div>
-                            <form onSubmit={handleCreateNewGroup} className="p-5 space-y-4 bg-gray-50/30 dark:bg-slate-900">
+                            <form onSubmit={handleCreateNewGroup} className="p-5 space-y-4">
 
                                 {/* Upload Foto Profil Komunitas */}
                                 <div className="flex flex-col items-center justify-center mb-2">
@@ -539,11 +553,11 @@ export default function Community() {
 
                                 <div>
                                     <label className="block text-xs font-bold text-gray-900 dark:text-gray-300 mb-1.5">{t('community.group_name')}</label>
-                                    <input type="text" placeholder={t('community.group_name_placeholder')} value={newCommunityName} onChange={(e) => setNewCommunityName(e.target.value)} className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-3 text-[14px] focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition shadow-sm" required />
+                                    <input type="text" placeholder={t('community.group_name_placeholder')} value={newCommunityName} onChange={(e) => setNewCommunityName(e.target.value)} className="w-full bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-3 text-[14px] focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition shadow-sm" required />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-gray-900 dark:text-gray-300 mb-1.5">{t('community.group_desc')}</label>
-                                    <textarea placeholder={t('community.group_desc_placeholder')} value={newCommunityDesc} onChange={(e) => setNewCommunityDesc(e.target.value)} className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-3 text-[14px] h-20 resize-none focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition shadow-sm" />
+                                    <textarea placeholder={t('community.group_desc_placeholder')} value={newCommunityDesc} onChange={(e) => setNewCommunityDesc(e.target.value)} className="w-full bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 dark:text-white rounded-xl p-3 text-[14px] h-20 resize-none focus:ring-2 focus:ring-[#8100D1]/20 focus:border-[#8100D1] outline-none transition shadow-sm" />
                                 </div>
                                 <div className="flex justify-end gap-3 pt-2">
                                     <button type="button" onClick={() => { setIsCreateGroupOpen(false); setAvatarPreview(null); setNewCommunityAvatar(null); }} className="px-5 py-2.5 text-[14px] font-bold text-gray-900 dark:text-gray-300 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-full transition shadow-sm">{t('community.cancel')}</button>
