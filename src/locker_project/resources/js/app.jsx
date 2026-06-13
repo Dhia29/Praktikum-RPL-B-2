@@ -18,6 +18,8 @@ if (savedTheme === 'dark') {
     document.documentElement.classList.remove('dark');
 }
 
+import './echo';
+
 import SignUp from './SignUp';
 import Login from './Login';
 import VerifyEmail from './VerifyEmail';
