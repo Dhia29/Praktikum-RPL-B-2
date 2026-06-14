@@ -52,7 +52,7 @@ const CommentModal = ({ isOpen, onClose, post, onCommentSuccess }) => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 20 * 1024 * 1024) {
-                alert('Maksimal ukuran file adalah 20MB');
+                window.alert('Maksimal ukuran file adalah 20MB');
                 return;
             }
             setSelectedMedia(file);
@@ -108,7 +108,7 @@ const CommentModal = ({ isOpen, onClose, post, onCommentSuccess }) => {
                 onCommentSuccess(post.id);
             }
         } catch (error) {
-            alert(error.response?.data?.message || 'Gagal mengirim komentar.');
+            window.alert(error.response?.data?.message || 'Gagal mengirim komentar.');
         } finally {
             setSubmitting(false);
         }

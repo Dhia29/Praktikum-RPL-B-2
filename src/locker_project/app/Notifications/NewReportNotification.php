@@ -49,8 +49,8 @@ class NewReportNotification extends Notification implements ShouldBroadcastNow
     {
         return [
             'type' => 'new_report',
-            'title' => 'Laporan Komunitas Baru',
-            'message' => $this->reporter->name . ' telah melaporkan sebuah postingan.',
+            'title' => 'New Community Report',
+            'message' => $this->reporter->name . ' has reported a post.',
             'post_id' => $this->post->id,
             'reporter_id' => $this->reporter->id
         ];

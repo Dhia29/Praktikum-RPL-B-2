@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -27,6 +28,7 @@ ChartJS.register(
 );
 
 export default function AnalyticsAdmin() {
+    const { t } = useTranslation();
     const [stats, setStats] = useState({
         totalUsers: 0,
         totalCompanies: 0,
@@ -60,7 +62,7 @@ export default function AnalyticsAdmin() {
         labels: stats.growthChart?.labels || [],
         datasets: [
             {
-                label: 'Pengguna Baru',
+                label: t('admin.analytics.chart_label'),
                 data: stats.growthChart?.data || [],
                 borderColor: '#8100D1',
                 backgroundColor: 'rgba(129, 0, 209, 0.1)',
@@ -128,19 +130,17 @@ export default function AnalyticsAdmin() {
 
         let csvContent = "data:text/csv;charset=utf-8,";
         
-        // Bagian 1: Ringkasan
-        csvContent += "Laporan Analytics Platform LockER\r\n\r\n";
-        csvContent += "Metrik Utama,Jumlah\r\n";
-        csvContent += `Total Pengguna,${stats.totalUsers}\r\n`;
-        csvContent += `Total Perusahaan,${stats.totalCompanies}\r\n`;
-        csvContent += `Total Lowongan,${stats.totalJobs}\r\n`;
-        csvContent += `Total Lamaran Masuk,${stats.totalApplications}\r\n`;
-        csvContent += `Persentase Pencari Kerja,${stats.jobSeekersPercentage}%\r\n`;
-        csvContent += `Persentase Perusahaan,${stats.companiesPercentage}%\r\n\r\n`;
+        csvContent += `${t('admin.analytics.csv_title')}\r\n\r\n`;
+        csvContent += `${t('admin.analytics.csv_main_metrics')}\r\n`;
+        csvContent += `${t('admin.analytics.csv_total_users')},${stats.totalUsers}\r\n`;
+        csvContent += `${t('admin.analytics.csv_total_companies')},${stats.totalCompanies}\r\n`;
+        csvContent += `${t('admin.analytics.csv_total_jobs')},${stats.totalJobs}\r\n`;
+        csvContent += `${t('admin.analytics.csv_total_applications')},${stats.totalApplications}\r\n`;
+        csvContent += `${t('admin.analytics.csv_job_seekers_pct')},${stats.jobSeekersPercentage}%\r\n`;
+        csvContent += `${t('admin.analytics.csv_companies_pct')},${stats.companiesPercentage}%\r\n\r\n`;
         
-        // Bagian 2: Data Pertumbuhan
-        csvContent += "Pertumbuhan Pengguna Baru (30 Hari Terakhir)\r\n";
-        csvContent += "Tanggal,Pendaftar Baru\r\n";
+        csvContent += `${t('admin.analytics.csv_growth_title')}\r\n`;
+        csvContent += `${t('admin.analytics.csv_date_header')}\r\n`;
         
         if (stats.growthChart && stats.growthChart.labels) {
             stats.growthChart.labels.forEach((label, index) => {
@@ -149,7 +149,6 @@ export default function AnalyticsAdmin() {
             });
         }
 
-        // Trigger Download
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -163,8 +162,8 @@ export default function AnalyticsAdmin() {
         <>
             <div className="mb-8 flex justify-between items-center">
                 <div>
-                    <h3 className="text-xl font-bold text-gray-800">Tinjauan Platform</h3>
-                    <p className="text-sm text-gray-500 mt-1">Metrik dan performa LockER dalam 30 hari terakhir.</p>
+                    <h3 className="text-xl font-bold text-gray-800">{t('admin.analytics.title')}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('admin.analytics.desc')}</p>
                 </div>
                 <button 
                     onClick={handleExport}
@@ -172,62 +171,56 @@ export default function AnalyticsAdmin() {
                     className={`flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors shadow-sm ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}`}
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    {loading ? 'Memuat...' : 'Ekspor Laporan'}
+                    {loading ? t('admin.analytics.loading') : t('admin.analytics.export')}
                 </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-                {/* Stat 1 */}
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <p className="text-sm font-semibold text-gray-500 mb-2">Total Pengguna</p>
+                    <p className="text-sm font-semibold text-gray-500 mb-2">{t('admin.analytics.total_users')}</p>
                     <div className="flex items-end gap-3 mb-1">
                         <h3 className="text-2xl font-bold text-gray-800">{loading ? '...' : stats.totalUsers}</h3>
                     </div>
                 </div>
 
-                {/* Stat 2 */}
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <p className="text-sm font-semibold text-gray-500 mb-2">Total Perusahaan</p>
+                    <p className="text-sm font-semibold text-gray-500 mb-2">{t('admin.analytics.total_companies')}</p>
                     <div className="flex items-end gap-3 mb-1">
                         <h3 className="text-2xl font-bold text-gray-800">{loading ? '...' : stats.totalCompanies}</h3>
                     </div>
                 </div>
 
-                {/* Stat 3 */}
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <p className="text-sm font-semibold text-gray-500 mb-2">Total Lowongan</p>
+                    <p className="text-sm font-semibold text-gray-500 mb-2">{t('admin.analytics.total_jobs')}</p>
                     <div className="flex items-end gap-3 mb-1">
                         <h3 className="text-2xl font-bold text-gray-800">{loading ? '...' : stats.totalJobs}</h3>
                     </div>
                 </div>
                 
-                {/* Stat 4 - Baru ditambahkan */}
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-3 opacity-10">
                         <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v6h6v10H6z"/></svg>
                     </div>
-                    <p className="text-sm font-semibold text-gray-500 mb-2 relative z-10">Total Lamaran</p>
+                    <p className="text-sm font-semibold text-gray-500 mb-2 relative z-10">{t('admin.analytics.total_applications')}</p>
                     <div className="flex items-end gap-3 mb-1 relative z-10">
                         <h3 className="text-2xl font-bold text-[#8100D1]">{loading ? '...' : stats.totalApplications}</h3>
                     </div>
                 </div>
 
-                {/* Stat 5 */}
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                    <p className="text-sm font-semibold text-gray-500 mb-2">Sesi Aktif</p>
+                    <p className="text-sm font-semibold text-gray-500 mb-2">{t('admin.analytics.active_sessions')}</p>
                     <div className="flex items-end gap-3 mb-1">
                         <h3 className="text-2xl font-bold text-gray-800">{loading ? '...' : stats.activeSessions}</h3>
-                        <span className="text-sm text-green-500 font-medium">Real-time</span>
+                        <span className="text-sm text-green-500 font-medium">{t('admin.analytics.realtime')}</span>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Grafik Pertumbuhan */}
                 <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col min-h-[350px]">
                     <div className="mb-4">
-                        <h3 className="font-bold text-gray-800">Grafik Pertumbuhan Pengguna Baru</h3>
-                        <p className="text-xs text-gray-500">Pendaftaran akun selama 30 hari terakhir</p>
+                        <h3 className="font-bold text-gray-800">{t('admin.analytics.growth_chart_title')}</h3>
+                        <p className="text-xs text-gray-500">{t('admin.analytics.growth_chart_desc')}</p>
                     </div>
                     <div className="flex-1 w-full relative">
                         {loading ? (
@@ -243,20 +236,19 @@ export default function AnalyticsAdmin() {
                     </div>
                 </div>
 
-                {/* Distribusi Pengguna */}
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-                    <h3 className="font-bold text-gray-800 mb-6">Distribusi Pengguna</h3>
+                    <h3 className="font-bold text-gray-800 mb-6">{t('admin.analytics.user_distribution')}</h3>
                     
                     {loading ? (
                         <div className="flex-1 flex items-center justify-center">
-                            <span className="text-sm text-gray-400">Memuat data...</span>
+                            <span className="text-sm text-gray-400">{t('admin.analytics.loading_data')}</span>
                         </div>
                     ) : (
                         <>
                             <div className="flex-1 flex items-center justify-center mb-6 max-h-[180px]">
                                 <Doughnut 
                                     data={{
-                                        labels: ['Pencari Kerja', 'Perusahaan'],
+                                        labels: [t('admin.analytics.job_seekers'), t('admin.analytics.companies')],
                                         datasets: [{
                                             data: [stats.jobSeekersPercentage, stats.companiesPercentage],
                                             backgroundColor: ['#8100D1', '#3b82f6'],
@@ -283,7 +275,7 @@ export default function AnalyticsAdmin() {
                                     <div className="flex justify-between text-sm mb-1">
                                         <div className="flex items-center gap-2">
                                             <div className="w-3 h-3 rounded-full bg-[#8100D1]"></div>
-                                            <span className="text-gray-600 font-medium">Pencari Kerja</span>
+                                            <span className="text-gray-600 font-medium">{t('admin.analytics.job_seekers')}</span>
                                         </div>
                                         <span className="font-bold text-gray-800">{stats.jobSeekersPercentage}%</span>
                                     </div>
@@ -295,7 +287,7 @@ export default function AnalyticsAdmin() {
                                     <div className="flex justify-between text-sm mb-1">
                                         <div className="flex items-center gap-2">
                                             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                                            <span className="text-gray-600 font-medium">Perusahaan</span>
+                                            <span className="text-gray-600 font-medium">{t('admin.analytics.companies')}</span>
                                         </div>
                                         <span className="font-bold text-gray-800">{stats.companiesPercentage}%</span>
                                     </div>
