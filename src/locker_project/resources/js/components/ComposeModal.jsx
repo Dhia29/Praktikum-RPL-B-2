@@ -15,6 +15,9 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showGifComingSoon, setShowGifComingSoon] = useState(false);
 
+    // State untuk Error Popup
+    const [errorMessage, setErrorMessage] = useState('');
+
     const mediaInputRef = useRef(null);
 
     // Menarik data User asli saat modal terbuka
@@ -58,6 +61,7 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
 
     const handleCreatePost = async (e) => {
         if (e) e.preventDefault();
+        setErrorMessage('');
         if (!typedText.trim() && !attachedMedia) return;
 
         const formData = new FormData();
@@ -74,7 +78,11 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
             if (onSuccess) onSuccess();
 
         } catch (err) {
-            window.alert('Gagal memposting. Periksa koneksi Anda.');
+            if (err.response && err.response.data && err.response.data.message) {
+                setErrorMessage(err.response.data.message);
+            } else {
+                setErrorMessage('Gagal memposting. Periksa koneksi Anda.');
+            }
         }
     };
 
@@ -86,6 +94,22 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
             {/* Overlay penutup */}
             <div className="absolute inset-0" onClick={resetAndClose}></div>
             <div className="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-visible flex flex-col animate-slide-up sm:animate-fade-in-up">
+
+                {/* Pop-up Error Overlay */}
+                {errorMessage && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-white/60 dark:bg-slate-900/70 backdrop-blur-md animate-fade-in rounded-t-3xl sm:rounded-2xl overflow-hidden">
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-black/50 max-w-sm w-full border border-red-100 dark:border-red-900/30 text-center transform animate-slide-up">
+                            <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100 dark:border-red-500/20">
+                                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Peringatan Sistem</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{errorMessage}</p>
+                            <button onClick={() => setErrorMessage('')} className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-all hover:shadow-lg hover:shadow-red-500/20 active:scale-95">
+                                Mengerti
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Header Modal */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 dark:border-slate-800">
