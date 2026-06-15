@@ -49,9 +49,9 @@ class TicketRepliedNotification extends Notification implements ShouldBroadcastN
     {
         return [
             'type' => 'ticket_reply',
-            'title' => 'Balasan Tiket Support',
+            'title' => 'Support Ticket Reply',
             'ticket_id' => $this->ticket->id,
-            'message' => "{$this->adminName} membalas laporan Anda: {$this->ticket->subject}",
+            'message' => "{$this->adminName} replied to your report: {$this->ticket->subject}",
             'action_url' => "/support/tickets/{$this->ticket->id}"
         ];
     }

@@ -100,19 +100,25 @@ export default function VerifyEmail() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
-            <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-sm border border-gray-100 w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0B0F19] py-10 px-4 relative overflow-hidden transition-colors duration-500">
+            {/* Background Decorative Glow */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[10%] -left-[10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-900/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse"></div>
+                <div className="absolute bottom-[10%] -right-[10%] w-[400px] h-[400px] bg-indigo-400/20 dark:bg-indigo-900/20 rounded-full blur-[100px] mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
+
+            <div className="bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)] border border-gray-200/50 dark:border-white/5 w-full max-w-md relative z-10 animate-fade-in-up">
                 
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-purple-100 text-[#8100D1] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 text-[#8100D1] dark:text-[#c682ff] rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-purple-200/50 dark:border-purple-500/20">
                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800">Verifikasi Email Anda</h2>
-                    <p className="text-gray-500 text-sm mt-2">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Verifikasi Email Anda</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
                         Kami telah mengirimkan 6 digit kode unik ke <br/>
-                        <span className="font-semibold text-gray-800">{email}</span>
+                        <span className="font-bold text-gray-800 dark:text-gray-200">{email}</span>
                     </p>
                 </div>
 
@@ -139,7 +145,7 @@ export default function VerifyEmail() {
                                 value={digit}
                                 onChange={(e) => handleCodeChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
-                                className="w-12 h-14 text-center text-xl font-bold text-gray-800 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8100D1] focus:border-[#8100D1] outline-none transition-all"
+                                className="w-12 h-14 text-center text-xl font-bold text-gray-800 dark:text-white bg-gray-50/50 dark:bg-slate-800/50 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#8100D1]/30 focus:border-[#8100D1] outline-none transition-all shadow-sm"
                                 placeholder="-"
                             />
                         ))}
@@ -148,20 +154,23 @@ export default function VerifyEmail() {
                     <button
                         type="submit"
                         disabled={isLoading || code.join('').length < 6}
-                        className={`w-full text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${isLoading || code.join('').length < 6 ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#8100D1] hover:bg-purple-800 shadow-sm'}`}
+                        className={`w-full text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(129,0,209,0.3)] hover:shadow-[0_8px_25px_rgba(129,0,209,0.5)] transform hover:-translate-y-0.5 mt-4 group relative overflow-hidden flex items-center justify-center gap-2 ${isLoading || code.join('').length < 6 ? 'bg-purple-400 cursor-not-allowed' : 'bg-gradient-to-r from-[#8100D1] to-pink-500'}`}
                     >
-                        {isLoading ? (
+                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                        <span className="relative z-10 flex items-center gap-2">
+                            {isLoading ? (
                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : 'Verifikasi Akun'}
+                            ) : 'Verifikasi Akun'}
+                        </span>
                     </button>
                 </form>
 
                 <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-600 mb-2">Belum menerima email?</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Belum menerima email?</p>
                     <button
                         onClick={handleResend}
                         disabled={isLoading || resendCooldown > 0}
-                        className={`text-sm font-semibold transition-colors ${resendCooldown > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-[#8100D1] hover:text-purple-900 underline'}`}
+                        className={`text-sm font-bold transition-colors ${resendCooldown > 0 ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-[#8100D1] dark:text-[#c682ff] hover:underline'}`}
                     >
                         {resendCooldown > 0 ? `Kirim ulang dalam ${resendCooldown} detik` : 'Kirim Ulang Kode OTP'}
                     </button>

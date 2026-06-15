@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function HeaderAdmin({ title, adminUser }) {
+    const { t } = useTranslation();
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -66,19 +68,19 @@ export default function HeaderAdmin({ title, adminUser }) {
         const date = new Date(dateString);
         const now = new Date();
         const seconds = Math.floor((now - date) / 1000);
-        if (seconds < 60) return "Baru saja";
+        if (seconds < 60) return t('admin.header.time_just_now');
         const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes}m lalu`;
+        if (minutes < 60) return t('admin.header.time_minutes', { count: minutes });
         const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours}j lalu`;
+        if (hours < 24) return t('admin.header.time_hours', { count: hours });
         const days = Math.floor(hours / 24);
-        return `${days}h lalu`;
+        return t('admin.header.time_days', { count: days });
     };
 
     return (
-        <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 sticky top-0 flex-shrink-0">
+        <header className="h-20 bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/5 flex items-center justify-between px-6 z-10 sticky top-0 flex-shrink-0 transition-colors duration-500 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
             <div className="flex items-center gap-4">
-                <h2 className="text-xl font-bold text-gray-800">{title || 'Overview'}</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">{title || t('admin.layout.overview')}</h2>
             </div>
             
             <div className="flex items-center gap-6">
@@ -87,7 +89,7 @@ export default function HeaderAdmin({ title, adminUser }) {
                     <button
                         onClick={() => setIsNotifOpen(!isNotifOpen)}
                         className="relative w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-[#8100D1] hover:bg-purple-50 transition-colors focus:outline-none"
-                        title="Notifikasi"
+                        title={t('admin.header.notif_title')}
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -103,15 +105,15 @@ export default function HeaderAdmin({ title, adminUser }) {
                     {isNotifOpen && (
                         <div className="absolute right-0 top-12 mt-2 w-80 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden flex flex-col max-h-96">
                             <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                                <h3 className="font-bold text-gray-800 text-sm">Notifikasi Admin</h3>
+                                <h3 className="font-bold text-gray-800 text-sm">{t('admin.header.notif_title')}</h3>
                                 {unreadCount > 0 && (
-                                    <button onClick={handleMarkAllRead} className="text-xs text-[#8100D1] font-medium hover:underline">Tandai semua</button>
+                                    <button onClick={handleMarkAllRead} className="text-xs text-[#8100D1] font-medium hover:underline">{t('admin.header.mark_all')}</button>
                                 )}
                             </div>
                             <div className="overflow-y-auto flex-1 p-0">
                                 {notifications.length === 0 ? (
                                     <div className="p-8 flex flex-col items-center justify-center text-center">
-                                        <p className="text-gray-500 text-sm">Belum ada notifikasi.</p>
+                                        <p className="text-gray-500 text-sm">{t('admin.header.no_notif')}</p>
                                     </div>
                                 ) : (
                                     notifications.slice(0, 15).map(notif => (
@@ -120,10 +122,10 @@ export default function HeaderAdmin({ title, adminUser }) {
                                             className={`p-4 border-b border-gray-50 cursor-pointer transition-colors ${!notif.read_at ? 'bg-purple-50/30 hover:bg-purple-50/50' : 'hover:bg-gray-50'}`}
                                         >
                                             <p className={`text-sm text-gray-800 ${!notif.read_at ? 'font-semibold' : 'font-medium'}`}>
-                                                {notif.data?.title || 'Notifikasi'}
+                                                {notif.data?.title || t('admin.header.notif_default_title')}
                                             </p>
                                             <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                                                {notif.data?.message || 'Anda memiliki notifikasi baru.'}
+                                                {notif.data?.message || t('admin.header.notif_default_msg')}
                                             </p>
                                             <p className="text-[11px] text-gray-400 mt-2">
                                                 {timeAgo(notif.created_at)}
@@ -136,8 +138,8 @@ export default function HeaderAdmin({ title, adminUser }) {
                     )}
                 </div>
 
-                <div className="flex items-center gap-4 border-l border-gray-200 pl-4">
-                    <span className="text-gray-700 font-medium text-sm hidden sm:block">
+                <div className="flex items-center gap-4 border-l border-gray-200 dark:border-slate-700 pl-4">
+                    <span className="text-gray-700 dark:text-gray-200 font-medium text-sm hidden sm:block">
                         Hi, {adminUser?.name || 'Administrator'}
                     </span>
                     <button className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-[#8100D1] font-bold border border-purple-200 hover:ring-2 hover:ring-purple-300 transition-all focus:outline-none">

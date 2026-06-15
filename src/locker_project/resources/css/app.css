@@ -1,7 +1,207 @@
 @import 'tailwindcss';
-
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+
+/* ============================================
+   THEME COLOR SYSTEM (CSS Custom Properties)
+   Struktur warna dipisahkan dari layout.
+   Toggle data-theme="dark" pada <html> 
+   untuk mengganti seluruh palet warna.
+   ============================================ */
+
+:root {
+    /* --- Background --- */
+    --color-bg-primary: #f9fafb;
+    /* gray-50 */
+    --color-bg-secondary: #ffffff;
+    /* white */
+    --color-bg-tertiary: #f3f4f6;
+    /* gray-100 */
+    --color-bg-hover: #f9fafb;
+    /* gray-50 */
+    --color-bg-input: #f9fafb;
+    /* gray-50 */
+    --color-bg-accent: rgba(129, 0, 209, 0.06);
+
+    /* --- Text --- */
+    --color-text-primary: #111827;
+    /* gray-900 */
+    --color-text-secondary: #4b5563;
+    /* gray-600 */
+    --color-text-tertiary: #9ca3af;
+    /* gray-400 */
+    --color-text-muted: #6b7280;
+    /* gray-500 */
+    --color-text-inverse: #ffffff;
+
+    /* --- Border --- */
+    --color-border-primary: #e5e7eb;
+    /* gray-200 */
+    --color-border-secondary: #f3f4f6;
+    /* gray-100 */
+    --color-border-hover: #d1d5db;
+    /* gray-300 */
+    --color-border-input: #e5e7eb;
+    /* gray-200 */
+
+    /* --- Brand --- */
+    --color-brand: #8100D1;
+    --color-brand-hover: #6b21a8;
+    /* purple-800 */
+    --color-brand-light: rgba(129, 0, 209, 0.1);
+    --color-brand-bg: #faf5ff;
+    /* purple-50 */
+
+    /* --- Shadow --- */
+    --color-shadow: rgba(0, 0, 0, 0.05);
+
+    /* --- Status --- */
+    --color-danger: #dc2626;
+    --color-danger-bg: #fef2f2;
+    --color-danger-border: #fecaca;
+    --color-success-bg: #f0fdf4;
+    --color-success-text: #15803d;
+}
+
+[data-theme="dark"] {
+    /* --- Background --- */
+    --color-bg-primary: #0f172a;
+    /* slate-900 */
+    --color-bg-secondary: #1e293b;
+    /* slate-800 */
+    --color-bg-tertiary: #334155;
+    /* slate-700 */
+    --color-bg-hover: #334155;
+    /* slate-700 */
+    --color-bg-input: #1e293b;
+    /* slate-800 */
+    --color-bg-accent: rgba(168, 85, 247, 0.12);
+
+    /* --- Text --- */
+    --color-text-primary: #f1f5f9;
+    /* slate-100 */
+    --color-text-secondary: #cbd5e1;
+    /* slate-300 */
+    --color-text-tertiary: #94a3b8;
+    /* slate-400 */
+    --color-text-muted: #94a3b8;
+    /* slate-400 */
+    --color-text-inverse: #0f172a;
+
+    /* --- Border --- */
+    --color-border-primary: #334155;
+    /* slate-700 */
+    --color-border-secondary: #1e293b;
+    /* slate-800 */
+    --color-border-hover: #475569;
+    /* slate-600 */
+    --color-border-input: #475569;
+    /* slate-600 */
+
+    /* --- Brand --- */
+    --color-brand: #a855f7;
+    /* purple-500 (brighter for dark) */
+    --color-brand-hover: #c084fc;
+    /* purple-400 */
+    --color-brand-light: rgba(168, 85, 247, 0.15);
+    --color-brand-bg: rgba(168, 85, 247, 0.1);
+
+    /* --- Shadow --- */
+    --color-shadow: rgba(0, 0, 0, 0.3);
+
+    /* --- Status --- */
+    --color-danger: #f87171;
+    --color-danger-bg: rgba(239, 68, 68, 0.1);
+    --color-danger-border: rgba(239, 68, 68, 0.2);
+    --color-success-bg: rgba(34, 197, 94, 0.1);
+    --color-success-text: #4ade80;
+}
+
+/* ============================================
+   BASE OVERRIDES FOR DARK MODE
+   ============================================ */
+
+/* Body / root background */
+html {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Override Tailwind bg/text utilities for theme-aware components */
+.theme-bg-primary {
+    background-color: var(--color-bg-primary) !important;
+}
+
+.theme-bg-secondary {
+    background-color: var(--color-bg-secondary) !important;
+}
+
+.theme-bg-tertiary {
+    background-color: var(--color-bg-tertiary) !important;
+}
+
+.theme-bg-input {
+    background-color: var(--color-bg-input) !important;
+}
+
+.theme-bg-accent {
+    background-color: var(--color-bg-accent) !important;
+}
+
+.theme-bg-brand {
+    background-color: var(--color-brand) !important;
+}
+
+.theme-bg-brand-light {
+    background-color: var(--color-brand-light) !important;
+}
+
+.theme-bg-brand-bg {
+    background-color: var(--color-brand-bg) !important;
+}
+
+.theme-text-primary {
+    color: var(--color-text-primary) !important;
+}
+
+.theme-text-secondary {
+    color: var(--color-text-secondary) !important;
+}
+
+.theme-text-tertiary {
+    color: var(--color-text-tertiary) !important;
+}
+
+.theme-text-muted {
+    color: var(--color-text-muted) !important;
+}
+
+.theme-text-brand {
+    color: var(--color-brand) !important;
+}
+
+.theme-border {
+    border-color: var(--color-border-primary) !important;
+}
+
+.theme-border-secondary {
+    border-color: var(--color-border-secondary) !important;
+}
+
+.theme-border-input {
+    border-color: var(--color-border-input) !important;
+}
+
+/* Smooth transition for all theme-aware elements */
+.theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 
 @keyframes slide-up {
     from {
@@ -18,6 +218,59 @@
 }
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Specific overrides for Dark Mode */
+[data-theme="dark"] .bg-white {
+    background-color: var(--color-bg-secondary) !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--color-bg-primary) !important;
+}
+
+[data-theme="dark"] .bg-gray-100 {
+    background-color: var(--color-bg-tertiary) !important;
+}
+
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800 {
+    color: var(--color-text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-600 {
+    color: var(--color-text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400 {
+    color: var(--color-text-tertiary) !important;
+}
+
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-100 {
+    border-color: var(--color-border-primary) !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+    border-color: var(--color-border-hover) !important;
+}
+
+[data-theme="dark"] .shadow-sm,
+[data-theme="dark"] .shadow-md,
+[data-theme="dark"] .shadow-lg {
+    box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow) !important;
+}
+
+@layer base {
+
+    button,
+    [type='button'],
+    [type='reset'],
+    [type='submit'] {
+        cursor: pointer;
+    }
 }

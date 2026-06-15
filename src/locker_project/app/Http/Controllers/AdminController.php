@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CompanyApprovedNotification;
 use App\Models\SupportTicket;
 use App\Models\PlatformSetting;
+use App\Events\CompanyStatusUpdated;
 
 class AdminController extends Controller
 {
@@ -166,6 +167,8 @@ class AdminController extends Controller
             }
         }
         
+        broadcast(new CompanyStatusUpdated($userId, 'Aktif'));
+        
         return response()->json(['message' => 'Company successfully verified.']);
     }
 
@@ -186,6 +189,8 @@ class AdminController extends Controller
             'target_entity' => 'users',
             'target_id' => $userId
         ]);
+        
+        broadcast(new CompanyStatusUpdated($userId, 'Ditolak', $request->alasan_penolakan));
         
         return response()->json(['message' => 'Company has been rejected.']);
     }
@@ -246,6 +251,31 @@ class AdminController extends Controller
             'target_entity' => 'job_postings',
             'target_id' => $jobId
         ]);
+        
+        // Ambil data lowongan lengkap untuk di-broadcast ke WebSockets
+        $verifiedJob = DB::table('job_postings')
+            ->join('company_profiles', 'job_postings.company_id', '=', 'company_profiles.id')
+            ->select(
+                'job_postings.id',
+                'job_postings.company_id',
+                'job_postings.judul as role',
+                'job_postings.kategori as type',
+                'job_postings.lokasi as location',
+                'job_postings.deskripsi as description',
+                'job_postings.deadline',
+                'job_postings.created_at',
+                'company_profiles.user_id as company_user_id',
+                'company_profiles.nama_perusahaan as company',
+                'company_profiles.logo_url'
+            )
+            ->where('job_postings.id', $jobId)
+            ->first();
+
+        if ($verifiedJob) {
+            $verifiedJob->status = 'Aktif'; // Ensure status is set for frontend condition
+            $verifiedJob->has_applied = false; // default for real-time insert
+            broadcast(new \App\Events\JobStatusUpdated($verifiedJob));
+        }
         
         return response()->json(['message' => 'Job posting successfully published.']);
     }
@@ -389,9 +419,28 @@ class AdminController extends Controller
     public function settings()
     {
         $settings = [
+            // General
             'platform_name' => PlatformSetting::get('platform_name', 'LockER'),
             'support_email' => PlatformSetting::get('support_email', 'support@locker.com'),
+            'maintenance_mode' => PlatformSetting::get('maintenance_mode', '0'),
+            'close_registrations' => PlatformSetting::get('close_registrations', '0'),
+            
+            // Moderation
             'auto_approve_jobs' => PlatformSetting::get('auto_approve_jobs', '0'),
+            'auto_approve_companies' => PlatformSetting::get('auto_approve_companies', '0'),
+            'job_expiry_days' => PlatformSetting::get('job_expiry_days', '30'),
+            
+            // Security & Community
+            'banned_keywords' => PlatformSetting::get('banned_keywords', 'judi,slot,penipuan'),
+            'community_report_limit' => PlatformSetting::get('community_report_limit', '5'),
+
+            // Notifications
+            'notify_new_company' => PlatformSetting::get('notify_new_company', '1'),
+            'notify_new_ticket' => PlatformSetting::get('notify_new_ticket', '1'),
+
+            // Localization
+            'language' => PlatformSetting::get('language', 'id'),
+            'timezone' => PlatformSetting::get('timezone', 'Asia/Jakarta'),
         ];
         return response()->json($settings);
     }
@@ -401,11 +450,39 @@ class AdminController extends Controller
         $request->validate([
             'platform_name' => 'required|string|max:255',
             'support_email' => 'required|email|max:255',
+            'job_expiry_days' => 'required|integer|min:1|max:365',
+            'banned_keywords' => 'nullable|string',
+            'community_report_limit' => 'required|integer|min:1',
+            'language' => 'nullable|string|max:10',
+            'timezone' => 'nullable|string|max:50',
         ]);
 
+        // General
         PlatformSetting::set('platform_name', $request->platform_name);
         PlatformSetting::set('support_email', $request->support_email);
-        PlatformSetting::set('auto_approve_jobs', $request->has('auto_approve_jobs') ? '1' : '0');
+        PlatformSetting::set('maintenance_mode', $request->has('maintenance_mode') && $request->maintenance_mode ? '1' : '0');
+        PlatformSetting::set('close_registrations', $request->has('close_registrations') && $request->close_registrations ? '1' : '0');
+
+        // Moderation
+        PlatformSetting::set('auto_approve_jobs', $request->has('auto_approve_jobs') && $request->auto_approve_jobs ? '1' : '0');
+        PlatformSetting::set('auto_approve_companies', $request->has('auto_approve_companies') && $request->auto_approve_companies ? '1' : '0');
+        PlatformSetting::set('job_expiry_days', $request->job_expiry_days);
+
+        // Security & Community
+        PlatformSetting::set('banned_keywords', $request->banned_keywords ?? '');
+        PlatformSetting::set('community_report_limit', $request->community_report_limit);
+
+        // Notifications
+        PlatformSetting::set('notify_new_company', $request->has('notify_new_company') && $request->notify_new_company ? '1' : '0');
+        PlatformSetting::set('notify_new_ticket', $request->has('notify_new_ticket') && $request->notify_new_ticket ? '1' : '0');
+
+        // Localization
+        if ($request->has('language')) {
+            PlatformSetting::set('language', $request->language);
+        }
+        if ($request->has('timezone')) {
+            PlatformSetting::set('timezone', $request->timezone);
+        }
 
         AdminLog::create([
             'admin_id' => Auth::id(),

@@ -12,11 +12,18 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationEmail;
 use App\Mail\ResetPasswordEmail;
+use App\Models\PlatformSetting;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        if (PlatformSetting::get('close_registrations', '0') === '1') {
+            return response()->json([
+                'message' => 'Pendaftaran akun baru saat ini ditutup oleh Administrator.'
+            ], 403);
+        }
+
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
@@ -36,21 +43,22 @@ class AuthController extends Controller
         try {
             DB::beginTransaction();
 
+            $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
+            $isAutoApproveCompany = $request->role === 'company' && PlatformSetting::get('auto_approve_companies', '0') === '1';
+            
             // Insert ke tabel users (Sesuai Migration)
             $user = User::create([
                 'id' => Str::uuid()->toString(),
                 'email' => $request->email,
                 'password_hash' => Hash::make($request->password),
                 'role' => $request->role,
-                // Untuk pencari kerja: jangan otomatis verifikasi, pakai OTP
-                'status' => 'Menunggu Verifikasi',
-                'email_verified_at' => $request->role === 'company' ? now() : null,
+                'status' => ($request->role === 'company' && !$isAutoApproveCompany) ? 'Menunggu Verifikasi' : 'Aktif',
             ]);
 
-            // Inisialisasi kolom verifikasi
             DB::table('users')->where('id', $user->id)->update([
-                'verification_code' => null,
-                'verification_expires_at' => null,
+                'verification_code' => $code,
+                'verification_expires_at' => now()->addMinutes(15),
             ]);
 
             // Insert ke tabel profil
@@ -68,39 +76,22 @@ class AuthController extends Controller
                     'nama_perusahaan' => $request->nama_lengkap_atau_perusahaan,
                     'npwp' => $request->npwp,
                     'bidang_industri' => $request->industri,
-                    'verifikasi_status' => 'Menunggu',
-                    // Migration ini TIDAK punya timestamps sama sekali
+                    'verifikasi_status' => $isAutoApproveCompany ? 'Terverifikasi' : 'Menunggu',
                 ]);
             }
 
             DB::commit();
 
-            // Jika role seeker, kirimkan kode verifikasi (OTP) via email
-            if ($request->role === 'seeker') {
-                $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-                DB::table('users')->where('id', $user->id)->update([
-                    'verification_code' => $code,
-                    'verification_expires_at' => now()->addMinutes(15),
-                ]);
-
-                // Cari nama dari profil untuk personalisasi email
-                $name = $request->nama_lengkap_atau_perusahaan ?? 'Pengguna';
-                try {
-                    Mail::to($user->email)->send(new VerificationEmail($code, $name));
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send registration verification email: ' . $e->getMessage());
-                }
-
-                return response()->json([
-                    'message' => 'Registrasi berhasil! Silakan masukkan kode verifikasi yang telah dikirim ke email Anda.',
-                    'requires_verification' => true,
-                    'email' => $user->email
-                ], 201);
+            try {
+                Mail::to($user->email)->send(new VerificationEmail($code, $request->nama_lengkap_atau_perusahaan));
+            } catch (\Exception $e) {
+                // Log error but don't rollback user creation
+                \Log::error('Failed to send verification email: ' . $e->getMessage());
             }
 
             return response()->json([
-                'message' => 'Registrasi berhasil! Silakan login menggunakan akun Anda.',
-                'requires_verification' => false,
+                'message' => 'Registrasi berhasil! Silakan cek email Anda untuk kode verifikasi.',
+                'requires_verification' => true,
                 'email' => $user->email
             ], 201);
 
@@ -123,6 +114,15 @@ class AuthController extends Controller
         // karena kita sudah mengaturnya di getAuthPasswordName() pada model User.php
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+
+            if (is_null($user->email_verified_at)) {
+                Auth::logout();
+                return response()->json([
+                    'message' => 'Akun Anda belum diverifikasi. Silakan cek email Anda untuk kode OTP.',
+                    'requires_verification' => true,
+                    'email' => $user->email
+                ], 403);
+            }
 
             // 3. Regenerasi session untuk keamanan (mencegah Session Fixation)
             $request->session()->regenerate();

@@ -183,6 +183,7 @@ class ProfileController extends Controller
                 ->select('id', 'user_id', 'nama_perusahaan as name', 'bidang_industri as industry', 'logo_url as avatar_url', 'follower_count')
                 ->where('verifikasi_status', 'Aktif')
                 ->orWhere('verifikasi_status', 'Disetujui')
+                ->orWhere('verifikasi_status', 'Terverifikasi')
                 ->orderBy('follower_count', 'desc')
                 ->get();
             return response()->json($companies, 200);

@@ -49,9 +49,9 @@ class PostLikedNotification extends Notification implements ShouldBroadcastNow
     {
         return [
             'type' => 'post_like',
-            'title' => 'Postingan Disukai',
+            'title' => 'Post Liked',
             'post_id' => $this->post->id,
-            'message' => "{$this->likerName} menyukai postingan Anda.",
+            'message' => "{$this->likerName} liked your post.",
             'action_url' => "/community/post/{$this->post->id}"
         ];
     }

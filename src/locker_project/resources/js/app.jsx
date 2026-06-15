@@ -4,6 +4,19 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
 
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+import './assets/echo';
+import './assets/i18n';
+
+// Initialize Theme
+const savedTheme = localStorage.getItem('app_theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+} else {
+    document.documentElement.classList.remove('dark');
+}
 
 import './echo';
 
@@ -21,6 +34,7 @@ import PublicProfile from './PublicProfile';
 import Lamaran from './Lamaran';
 import Pesan from './Messages';
 import Komunitas from './Community';
+import Settings from './Settings';
 
 function App() {
     return (
@@ -46,6 +60,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile-perusahaan" element={<ProfilePerusahaan />} />
                 <Route path="/profile/:id" element={<PublicProfile />} />
+                <Route path="/settings" element={<Settings />} />
 
             </Routes>
         </Router>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import EmojiPicker from 'emoji-picker-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuccess }) {
+    const { t } = useTranslation();
     const [typedText, setTypedText] = useState('');
     const [attachedMedia, setAttachedMedia] = useState(null);
     const [mediaPreview, setMediaPreview] = useState(null);
@@ -12,6 +14,9 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
     // State untuk API Emoji & GIF
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showGifComingSoon, setShowGifComingSoon] = useState(false);
+
+    // State untuk Error Popup
+    const [errorMessage, setErrorMessage] = useState('');
 
     const mediaInputRef = useRef(null);
 
@@ -56,6 +61,7 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
 
     const handleCreatePost = async (e) => {
         if (e) e.preventDefault();
+        setErrorMessage('');
         if (!typedText.trim() && !attachedMedia) return;
 
         const formData = new FormData();
@@ -72,7 +78,11 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
             if (onSuccess) onSuccess();
 
         } catch (err) {
-            alert('Gagal memposting. Periksa koneksi Anda.');
+            if (err.response && err.response.data && err.response.data.message) {
+                setErrorMessage(err.response.data.message);
+            } else {
+                setErrorMessage('Gagal memposting. Periksa koneksi Anda.');
+            }
         }
     };
 
@@ -83,18 +93,34 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
 
             {/* Overlay penutup */}
             <div className="absolute inset-0" onClick={resetAndClose}></div>
-            <div className="relative bg-white w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-visible flex flex-col animate-slide-up sm:animate-fade-in-up">
+            <div className="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-visible flex flex-col animate-slide-up sm:animate-fade-in-up">
+
+                {/* Pop-up Error Overlay */}
+                {errorMessage && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-white/60 dark:bg-slate-900/70 backdrop-blur-md animate-fade-in rounded-t-3xl sm:rounded-2xl overflow-hidden">
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-black/50 max-w-sm w-full border border-red-100 dark:border-red-900/30 text-center transform animate-slide-up">
+                            <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100 dark:border-red-500/20">
+                                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Peringatan Sistem</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">{errorMessage}</p>
+                            <button onClick={() => setErrorMessage('')} className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-all hover:shadow-lg hover:shadow-red-500/20 active:scale-95">
+                                Mengerti
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Header Modal */}
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
-                    <button onClick={resetAndClose} className="text-gray-500 font-semibold hover:text-gray-800 transition">Batal</button>
-                    <h3 className="font-bold text-gray-900 text-lg tracking-tight">Utasan Baru</h3>
+                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+                    <button onClick={resetAndClose} className="text-gray-500 dark:text-gray-400 font-semibold hover:text-gray-800 dark:hover:text-gray-200 transition">{t('community.cancel')}</button>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">{t('community.new_thread')}</h3>
                     <button
                         onClick={handleCreatePost}
                         disabled={!typedText.trim() && !attachedMedia}
-                        className={`font-bold px-4 py-1.5 rounded-full transition ${(!typedText.trim() && !attachedMedia) ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-white bg-black hover:bg-gray-800 shadow-md'}`}
+                        className={`font-bold px-4 py-1.5 rounded-full transition ${(!typedText.trim() && !attachedMedia) ? 'text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-slate-800 cursor-not-allowed' : 'text-white bg-black dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 shadow-md'}`}
                     >
-                        Posting
+                        {t('community.post')}
                     </button>
                 </div>
 
@@ -103,15 +129,15 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
 
                     {/* Kolom Kiri: Profil & Garis Thread */}
                     <div className="flex flex-col items-center pt-1">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-500 flex-shrink-0 border border-gray-200 overflow-hidden shadow-sm">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center font-bold text-gray-500 dark:text-gray-400 flex-shrink-0 border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
                             {currentUser.avatar_url ? (
                                 <img src={currentUser.avatar_url} className="w-full h-full object-cover" alt="Profile" />
                             ) : (
                                 <span className="text-xl">{currentUser.name.charAt(0).toUpperCase()}</span>
                             )}
                         </div>
-                        <div className="w-0.5 bg-gray-200 flex-1 my-2 rounded-full min-h-[100px]"></div>
-                        <div className="w-4 h-4 rounded-full border-2 border-gray-200 bg-white/50 opacity-50"></div>
+                        <div className="w-0.5 bg-gray-200 dark:bg-slate-700 flex-1 my-2 rounded-full min-h-[100px]"></div>
+                        <div className="w-4 h-4 rounded-full border-2 border-gray-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 opacity-50"></div>
                     </div>
 
                     {/* Kolom Kanan: Area Input */}
@@ -119,9 +145,9 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
 
                         {/* Info Penulis & Target */}
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="font-bold text-[16px] text-gray-900 leading-none">{currentUser.name}</span>
-                            <span className="text-gray-400 text-sm">·</span>
-                            <span className="text-sm font-semibold bg-gray-100 px-2.5 py-0.5 rounded-md text-gray-600">
+                            <span className="font-bold text-[16px] text-gray-900 dark:text-white leading-none">{currentUser.name}</span>
+                            <span className="text-gray-400 dark:text-gray-500 text-sm">·</span>
+                            <span className="text-sm font-semibold bg-gray-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-md text-gray-600 dark:text-gray-300">
                                 {selectedCommunity ? selectedCommunity.nama : 'Global'}
                             </span>
                         </div>
@@ -129,7 +155,7 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
                         {/* Text Area Dinamis */}
                         <textarea
                             autoFocus
-                            placeholder="Mulai utas... Apa yang sedang Anda pikirkan?"
+                            placeholder={t('community.compose_placeholder')}
                             value={typedText}
                             onChange={(e) => setTypedText(e.target.value)}
                             onKeyDown={(e) => {
@@ -140,12 +166,12 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
                                     }
                                 }
                             }}
-                            className="w-full text-[16px] outline-none resize-none flex-1 text-gray-900 placeholder-gray-400 bg-transparent leading-relaxed"
+                            className="w-full text-[16px] outline-none resize-none flex-1 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 bg-transparent leading-relaxed"
                         />
 
                         {/* Preview Media */}
                         {mediaPreview && (
-                            <div className="relative rounded-2xl overflow-hidden mt-4 border border-gray-200 bg-gray-50 inline-block max-w-full shadow-sm">
+                            <div className="relative rounded-2xl overflow-hidden mt-4 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 inline-block max-w-full shadow-sm">
                                 {mediaPreview.type === 'image' ? (
                                     <img src={mediaPreview.url} className="max-h-72 w-full object-cover" />
                                 ) : (
@@ -163,20 +189,20 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
                 </div>
 
                 {/* Toolbar Interaktif di Bagian Bawah Modal */}
-                <div className="px-16 py-3 border-t border-gray-100 flex items-center gap-2 relative bg-gray-50/50 rounded-b-2xl">
+                <div className="px-16 py-3 border-t border-gray-100 dark:border-slate-800 flex items-center gap-2 relative bg-gray-50/50 dark:bg-slate-900/50 rounded-b-2xl">
 
                     {/* Tombol Gallery/Media */}
-                    <button type="button" onClick={() => mediaInputRef.current?.click()} className="p-2 text-gray-500 hover:text-black hover:bg-gray-200 rounded-full transition focus:outline-none" title="Tambah Media">
+                    <button type="button" onClick={() => mediaInputRef.current?.click()} className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-800 rounded-full transition focus:outline-none" title="Tambah Media">
                         <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </button>
 
                     {/* Tombol GIF (Placeholder) */}
-                    <button type="button" onClick={() => setShowGifComingSoon(true)} className="p-2 text-gray-500 hover:text-black hover:bg-gray-200 rounded-full transition focus:outline-none" title="Tambah GIF">
+                    <button type="button" onClick={() => setShowGifComingSoon(true)} className="p-2 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-800 rounded-full transition focus:outline-none" title="Tambah GIF">
                         <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </button>
 
                     {/* Tombol API Emoji Picker */}
-                    <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`p-2 rounded-full transition focus:outline-none ${showEmojiPicker ? 'text-black bg-gray-200' : 'text-gray-500 hover:text-black hover:bg-gray-200'}`} title="Tambah Emoticon">
+                    <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`p-2 rounded-full transition focus:outline-none ${showEmojiPicker ? 'text-black dark:text-white bg-gray-200 dark:bg-slate-800' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-800'}`} title="Tambah Emoticon">
                         <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </button>
 
@@ -190,13 +216,13 @@ export default function ComposeModal({ isOpen, onClose, selectedCommunity, onSuc
 
                     {/* API Emoji Picker Component */}
                     {showEmojiPicker && (
-                        <div className="absolute bottom-[60px] left-16 z-50 shadow-2xl rounded-2xl animate-fade-in-up border border-gray-100">
+                        <div className="absolute bottom-[60px] left-16 z-50 shadow-2xl rounded-2xl animate-fade-in-up border border-gray-100 dark:border-slate-800">
                             <EmojiPicker
                                 onEmojiClick={handleEmojiClick}
                                 autoFocusSearch={false}
                                 width={320}
                                 height={400}
-                                theme="light"
+                                theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
                                 searchPlaceholder="Cari emoji..."
                             />
                         </div>

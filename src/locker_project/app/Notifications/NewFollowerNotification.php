@@ -48,8 +48,8 @@ class NewFollowerNotification extends Notification implements ShouldBroadcastNow
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => 'Pengikut Baru!',
-            'message' => "{$this->followerName} mulai mengikuti perusahaan Anda.",
+            'title' => 'New Follower!',
+            'message' => "{$this->followerName} started following your company.",
             'action_url' => "/profile/{$this->followerId}",
         ];
     }

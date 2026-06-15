@@ -112,6 +112,20 @@ class CommunityController extends Controller
             'reply_to' => 'nullable|uuid'
         ]);
 
+        if ($request->konten) {
+            $bannedStr = \App\Models\PlatformSetting::get('banned_keywords', '');
+            if (!empty($bannedStr)) {
+                $bannedWords = array_map('trim', explode(',', $bannedStr));
+                foreach ($bannedWords as $word) {
+                    if (empty($word)) continue;
+                    // Use regex with word boundaries to avoid false positives (e.g. banning 'asu' matching 'masuk')
+                    if (preg_match("/\b" . preg_quote($word, '/') . "\b/i", $request->konten)) {
+                        return response()->json(['message' => "Postingan Anda mengandung kata terlarang yang diblokir oleh sistem: {$word}"], 400);
+                    }
+                }
+            }
+        }
+
         $authId = Auth::id();
 
         try {

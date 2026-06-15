@@ -23,24 +23,24 @@ export default function ReportModal({ isOpen, onClose, postId, onSuccess }) {
         let finalReason = selectedReason;
         if (selectedReason === 'other') {
             if (!customReason.trim()) {
-                alert('Silakan tuliskan alasan Anda.');
+                window.alert('Silakan tuliskan alasan Anda.');
                 return;
             }
             finalReason = customReason;
         }
 
         if (!finalReason) {
-            alert('Silakan pilih salah satu alasan.');
+            window.alert('Silakan pilih salah satu alasan.');
             return;
         }
 
         setIsSubmitting(true);
         try {
             await axios.post(`/api/community/posts/${postId}/report`, { reason: finalReason });
-            alert('Postingan berhasil dilaporkan. Terima kasih atas laporan Anda.');
+            window.alert('Postingan berhasil dilaporkan. Terima kasih atas laporan Anda.');
             onSuccess(); // Close dropdown and modal, show success
         } catch (err) {
-            alert(err.response?.data?.message || 'Gagal melaporkan postingan.');
+            window.alert(err.response?.data?.message || 'Gagal melaporkan postingan.');
         } finally {
             setIsSubmitting(false);
             onClose();
