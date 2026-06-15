@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function TicketsIndexAdmin() {
+    const { t } = useTranslation();
     const { adminUser } = useOutletContext() || {};
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -71,8 +73,8 @@ export default function TicketsIndexAdmin() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-gray-100 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-gray-800">Daftar Tiket Dukungan</h3>
-                    <p className="text-sm text-gray-500 mt-1">Kelola tiket dukungan dan percakapan pelanggan.</p>
+                    <h3 className="text-lg font-bold text-gray-800">{t('admin.tickets.title')}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('admin.tickets.desc')}</p>
                 </div>
                 <div className="flex gap-2">
                     <select 
@@ -80,7 +82,7 @@ export default function TicketsIndexAdmin() {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-[#8100D1] focus:border-[#8100D1] block px-3 py-2 outline-none"
                     >
-                        <option value="all">Semua Status</option>
+                        <option value="all">{t('admin.tickets.filter_all')}</option>
                         <option value="open">Open</option>
                         <option value="in_progress">In Progress</option>
                         <option value="resolved">Resolved</option>
@@ -93,22 +95,22 @@ export default function TicketsIndexAdmin() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
-                            <th className="p-4 border-b border-gray-100">Tiket ID & Subjek</th>
-                            <th className="p-4 border-b border-gray-100">Pelapor</th>
-                            <th className="p-4 border-b border-gray-100">Kategori & Penanganan</th>
-                            <th className="p-4 border-b border-gray-100">Status</th>
-                            <th className="p-4 border-b border-gray-100">Ditugaskan Kepada</th>
-                            <th className="p-4 border-b border-gray-100 text-right">Aksi</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.tickets.col_id_subject')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.tickets.col_reporter')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.tickets.col_category')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.tickets.col_status')}</th>
+                            <th className="p-4 border-b border-gray-100">{t('admin.tickets.col_assigned')}</th>
+                            <th className="p-4 border-b border-gray-100 text-right">{t('admin.tickets.col_action')}</th>
                         </tr>
                     </thead>
                     <tbody className="text-sm divide-y divide-gray-100">
                         {loading ? (
                             <tr>
-                                <td colSpan="6" className="p-8 text-center text-gray-500">Memuat data tiket...</td>
+                                <td colSpan="6" className="p-8 text-center text-gray-500">{t('admin.tickets.loading')}</td>
                             </tr>
                         ) : filteredTickets.length === 0 ? (
                             <tr>
-                                <td colSpan="6" className="p-8 text-center text-gray-500">Belum ada tiket bantuan saat ini.</td>
+                                <td colSpan="6" className="p-8 text-center text-gray-500">{t('admin.tickets.empty')}</td>
                             </tr>
                         ) : (
                             filteredTickets.map(ticket => (
@@ -139,12 +141,12 @@ export default function TicketsIndexAdmin() {
                                                 <span className="text-sm font-medium text-gray-700">{ticket.admin.email.split('@')[0]}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-gray-400 italic text-sm">Belum ada Admin</span>
+                                            <span className="text-gray-400 italic text-sm">{t('admin.tickets.no_admin')}</span>
                                         )}
                                     </td>
                                     <td className="p-4 text-right">
                                         <Link to={`/tickets/${ticket.id}`} className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                            Lihat Obrolan
+                                            {t('admin.tickets.view_chat')}
                                         </Link>
                                     </td>
                                 </tr>

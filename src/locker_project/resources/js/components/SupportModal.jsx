@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import PageHeader from './PageHeader';
 
 export default function SupportModal({ isOpen, onClose, currentUser }) {
+    const { t, i18n } = useTranslation();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('list'); // 'list', 'new', 'chat'
@@ -83,7 +86,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
             setNewTicket({ subject: '', category: '', message: '' });
         } catch (error) {
             console.error('Failed to create ticket', error);
-            alert('Gagal mengirim pesan bantuan.');
+            window.alert(t('support.send_fail'));
         } finally {
             setSubmitting(false);
         }
@@ -150,7 +153,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
 
     const handleCloseTicket = async () => {
         if (!selectedTicket || selectedTicket.status === 'closed') return;
-        if (!window.confirm("Apakah Anda yakin masalah ini sudah selesai dan ingin menutup tiket?")) return;
+        if (!window.confirm(t('support.confirm_close'))) return;
         setSubmitting(true);
         try {
             await axios.post(`/api/support/tickets/${selectedTicket.id}/close`);
@@ -166,7 +169,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
 
     const handleDeleteTicket = async (ticketId, e) => {
         e.stopPropagation();
-        if (!window.confirm("Apakah Anda yakin ingin menghapus riwayat tiket ini secara permanen?")) return;
+        if (!window.confirm(t('support.confirm_delete'))) return;
         
         try {
             await axios.delete(`/api/support/tickets/${ticketId}`);
@@ -187,6 +190,11 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
         }, 100);
     };
 
+    const formatDate = (dateString) => {
+        const locale = i18n.language === 'en' ? 'en-US' : 'id-ID';
+        return new Date(dateString).toLocaleDateString(locale, {day: 'numeric', month: 'short', year:'numeric'});
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -194,17 +202,17 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in-up flex flex-col max-h-[85vh]">
                 
                 {/* Header Modal */}
-                <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white relative z-10">
-                    <div className="flex items-center gap-3">
-                        {activeTab === 'chat' && (
-                            <button onClick={() => { setActiveTab('list'); setSelectedTicket(null); }} className="p-2 -ml-2 text-gray-500 hover:bg-gray-100 rounded-full transition focus:outline-none" title="Kembali">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
-                            </button>
-                        )}
+                <div className="relative z-10">
+                    <PageHeader onBack={onClose} maxWidth="max-w-full" zIndex="" />
+                </div>
+                
+                {/* Title and Status Area */}
+                <div className="px-5 py-3 border-b border-gray-100 bg-white">
+                    <div className="flex items-center justify-between">
                         <div>
                             <div className="flex items-center gap-3">
                                 <h2 className="text-xl font-bold text-gray-800">
-                                    {activeTab === 'chat' ? 'Obrolan Bantuan' : 'Customer Service'}
+                                    {activeTab === 'chat' ? t('support.chat_title') : t('support.title')}
                                 </h2>
                                 {activeTab === 'chat' && selectedTicket && (
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
@@ -218,13 +226,15 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                 )}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">
-                                {activeTab === 'chat' ? `Tiket #${selectedTicket?.id} - ${selectedTicket?.handled_by === 'ai' ? 'Dijawab oleh AI' : 'Ditangani Admin'}` : 'Kami siap membantu permasalahan Anda'}
+                                {activeTab === 'chat' ? `${t('support.ticket_tab')} #${selectedTicket?.id} - ${selectedTicket?.handled_by === 'ai' ? t('support.handled_by_ai') : t('support.handled_by_admin')}` : t('support.subtitle')}
                             </p>
                         </div>
+                        {activeTab === 'chat' && (
+                            <button onClick={() => { setActiveTab('list'); setSelectedTicket(null); }} className="text-sm font-semibold text-[#8100D1] hover:text-purple-700">
+                                {t('support.back', 'Kembali')}
+                            </button>
+                        )}
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors bg-gray-100 hover:bg-gray-200 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8100D1]">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
                 </div>
 
                 {/* Tabs (Hidden in chat view) */}
@@ -234,14 +244,14 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                             onClick={() => setActiveTab('list')}
                             className={`pb-3 px-4 font-semibold text-sm transition-colors relative ${activeTab === 'list' ? 'text-[#8100D1]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
-                            Riwayat Tiket
+                            {t('support.ticket_tab')}
                             {activeTab === 'list' && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#8100D1] rounded-t-full"></span>}
                         </button>
                         <button 
                             onClick={() => setActiveTab('new')}
                             className={`pb-3 px-4 font-semibold text-sm transition-colors relative ${activeTab === 'new' ? 'text-[#8100D1]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
-                            Buat Tiket Baru
+                            {t('support.new_ticket_tab')}
                             {activeTab === 'new' && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#8100D1] rounded-t-full"></span>}
                         </button>
                     </div>
@@ -260,9 +270,9 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                     <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                         <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                                     </div>
-                                    <h3 className="font-bold text-gray-700">Belum Ada Riwayat</h3>
-                                    <p className="text-sm text-gray-500 mt-1">Anda belum pernah mengirimkan tiket bantuan.</p>
-                                    <button onClick={() => setActiveTab('new')} className="mt-4 text-[#8100D1] text-sm font-bold hover:underline">Buat Tiket Sekarang</button>
+                                    <h3 className="font-bold text-gray-700">{t('support.no_history')}</h3>
+                                    <p className="text-sm text-gray-500 mt-1">{t('support.no_history_desc')}</p>
+                                    <button onClick={() => setActiveTab('new')} className="mt-4 text-[#8100D1] text-sm font-bold hover:underline">{t('support.create_now')}</button>
                                 </div>
                             ) : (
                                 tickets.map(ticket => (
@@ -286,7 +296,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                             <button 
                                                 onClick={(e) => handleDeleteTicket(ticket.id, e)}
                                                 className="p-1.5 -mr-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors focus:outline-none"
-                                                title="Hapus Tiket"
+                                                title={t('support.delete_ticket')}
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
@@ -302,7 +312,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                         </div>
                                         <p className="text-sm text-gray-600 mb-3 line-clamp-2">{ticket.message}</p>
                                         <div className="text-xs text-gray-400 border-t border-gray-50 pt-2 flex items-center justify-between">
-                                            <span>Dikirim: {new Date(ticket.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year:'numeric'})}</span>
+                                            <span>{t('support.sent')} {formatDate(ticket.created_at)}</span>
                                             <span>ID: #{ticket.id}</span>
                                         </div>
                                     </div>
@@ -314,34 +324,34 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                     {activeTab === 'new' && (
                         <form onSubmit={handleSubmit} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                             <div className="mb-4">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Subjek</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">{t('support.subject')}</label>
                                 <input 
                                     type="text" 
                                     value={newTicket.subject}
                                     onChange={(e) => setNewTicket({...newTicket, subject: e.target.value})}
-                                    placeholder="Contoh: Gagal mengunggah CV" 
+                                    placeholder={t('support.subject_placeholder')} 
                                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 outline-none focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all text-sm"
                                     required
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Kategori Masalah</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">{t('support.category_label')}</label>
                                 <select 
                                     value={newTicket.category}
                                     onChange={(e) => setNewTicket({...newTicket, category: e.target.value})}
                                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 outline-none focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all text-sm bg-white"
                                     required
                                 >
-                                    <option value="" disabled>Pilih Kategori...</option>
-                                    <option value="Akun & Login">Akun & Login</option>
-                                    <option value="Profil & Pengaturan">Profil & Pengaturan</option>
-                                    <option value="Pencarian & Lamaran Kerja">Pencarian & Lamaran Kerja</option>
-                                    <option value="Sistem Pesan (Chat)">Sistem Pesan (Chat)</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                    <option value="" disabled>{t('support.category_placeholder')}</option>
+                                    <option value="Akun & Login">{t('support.cat_account')}</option>
+                                    <option value="Profil & Pengaturan">{t('support.cat_profile')}</option>
+                                    <option value="Pencarian & Lamaran Kerja">{t('support.cat_jobs')}</option>
+                                    <option value="Sistem Pesan (Chat)">{t('support.cat_chat')}</option>
+                                    <option value="Lainnya">{t('support.cat_other')}</option>
                                 </select>
                             </div>
                             <div className="mb-6">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Pesan / Detail Masalah</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">{t('support.message_label')}</label>
                                 <textarea 
                                     value={newTicket.message}
                                     onChange={(e) => setNewTicket({...newTicket, message: e.target.value})}
@@ -353,7 +363,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                             }
                                         }
                                     }}
-                                    placeholder="Ceritakan detail masalah yang Anda alami..." 
+                                    placeholder={t('support.message_placeholder')} 
                                     rows="4"
                                     className="w-full border border-gray-200 rounded-lg px-4 py-2.5 outline-none focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all text-sm resize-none"
                                     required
@@ -361,7 +371,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                             </div>
                             <div className="flex justify-end gap-3">
                                 <button type="button" onClick={() => setActiveTab('list')} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                                    Batal
+                                    {t('support.cancel')}
                                 </button>
                                 <button 
                                     type="submit" 
@@ -371,9 +381,9 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                     {submitting ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                            Mengirim...
+                                            {t('support.sending')}
                                         </>
-                                    ) : 'Kirim Tiket'}
+                                    ) : t('support.submit_ticket')}
                                 </button>
                             </div>
                         </form>
@@ -392,7 +402,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                 ) : (
                                     <>
                                         <div className="bg-blue-50 text-blue-800 text-xs p-3 rounded-xl border border-blue-100 text-center mx-10 mb-4 shadow-sm">
-                                            Tiket dibuat. Anda sedang dilayani oleh <strong>{selectedTicket.handled_by === 'ai' ? 'AI Assistant' : 'Admin Support'}</strong>.
+                                            {t('support.ticket_created')} <strong>{selectedTicket.handled_by === 'ai' ? 'AI Assistant' : 'Admin Support'}</strong>.
                                         </div>
                                         {chatMessages.map((msg, index) => {
                                             const isUser = msg.sender === 'user';
@@ -417,7 +427,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                                         )}
                                                         <div className="whitespace-pre-wrap leading-relaxed">{msg.message}</div>
                                                         <div className={`text-[10px] mt-1.5 text-right ${isUser ? 'text-purple-200' : 'text-gray-400'}`}>
-                                                            {new Date(msg.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}
+                                                            {new Date(msg.created_at).toLocaleTimeString(i18n.language === 'en' ? 'en-US' : 'id-ID', {hour: '2-digit', minute:'2-digit'})}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -452,7 +462,7 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                                     }
                                                 }
                                             }}
-                                            placeholder="Ketik balasan Anda..." 
+                                            placeholder={t('support.type_reply')} 
                                             rows="1"
                                             className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#8100D1] focus:ring-1 focus:ring-[#8100D1] transition-all resize-none overflow-hidden"
                                             disabled={sendingMsg}
@@ -479,12 +489,12 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                                 className="text-xs font-semibold text-[#8100D1] hover:underline flex items-center gap-1.5"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                                Minta Bantuan Admin
+                                                {t('support.request_admin')}
                                             </button>
                                         ) : (
                                             <span className="text-xs text-gray-500 italic flex items-center gap-1.5">
                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                Sedang ditangani Admin
+                                                {t('support.being_handled')}
                                             </span>
                                         )}
                                         
@@ -494,14 +504,14 @@ export default function SupportModal({ isOpen, onClose, currentUser }) {
                                             className="text-xs font-semibold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-100 flex items-center gap-1.5 ml-auto"
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
-                                            Selesaikan & Tutup Tiket
+                                            {t('support.close_ticket')}
                                         </button>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="bg-white p-4 border-t border-gray-100 text-center">
                                     <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 inline-block">
-                                        Tiket ini telah {selectedTicket.status === 'resolved' ? 'diselesaikan' : 'ditutup'}. Anda tidak dapat membalas pesan lagi.
+                                        {t('support.ticket_closed', { status: selectedTicket.status === 'resolved' ? t('support.status_resolved') : t('support.status_closed') })}
                                     </p>
                                 </div>
                             )}

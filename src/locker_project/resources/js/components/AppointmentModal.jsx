@@ -35,7 +35,7 @@ const AppointmentModal = ({ isOpen, onClose, activeRoom, onAppointmentSent }) =>
             onClose();
         } catch (error) {
             console.error("Gagal mengirim jadwal", error);
-            alert("Gagal mengirim jadwal.");
+            window.alert("Gagal mengirim jadwal.");
         } finally {
             setSubmitting(false);
         }

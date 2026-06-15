@@ -49,9 +49,9 @@ class PostRepliedNotification extends Notification implements ShouldBroadcastNow
     {
         return [
             'type' => 'post_reply',
-            'title' => 'Balasan Postingan',
+            'title' => 'Post Reply',
             'post_id' => $this->post->id,
-            'message' => "{$this->replierName} membalas postingan Anda.",
+            'message' => "{$this->replierName} replied to your post.",
             'action_url' => "/community/post/{$this->post->id}"
         ];
     }
