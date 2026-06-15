@@ -227,7 +227,7 @@
       "tabs": {
         "umum": "General",
         "moderasi": "Moderation",
-        "keamanan": "Privacy & Security",
+        "keamanan": "Security",
         "notifikasi": "Notifications",
         "lokalisasi": "Localization",
         "visibilitas": "Visibility",
@@ -331,7 +331,7 @@
     "tabs": {
       "notifikasi": "Notifications",
       "visibilitas": "Visibility",
-      "keamanan": "Privacy & Security",
+      "keamanan": "Security",
       "tampilan": "Language & Appearance"
     },
     "visibility": {

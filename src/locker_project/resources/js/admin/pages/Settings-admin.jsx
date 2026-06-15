@@ -13,7 +13,7 @@ export default function SettingsAdmin() {
         auto_approve_jobs: '0',
         auto_approve_companies: '0',
         job_expiry_days: '30',
-        banned_keywords: 'judi,slot,penipuan',
+        banned_keywords: '',
         community_report_limit: '5',
         session_timeout: 120,
         force_2fa: false,
@@ -294,7 +294,7 @@ export default function SettingsAdmin() {
                                     <p className="text-xs text-gray-500 mt-1">{t('admin.settings.keamanan.banned_keywords_desc')}</p>
                                 </div>
                                 <div className="md:col-span-2">
-                                    <textarea name="banned_keywords" value={settings.banned_keywords} onChange={handleChange} rows="3" className="w-full max-w-md px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#8100D1] focus:bg-white outline-none transition-all text-sm" placeholder="judi, slot, tipu"></textarea>
+                                    <textarea name="banned_keywords" value={settings.banned_keywords} onChange={handleChange} rows="3" className="w-full max-w-md px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#8100D1] focus:bg-white outline-none resize-none transition-all text-sm" placeholder="judi, slot, tipu"></textarea>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-gray-100 pb-6">
