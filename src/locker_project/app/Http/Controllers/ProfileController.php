@@ -165,7 +165,7 @@ class ProfileController extends Controller
                         $column => $url,
                         'updated_at' => now(),
                         // Pastikan UUID terbuat jika ini Insert baru
-                        'id' => DB::raw('IFNULL(id, "' . (string) Str::uuid() . '")')
+                        'id' => DB::raw("COALESCE(id, '" . (string) Str::uuid() . "')")
                     ]
                 );
 

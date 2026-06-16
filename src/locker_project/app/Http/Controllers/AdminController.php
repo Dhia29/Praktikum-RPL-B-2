@@ -380,7 +380,7 @@ class AdminController extends Controller
         // Pertumbuhan Pengguna (30 Hari Terakhir)
         $startDate = \Carbon\Carbon::now()->subDays(30);
         $dailyRegistrationsRaw = DB::table('users')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->select(DB::raw('created_at::date as date'), DB::raw('count(*) as total'))
             ->where('created_at', '>=', $startDate)
             ->where('role', '!=', 'ADMIN')
             ->groupBy('date')

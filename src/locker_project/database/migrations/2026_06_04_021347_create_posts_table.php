@@ -14,11 +14,15 @@ return new class extends Migration
             // Jika null, berarti postingan masuk ke Feed Global. Jika terisi, masuk ke komunitas tertentu
             $table->foreignUuid('community_id')->nullable()->constrained('communities')->cascadeOnDelete();
             // Jika terisi, berarti postingan ini adalah hasil Repost dari postingan lain
-            $table->foreignUuid('repost_of')->nullable()->constrained('posts')->cascadeOnDelete();
+            $table->uuid('repost_of')->nullable();
             $table->text('konten')->nullable();
             $table->string('media_url')->nullable();
             $table->string('media_type', 20)->nullable(); // 'image' atau 'video'
             $table->timestamp('created_at')->useCurrent();
+        });
+
+        Schema::table('posts', function (Blueprint $table) {
+            $table->foreign('repost_of')->references('id')->on('posts')->cascadeOnDelete();
         });
     }
 

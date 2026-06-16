@@ -20,7 +20,7 @@ class MessageController extends Controller
             $contactIds = DB::table('messages')
                 ->where('from_user_id', $authId)
                 ->orWhere('to_user_id', $authId)
-                ->select(DB::raw("CASE WHEN from_user_id = '$authId' THEN to_user_id ELSE from_user_id END as contact_id"))
+                ->select(DB::raw("CASE WHEN from_user_id = '" . $authId . "' THEN to_user_id ELSE from_user_id END as contact_id"))
                 ->distinct()
                 ->pluck('contact_id');
 
@@ -301,8 +301,8 @@ class MessageController extends Controller
                 ->where('users.id', '!=', $authId) // Jangan munculkan diri sendiri
                 ->where('users.role', 'seeker')
                 ->where(function($query) use ($keyword) {
-                    $query->where('job_seeker_profiles.nama_lengkap', 'like', "%{$keyword}%")
-                          ->orWhere('users.email', 'like', "%{$keyword}%")
+                    $query->where('job_seeker_profiles.nama_lengkap', 'ilike', "%{$keyword}%")
+                          ->orWhere('users.email', 'ilike', "%{$keyword}%")
                           ->orWhere('users.id', $keyword);
                 })
                 ->select(
@@ -321,8 +321,8 @@ class MessageController extends Controller
                 ->where('users.id', '!=', $authId)
                 ->where('users.role', 'company')
                 ->where(function($query) use ($keyword) {
-                    $query->where('company_profiles.nama_perusahaan', 'like', "%{$keyword}%")
-                          ->orWhere('users.email', 'like', "%{$keyword}%")
+                    $query->where('company_profiles.nama_perusahaan', 'ilike', "%{$keyword}%")
+                          ->orWhere('users.email', 'ilike', "%{$keyword}%")
                           ->orWhere('users.id', $keyword);
                 })
                 ->select(

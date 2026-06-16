@@ -13,7 +13,6 @@ export default function SettingsAdmin() {
         auto_approve_jobs: '0',
         auto_approve_companies: '0',
         job_expiry_days: '30',
-        banned_keywords: '',
         community_report_limit: '5',
         session_timeout: 120,
         force_2fa: false,

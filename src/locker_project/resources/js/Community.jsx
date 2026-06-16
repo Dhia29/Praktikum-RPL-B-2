@@ -3,6 +3,7 @@ import axios from 'axios';
 import ComposeModal from './components/ComposeModal';
 import CommentModal from './components/CommentModal';
 import ReportModal from './components/ReportModal';
+import ConfirmModal from './components/ConfirmModal';
 import { useTranslation } from 'react-i18next';
 
 export default function Community() {
@@ -34,6 +35,10 @@ export default function Community() {
     // State untuk Modal Report
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [selectedReportPostId, setSelectedReportPostId] = useState(null);
+
+    // State untuk Modal Confirm Delete
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [postToDelete, setPostToDelete] = useState(null);
 
     const toggleLike = async (e, postId) => {
         e.stopPropagation();
@@ -163,13 +168,19 @@ export default function Community() {
         }
     };
 
-    const handleDeletePost = async (e, postId) => {
+    const handleDeletePost = (e, postId) => {
         e.stopPropagation();
-        if (!window.confirm(t('community.delete_confirm'))) return;
+        setOpenDropdownId(null);
+        setPostToDelete(postId);
+        setIsDeleteConfirmOpen(true);
+    };
 
+    const confirmDeletePost = async () => {
+        if (!postToDelete) return;
         try {
-            await axios.delete(`/api/community/posts/${postId}`);
-            setPosts(posts.filter(p => p.id !== postId));
+            await axios.delete(`/api/community/posts/${postToDelete}`);
+            setPosts(posts.filter(p => p.id !== postToDelete));
+            setPostToDelete(null);
         } catch (err) {
             window.alert(t('community.delete_fail'));
         }
@@ -591,6 +602,16 @@ export default function Community() {
                     onSuccess={() => {
                         // Report success
                     }}
+                />
+
+                {/* Confirm Delete Modal */}
+                <ConfirmModal
+                    isOpen={isDeleteConfirmOpen}
+                    onClose={() => { setIsDeleteConfirmOpen(false); setPostToDelete(null); }}
+                    onConfirm={confirmDeletePost}
+                    title={t('community.delete_confirm')}
+                    message="Apakah Anda yakin ingin menghapus postingan ini? Tindakan ini tidak dapat dibatalkan."
+                    confirmText="Hapus"
                 />
             </div>
             );
